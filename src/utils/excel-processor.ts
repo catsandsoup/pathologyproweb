@@ -21,57 +21,58 @@ export const processExcelData = (fileData: Uint8Array) => {
       }
     }
 
-    // Sort dates in ascending order to ensure latest reading is at the end
+    // Sort dates in ascending order
     dates.sort((a, b) => a.getTime() - b.getTime());
 
     const params = new Set<string>();
-    const testData: { [key: string]: { date: Date; value: number | undefined }[] } = {};
+    const testData: { [key: string]: { date: Date; value: number }[] } = {};
     const units: { [key: string]: string } = {};
 
+    // First pass: collect all parameters and their values
     for (let row = 2; row <= 50; row++) {
       const paramCell = sheet[`A${row}`];
       const unitCell = sheet[`B${row}`];
+      
       if (paramCell && paramCell.v && paramCell.v !== 'Unit') {
         const param = paramCell.v as string;
         params.add(param);
         units[param] = unitCell?.v || '';
         
-        const paramData = dates.map((date, index) => {
+        testData[param] = [];
+        
+        dates.forEach((date, index) => {
           const colLetter = String.fromCharCode('C'.charCodeAt(0) + index);
           const cellValue = sheet[`${colLetter}${row}`]?.v;
-          return { 
-            date, 
-            value: typeof cellValue === 'number' ? cellValue : undefined 
-          };
-        }).filter(data => data.value !== undefined);
-        
-        testData[param] = paramData;
+          if (typeof cellValue === 'number') {
+            testData[param].push({ date, value: cellValue });
+          }
+        });
       }
     }
 
-    const chartData: DataPoint[] = dates.map((date, index) => {
+    // Create chartData using the actual data points we have
+    const chartData: DataPoint[] = dates.map(date => {
       const dataPoint: DataPoint = { date };
       params.forEach(param => {
-        const paramData = testData[param][index];
-        if (paramData) {
-          dataPoint[param] = paramData.value;
+        const paramDataPoint = testData[param].find(d => d.date.getTime() === date.getTime());
+        if (paramDataPoint) {
+          dataPoint[param] = paramDataPoint.value;
         }
       });
       return dataPoint;
     });
 
+    // Calculate metrics using the actual data we have
     const calculatedMetrics: Metric[] = Array.from(params).map(param => {
-      const paramValues = testData[param];
-      // Get the latest non-undefined value
-      const latestValue = paramValues.length > 0 ? paramValues[paramValues.length - 1].value : undefined;
-      // Get the second-to-last non-undefined value for trend calculation
-      const previousValue = paramValues.length > 1 ? paramValues[paramValues.length - 2].value : undefined;
+      const paramData = testData[param];
+      const latestValue = paramData.length > 0 ? paramData[paramData.length - 1].value : undefined;
+      const previousValue = paramData.length > 1 ? paramData[paramData.length - 2].value : undefined;
       
       const trend = latestValue !== undefined && previousValue !== undefined 
         ? latestValue - previousValue 
         : 0;
       
-      console.log(`Parameter: ${param}, Latest Value: ${latestValue}, Previous Value: ${previousValue}, Trend: ${trend}`);
+      console.log(`Parameter: ${param}, Latest: ${latestValue}, Previous: ${previousValue}, Trend: ${trend}`);
       
       return {
         name: param,
@@ -81,7 +82,13 @@ export const processExcelData = (fileData: Uint8Array) => {
       };
     });
 
-    console.log('Processed Data:', { chartData, calculatedMetrics, dates });
+    console.log('Processed Data:', { 
+      chartData, 
+      calculatedMetrics, 
+      dates,
+      testData 
+    });
+
     return {
       chartData,
       calculatedMetrics,
