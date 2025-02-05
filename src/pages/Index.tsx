@@ -132,7 +132,10 @@ const BloodTestDashboard: React.FC = () => {
       for (let col = 'C'.charCodeAt(0); col <= 'G'.charCodeAt(0); col++) {
         const cellRef = `${String.fromCharCode(col)}1`;
         if (sheet[cellRef]) {
-          dates.push(new Date(sheet[cellRef].v));
+          const dateValue = new Date(sheet[cellRef].v);
+          if (!isNaN(dateValue.getTime())) {
+            dates.push(dateValue);
+          }
         }
       }
 
@@ -140,7 +143,6 @@ const BloodTestDashboard: React.FC = () => {
       const testData: { [key: string]: { date: Date; value: number | undefined }[] } = {};
       const units: { [key: string]: string } = {};
 
-      // Scan for parameters and their values
       for (let row = 2; row <= 50; row++) {
         const paramCell = sheet[`A${row}`];
         const unitCell = sheet[`B${row}`];
@@ -164,7 +166,6 @@ const BloodTestDashboard: React.FC = () => {
         return dataPoint;
       });
 
-      // Calculate metrics for each parameter
       const calculatedMetrics: Metric[] = Array.from(params).map(param => {
         const values = testData[param].map(d => d.value).filter((v): v is number => v !== undefined);
         const latestValue = values[values.length - 1];
@@ -190,12 +191,11 @@ const BloodTestDashboard: React.FC = () => {
     }
   };
 
-  const formatDate = (date: Date | undefined): string => {
-    if (!date || !(date instanceof Date)) return '';
+  const formatDate = (date: Date): string => {
+    if (!date || !(date instanceof Date) || isNaN(date.getTime())) return 'Invalid Date';
     return date.toLocaleDateString('en-US', { 
-      month: 'long', 
-      day: 'numeric', 
-      year: 'numeric' 
+      month: 'short',
+      year: 'numeric'
     });
   };
 
@@ -205,7 +205,6 @@ const BloodTestDashboard: React.FC = () => {
         <FileUpload onFileUpload={processExcelData} />
       ) : (
         <>
-          {/* Header with Dropdown */}
           <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
             <div className="flex items-center space-x-3">
               <Activity className="w-8 h-8 text-red-500" />
@@ -225,10 +224,8 @@ const BloodTestDashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Trend Summary Card */}
           <div className="bg-white rounded-xl p-6 border border-gray-200">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Left: Summary Stats */}
               <div className="space-y-4">
                 <h2 className="text-lg font-medium">{selectedParameter}</h2>
                 <div className="space-y-3">
@@ -257,17 +254,13 @@ const BloodTestDashboard: React.FC = () => {
                 </div>
               </div>
 
-              {/* Right: Trend Chart */}
               <div className="md:col-span-2 h-48">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={data}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                     <XAxis
                       dataKey="date"
-                      tickFormatter={(date) => {
-                        if (!(date instanceof Date)) return '';
-                        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                      }}
+                      tickFormatter={formatDate}
                       stroke="#9CA3AF"
                     />
                     <YAxis stroke="#9CA3AF" />
@@ -278,12 +271,11 @@ const BloodTestDashboard: React.FC = () => {
                         borderRadius: '8px',
                         boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                       }}
-                      labelFormatter={(date) => {
-                        if (!(date instanceof Date)) return '';
+                      labelFormatter={(date: Date) => {
+                        if (!date || !(date instanceof Date)) return '';
                         return date.toLocaleDateString('en-US', { 
-                          month: 'long', 
-                          day: 'numeric', 
-                          year: 'numeric' 
+                          month: 'long',
+                          year: 'numeric'
                         });
                       }}
                     />
@@ -301,7 +293,6 @@ const BloodTestDashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Metrics Grid */}
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
             {metrics.map((metric) => (
               <HealthMetricCard
