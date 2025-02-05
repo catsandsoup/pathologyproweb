@@ -75,40 +75,48 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        const result = e.target?.result;
-        if (result instanceof ArrayBuffer) {
-          onFileUpload(new Uint8Array(result));
-        }
+        const data = new Uint8Array(e.target?.result as ArrayBuffer);
+        onFileUpload(data);
       };
       reader.readAsArrayBuffer(file);
     }
   };
 
   return (
-    <div
-      onDragOver={handleDragOver}
-      onDrop={handleDrop}
-      className="w-full p-8 border-2 border-dashed border-gray-300 rounded-xl text-center transition-colors duration-200 hover:border-gray-400"
-    >
-      <input
-        type="file"
-        accept=".xlsx,.xls,.csv"
-        onChange={handleFileSelect}
-        className="hidden"
-        id="file-upload"
-      />
-      <label htmlFor="file-upload" className="cursor-pointer">
-        <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-        <p className="text-lg text-gray-600 font-medium">
-          Drop your blood test file here
-        </p>
-        <p className="text-sm text-gray-500 mt-2">
-          or click to upload
-        </p>
-        <p className="text-xs text-gray-400 mt-4">
-          Supports Excel (.xlsx, .xls) and CSV files
-        </p>
-      </label>
+    <div className="flex flex-col items-center justify-center w-full max-w-2xl mx-auto">
+      <div
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+        className="w-full p-12 bg-[#F2F2F7] border-2 border-dashed border-[#C7C7CC] rounded-2xl 
+                   text-center transition-all duration-200 hover:border-[#FF2D55] hover:bg-[#F9F9FC]
+                   focus-within:border-[#FF2D55] focus-within:bg-[#F9F9FC]"
+      >
+        <input
+          type="file"
+          accept=".xlsx,.xls,.csv"
+          onChange={handleFileSelect}
+          className="hidden"
+          id="file-upload"
+        />
+        <label htmlFor="file-upload" className="cursor-pointer space-y-4">
+          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[#FF2D55] bg-opacity-10 
+                        flex items-center justify-center">
+            <Upload className="w-8 h-8 text-[#FF2D55]" />
+          </div>
+          <div className="space-y-2">
+            <p className="text-xl font-semibold text-[#1C1C1E]
+                         tracking-tight">
+              Drop your blood test file here
+            </p>
+            <p className="text-base text-[#8E8E93]">
+              or click to upload
+            </p>
+            <p className="text-sm text-[#8E8E93] mt-6">
+              Supports Excel (.xlsx, .xls) and CSV files
+            </p>
+          </div>
+        </label>
+      </div>
     </div>
   );
 };
@@ -313,3 +321,4 @@ const BloodTestDashboard: React.FC = () => {
 };
 
 export default BloodTestDashboard;
+
