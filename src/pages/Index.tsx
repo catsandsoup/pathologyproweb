@@ -35,6 +35,16 @@ const BloodTestDashboard: React.FC = () => {
     });
   };
 
+  const getLatestReading = (parameter: string): number | null => {
+    for (let i = data.length - 1; i >= 0; i--) {
+      const value = data[i][parameter];
+      if (value !== undefined && value !== null) {
+        return value;
+      }
+    }
+    return null;
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       {!hasData ? (
@@ -68,7 +78,7 @@ const BloodTestDashboard: React.FC = () => {
                   <div>
                     <span className="text-gray-500 text-sm">Latest Reading</span>
                     <div className="text-2xl font-semibold">
-                      {data[data.length - 1]?.[selectedParameter] || 'N/A'}
+                      {getLatestReading(selectedParameter)?.toFixed(1) || 'N/A'}
                       <span className="text-sm text-gray-500 ml-1">
                         {metrics.find(m => m.name === selectedParameter)?.unit}
                       </span>
@@ -134,7 +144,7 @@ const BloodTestDashboard: React.FC = () => {
               <HealthMetricCard
                 key={metric.name}
                 title={metric.name}
-                value={metric.value}
+                value={getLatestReading(metric.name)?.toFixed(1) || 'N/A'}
                 unit={metric.unit}
                 trend={metric.trend}
                 isSelected={selectedParameter === metric.name}
@@ -149,3 +159,4 @@ const BloodTestDashboard: React.FC = () => {
 };
 
 export default BloodTestDashboard;
+
