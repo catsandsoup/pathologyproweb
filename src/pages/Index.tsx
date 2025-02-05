@@ -176,8 +176,11 @@ const BloodTestDashboard: React.FC = () => {
           units[param] = unitCell?.v || '';
           testData[param] = dates.map((date, index) => {
             const colLetter = String.fromCharCode('C'.charCodeAt(0) + index);
-            const value = sheet[`${colLetter}${row}`]?.v;
-            return { date, value: typeof value === 'number' ? value : undefined };
+            const cellValue = sheet[`${colLetter}${row}`]?.v;
+            return { 
+              date, 
+              value: typeof cellValue === 'number' ? cellValue : undefined 
+            };
           });
         }
       }
@@ -185,16 +188,24 @@ const BloodTestDashboard: React.FC = () => {
       const chartData: DataPoint[] = dates.map((date, index) => {
         const dataPoint: DataPoint = { date };
         params.forEach(param => {
-          dataPoint[param] = testData[param][index]?.value;
+          const paramData = testData[param][index];
+          if (paramData) {
+            dataPoint[param] = paramData.value;
+          }
         });
         return dataPoint;
       });
 
       const calculatedMetrics: Metric[] = Array.from(params).map(param => {
-        const values = testData[param].map(d => d.value).filter((v): v is number => v !== undefined);
+        const values = testData[param]
+          .map(d => d.value)
+          .filter((v): v is number => typeof v === 'number');
+        
         const latestValue = values[values.length - 1];
         const previousValue = values[values.length - 2];
-        const trend = latestValue !== undefined && previousValue !== undefined ? latestValue - previousValue : 0;
+        const trend = latestValue !== undefined && previousValue !== undefined 
+          ? latestValue - previousValue 
+          : 0;
         
         return {
           name: param,
@@ -209,6 +220,8 @@ const BloodTestDashboard: React.FC = () => {
       setSelectedParameter(Array.from(params)[0]);
       setMetrics(calculatedMetrics);
       setHasData(true);
+
+      console.log('Processed Data:', { chartData, calculatedMetrics });
     } catch (error) {
       console.error('Error processing file:', error);
       alert('Error processing file. Please make sure it matches the expected format.');
@@ -337,4 +350,3 @@ const BloodTestDashboard: React.FC = () => {
 };
 
 export default BloodTestDashboard;
-
