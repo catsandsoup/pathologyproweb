@@ -52,13 +52,13 @@ const HealthMetricCard: React.FC<HealthMetricCardProps> = ({ title, value, unit,
   </div>
 );
 
-const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
-  const handleDragOver = (e: React.DragEvent) => {
+const FileUpload = ({ onFileUpload }) => {
+  const handleDragOver = (e) => {
     e.preventDefault();
     e.stopPropagation();
   };
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();
     
@@ -66,12 +66,12 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
     processFile(file);
   };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
     if (file) processFile(file);
   };
 
-  const processFile = (file: File) => {
+  const processFile = (file) => {
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -83,13 +83,23 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center w-full max-w-2xl mx-auto">
+    <div className="flex flex-col items-center justify-center w-full max-w-2xl mx-auto pt-12">
+      <div className="text-center mb-10 space-y-2">
+        <h1 className="text-3xl font-semibold text-[#1C1C1E] tracking-tight">
+          Import Blood Test Results
+        </h1>
+        <p className="text-[#8E8E93] text-lg">
+          Upload your lab results to track your health metrics over time
+        </p>
+      </div>
+      
       <div
         onDragOver={handleDragOver}
         onDrop={handleDrop}
         className="w-full p-12 bg-[#F2F2F7] border-2 border-dashed border-[#C7C7CC] rounded-2xl 
                    text-center transition-all duration-200 hover:border-[#FF2D55] hover:bg-[#F9F9FC]
-                   focus-within:border-[#FF2D55] focus-within:bg-[#F9F9FC]"
+                   focus-within:border-[#FF2D55] focus-within:bg-[#F9F9FC]
+                   shadow-sm"
       >
         <input
           type="file"
@@ -98,22 +108,24 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
           className="hidden"
           id="file-upload"
         />
-        <label htmlFor="file-upload" className="cursor-pointer space-y-4">
-          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[#FF2D55] bg-opacity-10 
-                        flex items-center justify-center">
-            <Upload className="w-8 h-8 text-[#FF2D55]" />
+        <label htmlFor="file-upload" className="cursor-pointer space-y-6">
+          <div className="w-20 h-20 mx-auto mb-8 rounded-full bg-[#FF2D55] bg-opacity-10 
+                        flex items-center justify-center
+                        transition-all duration-200 hover:bg-opacity-20">
+            <Upload className="w-10 h-10 text-[#FF2D55]" />
           </div>
-          <div className="space-y-2">
-            <p className="text-xl font-semibold text-[#1C1C1E]
-                         tracking-tight">
+          <div className="space-y-3">
+            <p className="text-xl font-semibold text-[#1C1C1E] tracking-tight">
               Drop your blood test file here
             </p>
             <p className="text-base text-[#8E8E93]">
               or click to upload
             </p>
-            <p className="text-sm text-[#8E8E93] mt-6">
-              Supports Excel (.xlsx, .xls) and CSV files
-            </p>
+            <div className="pt-8 flex items-center justify-center space-x-2">
+              <p className="text-sm text-[#8E8E93]">
+                Supports Excel (.xlsx, .xls) and CSV files
+              </p>
+            </div>
           </div>
         </label>
       </div>
@@ -321,4 +333,3 @@ const BloodTestDashboard: React.FC = () => {
 };
 
 export default BloodTestDashboard;
-
