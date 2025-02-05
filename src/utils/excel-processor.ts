@@ -21,6 +21,9 @@ export const processExcelData = (fileData: Uint8Array) => {
       }
     }
 
+    // Sort dates in ascending order to ensure latest reading is at the end
+    dates.sort((a, b) => a.getTime() - b.getTime());
+
     const params = new Set<string>();
     const testData: { [key: string]: { date: Date; value: number | undefined }[] } = {};
     const units: { [key: string]: string } = {};
@@ -32,14 +35,17 @@ export const processExcelData = (fileData: Uint8Array) => {
         const param = paramCell.v as string;
         params.add(param);
         units[param] = unitCell?.v || '';
-        testData[param] = dates.map((date, index) => {
+        
+        const paramData = dates.map((date, index) => {
           const colLetter = String.fromCharCode('C'.charCodeAt(0) + index);
           const cellValue = sheet[`${colLetter}${row}`]?.v;
           return { 
             date, 
             value: typeof cellValue === 'number' ? cellValue : undefined 
           };
-        });
+        }).filter(data => data.value !== undefined);
+        
+        testData[param] = paramData;
       }
     }
 
@@ -55,15 +61,17 @@ export const processExcelData = (fileData: Uint8Array) => {
     });
 
     const calculatedMetrics: Metric[] = Array.from(params).map(param => {
-      const values = testData[param]
-        .map(d => d.value)
-        .filter((v): v is number => typeof v === 'number');
+      const paramValues = testData[param];
+      // Get the latest non-undefined value
+      const latestValue = paramValues.length > 0 ? paramValues[paramValues.length - 1].value : undefined;
+      // Get the second-to-last non-undefined value for trend calculation
+      const previousValue = paramValues.length > 1 ? paramValues[paramValues.length - 2].value : undefined;
       
-      const latestValue = values[values.length - 1];
-      const previousValue = values[values.length - 2];
       const trend = latestValue !== undefined && previousValue !== undefined 
         ? latestValue - previousValue 
         : 0;
+      
+      console.log(`Parameter: ${param}, Latest Value: ${latestValue}, Previous Value: ${previousValue}, Trend: ${trend}`);
       
       return {
         name: param,
@@ -73,7 +81,7 @@ export const processExcelData = (fileData: Uint8Array) => {
       };
     });
 
-    console.log('Processed Data:', { chartData, calculatedMetrics });
+    console.log('Processed Data:', { chartData, calculatedMetrics, dates });
     return {
       chartData,
       calculatedMetrics,
