@@ -10,11 +10,26 @@ const Index = () => {
 
   const handleDataLoaded = (loadedData: any[]) => {
     if (loadedData.length > 0) {
-      const params = Object.keys(loadedData[0]).filter(key => key !== 'date');
+      // Filter out the date column and any empty columns
+      const params = Object.keys(loadedData[0]).filter(key => 
+        key !== 'date' && loadedData[0][key] !== undefined
+      );
       setParameters(params);
       setSelectedParameter(params[0]);
       setData(loadedData);
     }
+  };
+
+  const calculateTrend = (param: string) => {
+    if (data.length < 2) return 0;
+    const currentValue = Number(data[data.length - 1][param]);
+    const previousValue = Number(data[data.length - 2][param]);
+    
+    if (isNaN(currentValue) || isNaN(previousValue) || previousValue === 0) {
+      return 0;
+    }
+    
+    return ((currentValue - previousValue) / previousValue) * 100;
   };
 
   return (
@@ -34,15 +49,14 @@ const Index = () => {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {parameters.map((param) => {
-              const currentValue = data[data.length - 1][param];
-              const previousValue = data[data.length - 2]?.[param] ?? currentValue;
-              const trend = ((currentValue - previousValue) / previousValue) * 100;
+              const latestValue = data[data.length - 1]?.[param];
+              const trend = calculateTrend(param);
               
               return (
                 <MetricCard
                   key={param}
                   title={param}
-                  value={currentValue}
+                  value={Number(latestValue)}
                   unit="units"
                   trend={trend}
                 />
