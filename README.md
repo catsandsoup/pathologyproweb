@@ -1,69 +1,82 @@
-# Welcome to your Lovable project
+# Blood Test Results Tracker
+
+## Overview
+
+A modern web application for tracking and visualizing blood test results over time. Built with React, TypeScript, and styled with Tailwind CSS to match Apple's Health app design language.
+
+## Features
+
+- **File Upload**: Easily import blood test results from Excel (.xlsx, .xls) or CSV files
+- **Data Privacy**: All processing happens locally in your browser - no files are stored on servers
+- **Interactive Dashboard**: View your health metrics with beautiful charts and trend indicators
+- **Metric Cards**: Quick overview of all your health parameters with trend indicators
+- **Time-Series Analysis**: Track changes in your health metrics over time
+- **Responsive Design**: Works seamlessly on desktop and mobile devices
 
 ## Project info
 
 **URL**: https://lovable.dev/projects/ceb3a2ff-9a35-4e42-b68b-949fbe5db33b
 
-## How can I edit this code?
+## Technologies Used
 
-There are several ways of editing your application.
+- **Vite**: Next Generation Frontend Tooling
+- **React**: UI Library
+- **TypeScript**: Type Safety
+- **Tailwind CSS**: Utility-first CSS framework
+- **shadcn/ui**: High-quality UI components
+- **Recharts**: Composable charting library
+- **XLSX**: Excel file processing
 
-**Use Lovable**
+## Getting Started
+
+### Using Lovable
 
 Simply visit the [Lovable Project](https://lovable.dev/projects/ceb3a2ff-9a35-4e42-b68b-949fbe5db33b) and start prompting.
 
 Changes made via Lovable will be committed automatically to this repo.
 
-**Use your preferred IDE**
+### Local Development
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+Requirements:
+- Node.js & npm - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
+# Clone the repository
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
+# Navigate to project directory
 cd <YOUR_PROJECT_NAME>
 
-# Step 3: Install the necessary dependencies.
+# Install dependencies
 npm i
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Other Ways to Edit
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+**Edit directly in GitHub:**
+1. Navigate to desired file(s)
+2. Click "Edit" (pencil icon)
+3. Make changes and commit
 
-**Use GitHub Codespaces**
+**Use GitHub Codespaces:**
+1. Click "Code" button
+2. Select "Codespaces" tab
+3. Click "New codespace"
+4. Edit and commit changes
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Deployment
 
-## What technologies are used for this project?
+### Quick Deploy
 
-This project is built with .
+Open [Lovable](https://lovable.dev/projects/ceb3a2ff-9a35-4e42-b68b-949fbe5db33b) and click on Share -> Publish.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Custom Domain
 
-## How can I deploy this project?
+While we don't currently support custom domains directly, you can deploy to your own domain using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
 
-Simply open [Lovable](https://lovable.dev/projects/ceb3a2ff-9a35-4e42-b68b-949fbe5db33b) and click on Share -> Publish.
+## Privacy Notice
 
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+This application processes all data locally in your browser. No blood test results or personal health information is stored on our servers. The application only uses the uploaded data to display metrics and charts during your session.
