@@ -12,16 +12,20 @@ interface HealthMetricCardProps {
   isSelected: boolean;
 }
 
+interface FileUploadProps {
+  onFileUpload: (data: Uint8Array) => void;
+}
+
+interface DataPoint {
+  date: Date;
+  [key: string]: any;
+}
+
 interface Metric {
   name: string;
   value: string;
   unit: string;
   trend: number;
-}
-
-interface DataPoint {
-  date: Date;
-  [key: string]: Date | number | undefined;
 }
 
 const HealthMetricCard: React.FC<HealthMetricCardProps> = ({ title, value, unit, trend, onClick, isSelected }) => (
@@ -48,13 +52,26 @@ const HealthMetricCard: React.FC<HealthMetricCardProps> = ({ title, value, unit,
   </div>
 );
 
-interface FileUploadProps {
-  onFileUpload: (data: Uint8Array) => void;
-}
-
 const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const file = e.dataTransfer.files[0];
+    processFile(file);
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) processFile(file);
+  };
+
+  const processFile = (file: File) => {
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -68,28 +85,35 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
   };
 
   return (
-    <div className="w-full p-8 border-2 border-dashed border-gray-300 rounded-xl text-center">
+    <div
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+      className="w-full p-8 border-2 border-dashed border-gray-300 rounded-xl text-center transition-colors duration-200 hover:border-gray-400"
+    >
       <input
         type="file"
         accept=".xlsx,.xls,.csv"
-        onChange={handleChange}
+        onChange={handleFileSelect}
         className="hidden"
         id="file-upload"
       />
       <label htmlFor="file-upload" className="cursor-pointer">
-        <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-        <p className="text-sm text-gray-500">
-          Drop your blood test Excel file here or click to upload
+        <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+        <p className="text-lg text-gray-600 font-medium">
+          Drop your blood test file here
         </p>
-        <p className="text-xs text-gray-400 mt-1">
-          Supports .xlsx, .xls, and .csv files
+        <p className="text-sm text-gray-500 mt-2">
+          or click to upload
+        </p>
+        <p className="text-xs text-gray-400 mt-4">
+          Supports Excel (.xlsx, .xls) and CSV files
         </p>
       </label>
     </div>
   );
 };
 
-const AppleHealthBloodTests: React.FC = () => {
+const BloodTestDashboard: React.FC = () => {
   const [data, setData] = useState<DataPoint[]>([]);
   const [parameters, setParameters] = useState<string[]>([]);
   const [selectedParameter, setSelectedParameter] = useState<string>('');
@@ -166,55 +190,113 @@ const AppleHealthBloodTests: React.FC = () => {
     }
   };
 
+  const formatDate = (date: Date | undefined): string => {
+    if (!date || !(date instanceof Date)) return '';
+    return date.toLocaleDateString('en-US', { 
+      month: 'long', 
+      day: 'numeric', 
+      year: 'numeric' 
+    });
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <Activity className="w-8 h-8 text-red-500" />
-          <h1 className="text-2xl font-semibold">Blood Tests</h1>
-        </div>
-        {hasData && (
-          <select
-            value={selectedParameter}
-            onChange={(e) => setSelectedParameter(e.target.value)}
-            className="p-2 rounded-lg border border-gray-200"
-          >
-            {parameters.map((param) => (
-              <option key={param} value={param}>{param}</option>
-            ))}
-          </select>
-        )}
-      </div>
-
       {!hasData ? (
         <FileUpload onFileUpload={processExcelData} />
       ) : (
         <>
-          {/* Summary Section - Moved to top */}
+          {/* Header with Dropdown */}
+          <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
+            <div className="flex items-center space-x-3">
+              <Activity className="w-8 h-8 text-red-500" />
+              <h1 className="text-2xl font-semibold">Blood Tests</h1>
+            </div>
+            <div className="flex items-center space-x-4">
+              <span className="text-gray-500">Select Parameter:</span>
+              <select
+                value={selectedParameter}
+                onChange={(e) => setSelectedParameter(e.target.value)}
+                className="p-2 rounded-lg border border-gray-200 min-w-[200px] bg-white"
+              >
+                {parameters.map((param) => (
+                  <option key={param} value={param}>{param}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Trend Summary Card */}
           <div className="bg-white rounded-xl p-6 border border-gray-200">
-            <h2 className="text-lg font-medium mb-4">Summary</h2>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-500">Latest Reading</span>
-                <span className="font-medium">
-                  {data[data.length - 1]?.[selectedParameter] || 'N/A'} {
-                    metrics.find(m => m.name === selectedParameter)?.unit
-                  }
-                </span>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Left: Summary Stats */}
+              <div className="space-y-4">
+                <h2 className="text-lg font-medium">{selectedParameter}</h2>
+                <div className="space-y-3">
+                  <div>
+                    <span className="text-gray-500 text-sm">Latest Reading</span>
+                    <div className="text-2xl font-semibold">
+                      {data[data.length - 1]?.[selectedParameter] || 'N/A'}
+                      <span className="text-sm text-gray-500 ml-1">
+                        {metrics.find(m => m.name === selectedParameter)?.unit}
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-gray-500 text-sm">Change</span>
+                    <div className={`text-xl font-semibold ${
+                      metrics.find(m => m.name === selectedParameter)?.trend > 0 
+                        ? 'text-green-500' 
+                        : metrics.find(m => m.name === selectedParameter)?.trend < 0 
+                          ? 'text-red-500' 
+                          : ''
+                    }`}>
+                      {metrics.find(m => m.name === selectedParameter)?.trend > 0 ? '+' : ''}
+                      {metrics.find(m => m.name === selectedParameter)?.trend.toFixed(1) || 'N/A'}
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-500">Change from Previous</span>
-                <span className={`font-medium ${
-                  metrics.find(m => m.name === selectedParameter)?.trend > 0 
-                    ? 'text-green-500' 
-                    : metrics.find(m => m.name === selectedParameter)?.trend < 0 
-                      ? 'text-red-500' 
-                      : ''
-                }`}>
-                  {metrics.find(m => m.name === selectedParameter)?.trend > 0 ? '+' : ''}
-                  {metrics.find(m => m.name === selectedParameter)?.trend?.toFixed(1) || 'N/A'}
-                </span>
+
+              {/* Right: Trend Chart */}
+              <div className="md:col-span-2 h-48">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={data}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                    <XAxis
+                      dataKey="date"
+                      tickFormatter={(date) => {
+                        if (!(date instanceof Date)) return '';
+                        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                      }}
+                      stroke="#9CA3AF"
+                    />
+                    <YAxis stroke="#9CA3AF" />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                      }}
+                      labelFormatter={(date) => {
+                        if (!(date instanceof Date)) return '';
+                        return date.toLocaleDateString('en-US', { 
+                          month: 'long', 
+                          day: 'numeric', 
+                          year: 'numeric' 
+                        });
+                      }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey={selectedParameter}
+                      stroke="#FF2D55"
+                      strokeWidth={2}
+                      dot={{ r: 4, fill: '#FF2D55' }}
+                      activeDot={{ r: 6, fill: '#FF2D55' }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
             </div>
           </div>
@@ -233,55 +315,10 @@ const AppleHealthBloodTests: React.FC = () => {
               />
             ))}
           </div>
-
-          {/* Chart */}
-          <div className="bg-white rounded-xl p-6 border border-gray-200">
-            <h2 className="text-lg font-medium mb-4">{selectedParameter} Trend</h2>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={data}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis
-                    dataKey="date"
-                    tickFormatter={(date) => {
-                      if (!(date instanceof Date)) return '';
-                      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                    }}
-                    stroke="#9CA3AF"
-                  />
-                  <YAxis stroke="#9CA3AF" />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'white',
-                      border: 'none',
-                      borderRadius: '8px',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-                    }}
-                    labelFormatter={(date) => {
-                      if (!(date instanceof Date)) return '';
-                      return date.toLocaleDateString('en-US', { 
-                        month: 'long', 
-                        day: 'numeric', 
-                        year: 'numeric' 
-                      });
-                    }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey={selectedParameter}
-                    stroke="#FF2D55"
-                    strokeWidth={2}
-                    dot={{ r: 4, fill: '#FF2D55' }}
-                    activeDot={{ r: 6, fill: '#FF2D55' }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
         </>
       )}
     </div>
   );
 };
 
-export default AppleHealthBloodTests;
+export default BloodTestDashboard;
