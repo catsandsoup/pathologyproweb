@@ -3,7 +3,28 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { Activity, TrendingUp, TrendingDown, Circle, Upload } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
-const HealthMetricCard = ({ title, value, unit, trend, onClick, isSelected }) => (
+interface HealthMetricCardProps {
+  title: string;
+  value: string | number;
+  unit: string;
+  trend: number;
+  onClick: () => void;
+  isSelected: boolean;
+}
+
+interface Metric {
+  name: string;
+  value: string;
+  unit: string;
+  trend: number;
+}
+
+interface DataPoint {
+  date: Date;
+  [key: string]: Date | number | undefined;
+}
+
+const HealthMetricCard: React.FC<HealthMetricCardProps> = ({ title, value, unit, trend, onClick, isSelected }) => (
   <div 
     onClick={onClick}
     className={`p-4 rounded-xl cursor-pointer transition-all duration-200 ${
@@ -27,14 +48,20 @@ const HealthMetricCard = ({ title, value, unit, trend, onClick, isSelected }) =>
   </div>
 );
 
-const FileUpload = ({ onFileUpload }) => {
-  const handleChange = (event) => {
-    const file = event.target.files[0];
+interface FileUploadProps {
+  onFileUpload: (data: Uint8Array) => void;
+}
+
+const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        const data = new Uint8Array(e.target.result);
-        onFileUpload(data);
+        const result = e.target?.result;
+        if (result instanceof ArrayBuffer) {
+          onFileUpload(new Uint8Array(result));
+        }
       };
       reader.readAsArrayBuffer(file);
     }
@@ -62,14 +89,14 @@ const FileUpload = ({ onFileUpload }) => {
   );
 };
 
-const AppleHealthBloodTests = () => {
-  const [data, setData] = useState([]);
-  const [parameters, setParameters] = useState([]);
-  const [selectedParameter, setSelectedParameter] = useState('');
-  const [metrics, setMetrics] = useState([]);
+const AppleHealthBloodTests: React.FC = () => {
+  const [data, setData] = useState<DataPoint[]>([]);
+  const [parameters, setParameters] = useState<string[]>([]);
+  const [selectedParameter, setSelectedParameter] = useState<string>('');
+  const [metrics, setMetrics] = useState<Metric[]>([]);
   const [hasData, setHasData] = useState(false);
 
-  const processExcelData = (fileData) => {
+  const processExcelData = (fileData: Uint8Array) => {
     try {
       const workbook = XLSX.read(fileData, {
         cellDates: true,
@@ -77,7 +104,7 @@ const AppleHealthBloodTests = () => {
       });
       
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const dates = [];
+      const dates: Date[] = [];
       for (let col = 'C'.charCodeAt(0); col <= 'G'.charCodeAt(0); col++) {
         const cellRef = `${String.fromCharCode(col)}1`;
         if (sheet[cellRef]) {
@@ -85,28 +112,28 @@ const AppleHealthBloodTests = () => {
         }
       }
 
-      const params = new Set();
-      const testData = {};
-      const units = {};
+      const params = new Set<string>();
+      const testData: { [key: string]: { date: Date; value: number | undefined }[] } = {};
+      const units: { [key: string]: string } = {};
 
       // Scan for parameters and their values
       for (let row = 2; row <= 50; row++) {
         const paramCell = sheet[`A${row}`];
         const unitCell = sheet[`B${row}`];
         if (paramCell && paramCell.v && paramCell.v !== 'Unit') {
-          const param = paramCell.v;
+          const param = paramCell.v as string;
           params.add(param);
           units[param] = unitCell?.v || '';
           testData[param] = dates.map((date, index) => {
             const colLetter = String.fromCharCode('C'.charCodeAt(0) + index);
             const value = sheet[`${colLetter}${row}`]?.v;
-            return { date, value };
+            return { date, value: typeof value === 'number' ? value : undefined };
           });
         }
       }
 
-      const chartData = dates.map((date, index) => {
-        const dataPoint = { date };
+      const chartData: DataPoint[] = dates.map((date, index) => {
+        const dataPoint: DataPoint = { date };
         params.forEach(param => {
           dataPoint[param] = testData[param][index]?.value;
         });
@@ -114,15 +141,15 @@ const AppleHealthBloodTests = () => {
       });
 
       // Calculate metrics for each parameter
-      const calculatedMetrics = Array.from(params).map(param => {
-        const values = testData[param].map(d => d.value).filter(v => v !== undefined);
+      const calculatedMetrics: Metric[] = Array.from(params).map(param => {
+        const values = testData[param].map(d => d.value).filter((v): v is number => v !== undefined);
         const latestValue = values[values.length - 1];
         const previousValue = values[values.length - 2];
-        const trend = latestValue && previousValue ? latestValue - previousValue : 0;
+        const trend = latestValue !== undefined && previousValue !== undefined ? latestValue - previousValue : 0;
         
         return {
           name: param,
-          value: latestValue?.toFixed(1) || 'N/A',
+          value: latestValue !== undefined ? latestValue.toFixed(1) : 'N/A',
           unit: units[param],
           trend
         };
