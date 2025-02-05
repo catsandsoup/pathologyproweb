@@ -32,8 +32,8 @@ const Index = () => {
             onParameterChange={setSelectedParameter}
           />
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {parameters.slice(0, 3).map((param) => {
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {parameters.map((param) => {
               const currentValue = data[data.length - 1][param];
               const previousValue = data[data.length - 2]?.[param] ?? currentValue;
               const trend = ((currentValue - previousValue) / previousValue) * 100;

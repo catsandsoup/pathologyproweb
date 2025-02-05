@@ -10,16 +10,18 @@ interface MetricCardProps {
 
 export const MetricCard = ({ title, value, unit, trend }: MetricCardProps) => {
   return (
-    <Card className="p-6 space-y-2">
+    <Card className="p-6 space-y-2 hover:shadow-md transition-shadow duration-200">
       <h3 className="text-sm font-medium text-gray-500">{title}</h3>
-      <div className="flex items-end gap-2">
-        <div className="text-3xl font-semibold">{value}</div>
-        <div className="text-sm text-gray-500 mb-1">{unit}</div>
+      <div className="flex items-baseline gap-2">
+        <div className="text-4xl font-semibold tracking-tight">{value.toFixed(1)}</div>
+        <div className="text-sm text-gray-500">{unit}</div>
       </div>
-      <div className={`flex items-center gap-1 text-sm ${trend > 0 ? 'text-green-500' : 'text-red-500'}`}>
-        {trend > 0 ? <ArrowUpIcon size={16} /> : <ArrowDownIcon size={16} />}
-        <span>{Math.abs(trend)}%</span>
-      </div>
+      {trend !== 0 && (
+        <div className={`flex items-center gap-1 text-sm ${trend > 0 ? 'text-green-500' : 'text-red-500'}`}>
+          {trend > 0 ? <ArrowUpIcon size={16} /> : <ArrowDownIcon size={16} />}
+          <span>{Math.abs(trend).toFixed(1)}%</span>
+        </div>
+      )}
     </Card>
   );
 };
