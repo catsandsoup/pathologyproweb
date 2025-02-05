@@ -13,9 +13,6 @@ A modern web application for tracking and visualizing blood test results over ti
 - **Time-Series Analysis**: Track changes in your health metrics over time
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
 
-## Project info
-
-**URL**: https://lovable.dev/projects/ceb3a2ff-9a35-4e42-b68b-949fbe5db33b
 
 ## Technologies Used
 
