@@ -129,6 +129,10 @@ const FileUpload = ({ onFileUpload }) => {
           </div>
         </label>
       </div>
+      
+      <p className="text-sm text-[#8E8E93] mt-6 text-center max-w-lg">
+        Your privacy is important to us. Files are processed locally in your browser and are not stored on our servers. Data is only used to display your health metrics.
+      </p>
     </div>
   );
 };
@@ -333,3 +337,4 @@ const BloodTestDashboard: React.FC = () => {
 };
 
 export default BloodTestDashboard;
+
