@@ -21,5 +21,10 @@ export interface Metric {
   value: string;
   unit: string;
   trend: number;
-  category: string;  // Added this line to fix the TypeScript error
+  category: string;
+}
+
+export interface ValueStatus {
+  status: 'Low' | 'Normal' | 'High';
+  implications: string[];
 }
