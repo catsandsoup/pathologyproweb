@@ -25,6 +25,7 @@ import {
 } from 'recharts';
 import { PARAMETERS, PARAMETER_CATEGORIES, Parameter } from '@/types/blood-tests';
 import { Info } from 'lucide-react';
+import { format } from 'date-fns';
 
 interface TrendChartProps {
   data: any[];
@@ -41,6 +42,18 @@ export const TrendChart = ({
 }: TrendChartProps) => {
   const selectedParamInfo = PARAMETERS.find(p => p.name === selectedParameter);
   const referenceRange = selectedParamInfo?.referenceRange;
+
+  // Format date for X-axis
+  const formatXAxis = (tickItem: string) => {
+    if (!tickItem) return '';
+    const date = new Date(tickItem);
+    return format(date, 'MMM yyyy');
+  };
+
+  // Get available parameters from PARAMETERS that match the current data
+  const availableParameters = PARAMETERS.filter(param => 
+    parameters.includes(param.name)
+  );
 
   return (
     <Card className="p-6 space-y-4">
@@ -67,25 +80,32 @@ export const TrendChart = ({
             </TooltipProvider>
           )}
         </div>
-        <Select value={selectedParameter} onValueChange={onParameterChange}>
+        <Select 
+          value={selectedParameter} 
+          onValueChange={onParameterChange}
+          defaultValue={parameters[0]}
+        >
           <SelectTrigger className="w-[220px]">
             <SelectValue placeholder="Select parameter" />
           </SelectTrigger>
           <SelectContent>
-            {Object.values(PARAMETER_CATEGORIES).map((category) => (
-              <SelectGroup key={category}>
-                <SelectLabel className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">
-                  {category}
-                </SelectLabel>
-                {parameters
-                  .filter(param => PARAMETERS.find(p => p.name === param)?.category === category)
-                  .map((param) => (
-                    <SelectItem key={param} value={param}>
-                      {param}
+            {Object.entries(PARAMETER_CATEGORIES).map(([key, category]) => {
+              const categoryParams = availableParameters.filter(p => p.category === category);
+              if (categoryParams.length === 0) return null;
+              
+              return (
+                <SelectGroup key={key}>
+                  <SelectLabel className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">
+                    {category}
+                  </SelectLabel>
+                  {categoryParams.map((param) => (
+                    <SelectItem key={param.name} value={param.name}>
+                      {param.name}
                     </SelectItem>
                   ))}
-              </SelectGroup>
-            ))}
+                </SelectGroup>
+              );
+            })}
           </SelectContent>
         </Select>
       </div>
@@ -93,9 +113,15 @@ export const TrendChart = ({
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" />
+            <XAxis 
+              dataKey="date" 
+              tickFormatter={formatXAxis}
+              minTickGap={50}
+            />
             <YAxis />
-            <RechartsTooltip />
+            <RechartsTooltip 
+              labelFormatter={(label) => format(new Date(label), 'dd MMM yyyy')}
+            />
             {referenceRange && (
               <>
                 <ReferenceLine 
