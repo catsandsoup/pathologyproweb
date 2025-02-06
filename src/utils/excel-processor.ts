@@ -1,5 +1,6 @@
 import * as XLSX from 'xlsx';
 import { DataPoint, Metric } from '@/types/blood-test';
+import { PARAMETER_CATEGORIES } from '@/types/blood-tests';
 
 export const processExcelData = (fileData: Uint8Array) => {
   try {
@@ -40,6 +41,7 @@ export const processExcelData = (fileData: Uint8Array) => {
     const params = new Set<string>();
     const testData: { [key: string]: { date: Date; value: number }[] } = {};
     const units: { [key: string]: string } = {};
+    const categories: { [key: string]: string } = {};
 
     // Process each row starting from row 1 (skipping header)
     for (let rowIndex = 1; rowIndex < rawData.length; rowIndex++) {
@@ -55,6 +57,12 @@ export const processExcelData = (fileData: Uint8Array) => {
       params.add(paramName);
       units[paramName] = unit;
       testData[paramName] = [];
+
+      // Determine category for the parameter
+      const category = Object.entries(PARAMETER_CATEGORIES).find(([_, tests]) =>
+        tests.includes(paramName)
+      )?.[1] || 'Other';
+      categories[paramName] = category;
       
       // Process values for each date column
       dateColumns.forEach(({ index, date }) => {
@@ -86,7 +94,7 @@ export const processExcelData = (fileData: Uint8Array) => {
       return dataPoint;
     });
 
-    // Calculate metrics
+    // Calculate metrics with category
     const calculatedMetrics: Metric[] = Array.from(params).map(param => {
       const paramData = testData[param];
       const latestValue = paramData.length > 0 ? paramData[paramData.length - 1].value : undefined;
@@ -100,7 +108,8 @@ export const processExcelData = (fileData: Uint8Array) => {
         name: param,
         value: latestValue !== undefined ? latestValue.toString() : 'N/A',
         unit: units[param],
-        trend
+        trend,
+        category: categories[param]
       };
     });
 
