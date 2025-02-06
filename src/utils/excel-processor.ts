@@ -2,23 +2,12 @@ import * as XLSX from 'xlsx';
 import { DataPoint, Metric } from '@/types/blood-test';
 import { PARAMETER_CATEGORIES } from '@/types/blood-tests';
 
-const parseDate = (dateStr: string | number | { _type: string; value: { iso: string } }): Date | null => {
+const parseDate = (dateStr: string | number): Date | null => {
   console.log('Parsing date:', dateStr, 'Type:', typeof dateStr);
   
-  // Handle Excel date object format
-  if (typeof dateStr === 'object' && dateStr !== null) {
-    if ('_type' in dateStr && dateStr._type === 'Date' && 'value' in dateStr) {
-      const dateValue = dateStr.value;
-      if ('iso' in dateValue) {
-        return new Date(dateValue.iso);
-      }
-    }
-  }
-
   // Handle Excel date number format
   if (typeof dateStr === 'number') {
     try {
-      // Excel dates are days since 1900-01-01
       const date = XLSX.SSF.parse_date_code(dateStr);
       console.log('Parsed Excel date:', date);
       if (date) {
@@ -48,29 +37,13 @@ const parseDate = (dateStr: string | number | { _type: string; value: { iso: str
   return null;
 };
 
-const validateDataStructure = (rawData: any[][]): boolean => {
-  if (!Array.isArray(rawData) || rawData.length < 2) {
-    console.error('Invalid data structure: Data must be a 2D array with at least 2 rows');
-    return false;
-  }
-
-  const headerRow = rawData[0];
-  if (!Array.isArray(headerRow) || headerRow.length < 3) {
-    console.error('Invalid header row: Must have at least 3 columns');
-    return false;
-  }
-
-  return true;
-};
-
 export const processExcelData = (fileData: Uint8Array) => {
   try {
     console.log('Starting Excel processing');
     const workbook = XLSX.read(fileData, {
       type: 'array',
-      cellDates: true,
-      dateNF: 'yyyy-mm-dd',
-      raw: true // Add raw option to prevent automatic type conversion
+      cellDates: true, // Try with true to let XLSX handle date parsing
+      dateNF: 'yyyy-mm-dd', // Specify date format
     });
     
     console.log('Workbook loaded:', {
@@ -92,21 +65,16 @@ export const processExcelData = (fileData: Uint8Array) => {
       throw new Error('First sheet is empty');
     }
 
-    const rawData = XLSX.utils.sheet_to_json(sheet, { 
-      header: 1,
-      raw: true,
-      defval: null // Use null for empty cells
-    });
-    
+    const rawData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
     console.log('Raw data first row:', rawData[0]);
     console.log('Raw data second row:', rawData[1]);
 
-    if (!validateDataStructure(rawData)) {
-      throw new Error('Invalid file structure. Please ensure your file matches the expected format.');
+    if (!rawData.length) {
+      throw new Error('No data found in the sheet');
     }
     
     // Get header row with dates
-    const headerRow = rawData[0] as (string | number | { _type: string; value: { iso: string } })[];
+    const headerRow = rawData[0] as (string | number)[];
     const dateColumns: { index: number; date: Date }[] = [];
     
     // Process date columns (starting from index 2)
@@ -119,13 +87,9 @@ export const processExcelData = (fileData: Uint8Array) => {
         if (parsedDate) {
           dateColumns.push({ index: i, date: parsedDate });
         } else {
-          console.warn(`Invalid date format in column ${i}:`, dateStr);
+          console.warn(`Invalid date format in column ${i}: ${dateStr}`);
         }
       }
-    }
-
-    if (dateColumns.length === 0) {
-      throw new Error('No valid dates found in the header row');
     }
 
     // Sort date columns chronologically
@@ -172,16 +136,19 @@ export const processExcelData = (fileData: Uint8Array) => {
       });
     }
 
-    if (params.size === 0) {
-      throw new Error('No valid parameters found in the file');
+    if (params.size === 0 || dateColumns.length === 0) {
+      throw new Error('No valid data found in the file');
     }
+
+    console.log('Processed parameters:', Array.from(params));
+    console.log('Sample test data:', Object.entries(testData)[0]);
 
     // Create chartData array
     const chartData: DataPoint[] = dateColumns.map(({ date }) => {
       const dataPoint: DataPoint = { date };
       params.forEach(param => {
         const paramData = testData[param];
-        const matchingData = paramData?.find(d => d.date.getTime() === date.getTime());
+        const matchingData = paramData.find(d => d.date.getTime() === date.getTime());
         if (matchingData) {
           dataPoint[param] = matchingData.value;
         }
@@ -192,8 +159,8 @@ export const processExcelData = (fileData: Uint8Array) => {
     // Calculate metrics with category
     const calculatedMetrics: Metric[] = Array.from(params).map(param => {
       const paramData = testData[param];
-      const latestValue = paramData?.length > 0 ? paramData[paramData.length - 1].value : undefined;
-      const previousValue = paramData?.length > 1 ? paramData[paramData.length - 2].value : undefined;
+      const latestValue = paramData.length > 0 ? paramData[paramData.length - 1].value : undefined;
+      const previousValue = paramData.length > 1 ? paramData[paramData.length - 2].value : undefined;
       
       const trend = latestValue !== undefined && previousValue !== undefined 
         ? latestValue - previousValue 
@@ -202,9 +169,9 @@ export const processExcelData = (fileData: Uint8Array) => {
       return {
         name: param,
         value: latestValue !== undefined ? latestValue.toString() : 'N/A',
-        unit: units[param] || '',
+        unit: units[param],
         trend,
-        category: categories[param] || 'Other'
+        category: categories[param]
       };
     });
 
@@ -221,6 +188,6 @@ export const processExcelData = (fileData: Uint8Array) => {
     };
   } catch (error) {
     console.error('Error processing file:', error);
-    throw new Error(error instanceof Error ? error.message : 'Error processing file. Please make sure it matches the expected format.');
+    throw new Error('Error processing file. Please make sure it matches the expected format.');
   }
 };
