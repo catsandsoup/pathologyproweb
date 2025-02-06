@@ -1,5 +1,5 @@
 import React from 'react';
-import { TrendingUp, TrendingDown, Circle, AlertCircle } from 'lucide-react';
+import { TrendingUp, TrendingDown, Circle, AlertCircle, Info } from 'lucide-react';
 import { HealthMetricCardProps } from '@/types/blood-test';
 import {
   Tooltip,
@@ -8,6 +8,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { PARAMETERS } from '@/types/blood-tests';
+import { Line } from 'recharts';
 
 export const HealthMetricCard: React.FC<HealthMetricCardProps> = ({ 
   title, 
@@ -15,7 +16,8 @@ export const HealthMetricCard: React.FC<HealthMetricCardProps> = ({
   unit, 
   trend, 
   onClick, 
-  isSelected 
+  isSelected,
+  historicalData = [] 
 }) => {
   const formattedValue = typeof value === 'number' 
     ? value < 1 
@@ -52,7 +54,10 @@ export const HealthMetricCard: React.FC<HealthMetricCardProps> = ({
         implications: [
           'May indicate deficiency',
           'Could affect body functions',
-          'Requires monitoring'
+          'Common causes:',
+          '- Nutritional deficiency',
+          '- Underlying medical condition',
+          '- Medication effects'
         ]
       };
     }
@@ -62,7 +67,10 @@ export const HealthMetricCard: React.FC<HealthMetricCardProps> = ({
         implications: [
           'May indicate excess',
           'Could suggest underlying condition',
-          'Requires attention'
+          'Common causes:',
+          '- Inflammation',
+          '- Organ dysfunction',
+          '- Medication effects'
         ]
       };
     }
@@ -74,6 +82,11 @@ export const HealthMetricCard: React.FC<HealthMetricCardProps> = ({
 
   const valueStatus = typeof value === 'number' ? getValueStatus(value) : null;
   const severityColor = typeof value === 'number' ? getSeverityColor(value) : 'bg-white';
+
+  const miniChartData = historicalData.map(point => ({
+    value: point[title],
+    date: new Date(point.date)
+  })).filter(point => point.value !== undefined && point.value !== null);
 
   return (
     <TooltipProvider>
@@ -98,12 +111,24 @@ export const HealthMetricCard: React.FC<HealthMetricCardProps> = ({
                 ) : (
                   <Circle className="w-4 h-4 text-gray-400" />
                 )}
+                <Info className="w-4 h-4 text-blue-500" />
               </div>
             </div>
             <div className="mt-2">
               <span className="text-2xl font-semibold">{formattedValue}</span>
               <span className="ml-1 text-sm text-gray-500">{unit}</span>
             </div>
+            {miniChartData.length > 1 && (
+              <div className="h-10 mt-2">
+                <Line
+                  data={miniChartData}
+                  type="monotone"
+                  dataKey="value"
+                  stroke="hsl(var(--primary))"
+                  dot={false}
+                />
+              </div>
+            )}
           </div>
         </TooltipTrigger>
         <TooltipContent className="w-64 p-3">

@@ -5,6 +5,7 @@ export interface HealthMetricCardProps {
   trend: number;
   onClick: () => void;
   isSelected: boolean;
+  historicalData?: DataPoint[];
 }
 
 export interface FileUploadProps {
