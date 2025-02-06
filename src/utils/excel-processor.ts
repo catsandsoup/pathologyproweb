@@ -3,47 +3,74 @@ import { DataPoint, Metric } from '@/types/blood-test';
 import { PARAMETER_CATEGORIES } from '@/types/blood-tests';
 
 const parseDate = (dateStr: string | number): Date | null => {
-  console.log('Parsing date:', dateStr, 'Type:', typeof dateStr);
+  console.log('Attempting to parse date:', dateStr, 'Type:', typeof dateStr);
   
-  // Handle Excel date number format
+  // Handle Excel date number format (1900-based system)
   if (typeof dateStr === 'number') {
     try {
-      return new Date(Math.round((dateStr - 25569) * 86400 * 1000));
+      // Excel dates are counted from 1900-01-01, with 25569 being 1970-01-01
+      const date = new Date(Math.round((dateStr - 25569) * 86400 * 1000));
+      console.log('Parsed Excel number date:', date);
+      return !isNaN(date.getTime()) ? date : null;
     } catch (error) {
       console.error('Error parsing Excel date number:', error);
+      return null;
     }
   }
 
   // Handle string date formats
   if (typeof dateStr === 'string') {
-    // Try parsing DD/MM/YYYY format
-    if (dateStr.includes('/')) {
-      const [day, month, year] = dateStr.split('/');
-      const parsedDate = new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`);
-      if (!isNaN(parsedDate.getTime())) {
-        return parsedDate;
+    const cleanDateStr = dateStr.trim();
+    
+    // Handle DD/MM/YYYY format
+    if (cleanDateStr.includes('/')) {
+      try {
+        const [day, month, year] = cleanDateStr.split('/').map(part => part.trim());
+        // Handle invalid dates like 36/5/2019
+        if (parseInt(day) > 31) {
+          console.warn('Invalid day in date:', cleanDateStr);
+          return null;
+        }
+        const date = new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`);
+        console.log('Parsed DD/MM/YYYY date:', date);
+        return !isNaN(date.getTime()) ? date : null;
+      } catch (error) {
+        console.error('Error parsing DD/MM/YYYY date:', error);
+        return null;
       }
     }
 
-    // Try parsing YYYY-MM-DD format
-    const isoDate = new Date(dateStr);
-    if (!isNaN(isoDate.getTime())) {
-      return isoDate;
+    // Handle YYYY-MM-DD format
+    try {
+      const date = new Date(cleanDateStr);
+      console.log('Parsed ISO date:', date);
+      return !isNaN(date.getTime()) ? date : null;
+    } catch (error) {
+      console.error('Error parsing ISO date:', error);
+      return null;
     }
   }
 
-  console.warn('Failed to parse date:', dateStr);
+  console.warn('Unsupported date format:', dateStr);
   return null;
 };
 
 export const processExcelData = (fileData: Uint8Array) => {
   try {
     console.log('Starting file processing');
-    const workbook = XLSX.read(fileData, {
-      type: 'array',
-      cellDates: false,
-      raw: true
-    });
+    
+    // First attempt to read as CSV
+    let workbook: XLSX.WorkBook;
+    try {
+      workbook = XLSX.read(fileData, {
+        type: 'array',
+        cellDates: false,
+        raw: true
+      });
+    } catch (error) {
+      console.error('Error reading file:', error);
+      throw new Error('Unable to read file. Please ensure it is a valid CSV or Excel file.');
+    }
     
     console.log('Workbook loaded:', {
       sheetNames: workbook.SheetNames,
@@ -55,11 +82,6 @@ export const processExcelData = (fileData: Uint8Array) => {
     }
 
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    console.log('First sheet:', {
-      range: sheet['!ref'],
-      firstCell: sheet['A1']
-    });
-
     if (!sheet) {
       throw new Error('First sheet is empty');
     }
@@ -70,11 +92,14 @@ export const processExcelData = (fileData: Uint8Array) => {
       defval: null
     });
     
-    console.log('Raw data first row:', rawData[0]);
-    console.log('Raw data second row:', rawData[1]);
+    console.log('Raw data sample:', {
+      firstRow: rawData[0],
+      secondRow: rawData[1],
+      rowCount: rawData.length
+    });
 
-    if (!rawData.length) {
-      throw new Error('No data found in the sheet');
+    if (!Array.isArray(rawData) || rawData.length < 2) {
+      throw new Error('File contains insufficient data');
     }
     
     // Get header row with dates
@@ -84,21 +109,22 @@ export const processExcelData = (fileData: Uint8Array) => {
     // Process date columns (starting from index 2)
     for (let i = 2; i < headerRow.length; i++) {
       const dateStr = headerRow[i];
-      console.log(`Processing header column ${i}:`, dateStr);
       if (dateStr) {
         const parsedDate = parseDate(dateStr);
-        console.log('Parsed header date:', parsedDate);
         if (parsedDate) {
           dateColumns.push({ index: i, date: parsedDate });
         } else {
-          console.warn(`Invalid date format in column ${i}: ${dateStr}`);
+          console.warn(`Invalid date format in column ${i}:`, dateStr);
         }
       }
     }
 
+    if (dateColumns.length === 0) {
+      throw new Error('No valid dates found in the header row');
+    }
+
     // Sort date columns chronologically
     dateColumns.sort((a, b) => a.date.getTime() - b.date.getTime());
-    console.log('Processed date columns:', dateColumns);
 
     const params = new Set<string>();
     const testData: { [key: string]: { date: Date; value: number }[] } = {};
@@ -110,13 +136,18 @@ export const processExcelData = (fileData: Uint8Array) => {
       const row = rawData[rowIndex] as (string | number)[];
       if (!row || !row.length) continue;
 
-      const paramName = row[0]?.toString().trim();
-      const unit = row[1]?.toString().trim() || '';
+      const paramName = row[0]?.toString()?.trim();
+      if (!paramName) {
+        console.warn(`Skipping row ${rowIndex}: No parameter name`);
+        continue;
+      }
+
+      const unit = row[1]?.toString()?.trim() || '';
       
-      console.log(`Processing row ${rowIndex}:`, { paramName, unit, row });
+      console.log(`Processing row ${rowIndex}:`, { paramName, unit, rowData: row });
       
       // Skip empty rows or category headers
-      if (!paramName || paramName === 'Unit' || paramName.includes('(')) {
+      if (paramName === 'Unit' || paramName.includes('(')) {
         continue;
       }
 
@@ -137,17 +168,22 @@ export const processExcelData = (fileData: Uint8Array) => {
           const numValue = typeof value === 'number' ? value : parseFloat(value);
           if (!isNaN(numValue)) {
             testData[paramName].push({ date, value: numValue });
+          } else {
+            console.warn(`Invalid numeric value in row ${rowIndex}, column ${index}:`, value);
           }
         }
       });
     }
 
-    if (params.size === 0 || dateColumns.length === 0) {
-      throw new Error('No valid data found in the file');
+    if (params.size === 0) {
+      throw new Error('No valid parameters found in the file');
     }
 
-    console.log('Processed parameters:', Array.from(params));
-    console.log('Sample test data:', Object.entries(testData)[0]);
+    console.log('Processing summary:', {
+      parameterCount: params.size,
+      dateColumnCount: dateColumns.length,
+      sampleData: Object.entries(testData)[0]
+    });
 
     // Create chartData array
     const chartData: DataPoint[] = dateColumns.map(({ date }) => {
@@ -194,6 +230,6 @@ export const processExcelData = (fileData: Uint8Array) => {
     };
   } catch (error) {
     console.error('Error processing file:', error);
-    throw new Error('Error processing file. Please make sure it matches the expected format.');
+    throw new Error(error instanceof Error ? error.message : 'Error processing file. Please check the format and try again.');
   }
 };
