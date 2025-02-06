@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Upload } from 'lucide-react';
 import { FileUploadProps } from '@/types/blood-test';
@@ -74,7 +73,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
             </p>
             <div className="pt-8 flex items-center justify-center space-x-2">
               <p className="text-sm text-[#8E8E93]">
-                Supports Excel (.xlsx, .xls) and CSV files
+                Supports CSV files. Excel (.xlsx, .xls) support is experimental
               </p>
             </div>
           </div>
