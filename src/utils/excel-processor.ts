@@ -6,7 +6,6 @@ export const processExcelData = (fileData: Uint8Array) => {
     const workbook = XLSX.read(fileData, {
       type: 'array',
       cellDates: true,
-      dateNF: 'yyyy-mm-dd'
     });
     
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -21,19 +20,16 @@ export const processExcelData = (fileData: Uint8Array) => {
       const dateStr = headerRow[i];
       if (dateStr) {
         try {
-          // Handle different date formats
-          let date: Date;
-          if (dateStr.includes('/')) {
-            const [day, month, year] = dateStr.split('/').map(Number);
-            date = new Date(year, month - 1, day);
-          } else {
-            date = new Date(dateStr);
-          }
-          if (!isNaN(date.getTime())) {
+          // Convert Excel date number to JS Date if needed
+          const date = typeof dateStr === 'number' 
+            ? XLSX.SSF.parse_date_code(dateStr) 
+            : new Date(dateStr);
+          
+          if (date && !isNaN(date.getTime())) {
             dateColumns.push({ index: i, date });
           }
         } catch (e) {
-          console.warn(`Invalid date format for column ${i}: ${dateStr}`);
+          console.warn(`Skipping invalid date in column ${i}: ${dateStr}`);
         }
       }
     }
@@ -45,28 +41,36 @@ export const processExcelData = (fileData: Uint8Array) => {
     const testData: { [key: string]: { date: Date; value: number }[] } = {};
     const units: { [key: string]: string } = {};
 
-    // Process each row
+    // Process each row starting from row 1 (skipping header)
     for (let rowIndex = 1; rowIndex < rawData.length; rowIndex++) {
       const row = rawData[rowIndex] as (string | number)[];
       const paramName = row[0]?.toString();
       const unit = row[1]?.toString() || '';
       
-      if (paramName && paramName !== 'Unit' && !paramName.includes('(')) {
-        params.add(paramName);
-        units[paramName] = unit;
-        testData[paramName] = [];
-        
-        // Process values for each date column
-        dateColumns.forEach(({ index, date }) => {
-          const value = row[index];
-          if (value !== undefined && value !== '') {
-            const numValue = typeof value === 'number' ? value : parseFloat(value);
-            if (!isNaN(numValue)) {
-              testData[paramName].push({ date, value: numValue });
-            }
-          }
-        });
+      // Skip empty rows or category headers
+      if (!paramName || paramName === 'Unit' || paramName.includes('(')) {
+        continue;
       }
+
+      params.add(paramName);
+      units[paramName] = unit;
+      testData[paramName] = [];
+      
+      // Process values for each date column
+      dateColumns.forEach(({ index, date }) => {
+        const value = row[index];
+        if (value !== undefined && value !== '') {
+          const numValue = typeof value === 'number' ? value : parseFloat(value);
+          if (!isNaN(numValue)) {
+            testData[paramName].push({ date, value: numValue });
+          }
+        }
+      });
+    }
+
+    // Only proceed if we have valid data
+    if (params.size === 0 || dateColumns.length === 0) {
+      throw new Error('No valid data found in the file');
     }
 
     // Create chartData array
