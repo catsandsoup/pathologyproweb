@@ -25,7 +25,7 @@ import {
 } from 'recharts';
 import { PARAMETERS, PARAMETER_CATEGORIES, Parameter } from '@/types/blood-tests';
 import { Info } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface TrendChartProps {
@@ -48,7 +48,14 @@ export const TrendChart = ({
   const formatXAxis = (tickItem: string) => {
     if (!tickItem) return '';
     const date = new Date(tickItem);
+    if (!isValid(date)) return '';
     return format(date, isMobile ? 'MMM yy' : 'MMM yyyy');
+  };
+
+  const formatTooltipDate = (label: string) => {
+    const date = new Date(label);
+    if (!isValid(date)) return '';
+    return format(date, 'dd MMM yyyy');
   };
 
   const availableParameters = PARAMETERS.map(param => ({
@@ -77,6 +84,12 @@ export const TrendChart = ({
         return 'Frequency varies based on medical history';
     }
   };
+
+  // Filter out data points with invalid dates
+  const validData = data.filter(item => {
+    const date = new Date(item.date);
+    return isValid(date);
+  });
 
   return (
     <Card className={`p-4 md:p-6 space-y-4 ${isMobile ? 'h-[500px]' : ''}`}>
@@ -143,7 +156,7 @@ export const TrendChart = ({
       </div>
       <div className={`${isMobile ? 'h-[400px]' : 'h-[400px]'} w-full`}>
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+          <LineChart data={validData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis 
               dataKey="date" 
@@ -152,8 +165,8 @@ export const TrendChart = ({
             />
             <YAxis />
             <RechartsTooltip 
-              labelFormatter={(label) => format(new Date(label), 'dd MMM yyyy')}
-              formatter={(value) => formatValue(value)}
+              labelFormatter={formatTooltipDate}
+              formatter={formatValue}
             />
             {referenceRange && (
               <>
