@@ -2,6 +2,25 @@ import * as XLSX from 'xlsx';
 import { DataPoint, Metric } from '@/types/blood-test';
 import { PARAMETER_CATEGORIES } from '@/types/blood-tests';
 
+const parseDate = (dateStr: string): Date | null => {
+  // Handle Excel date number format
+  if (typeof dateStr === 'number') {
+    return XLSX.SSF.parse_date_code(dateStr);
+  }
+
+  // Fix incorrect date format (36/5/2019)
+  if (dateStr.includes('/')) {
+    const [day, month, year] = dateStr.split('/');
+    if (parseInt(day) > 31) {
+      return new Date(`${year}-${month}-01`); // Default to first of the month for invalid dates
+    }
+    return new Date(`${year}-${month}-${day}`);
+  }
+
+  const date = new Date(dateStr);
+  return isNaN(date.getTime()) ? null : date;
+};
+
 export const processExcelData = (fileData: Uint8Array) => {
   try {
     const workbook = XLSX.read(fileData, {
@@ -20,17 +39,11 @@ export const processExcelData = (fileData: Uint8Array) => {
     for (let i = 2; i < headerRow.length; i++) {
       const dateStr = headerRow[i];
       if (dateStr) {
-        try {
-          // Convert Excel date number to JS Date if needed
-          const date = typeof dateStr === 'number' 
-            ? XLSX.SSF.parse_date_code(dateStr) 
-            : new Date(dateStr);
-          
-          if (date && !isNaN(date.getTime())) {
-            dateColumns.push({ index: i, date });
-          }
-        } catch (e) {
-          console.warn(`Skipping invalid date in column ${i}: ${dateStr}`);
+        const parsedDate = parseDate(dateStr);
+        if (parsedDate) {
+          dateColumns.push({ index: i, date: parsedDate });
+        } else {
+          console.warn(`Invalid date format in column ${i}: ${dateStr}`);
         }
       }
     }
@@ -76,7 +89,6 @@ export const processExcelData = (fileData: Uint8Array) => {
       });
     }
 
-    // Only proceed if we have valid data
     if (params.size === 0 || dateColumns.length === 0) {
       throw new Error('No valid data found in the file');
     }

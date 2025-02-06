@@ -1,4 +1,4 @@
-import { Line, ReferenceLine } from 'recharts';
+import { Line, ReferenceLine, ReferenceArea } from 'recharts';
 import { Card } from '@/components/ui/card';
 import {
   Select,
@@ -26,6 +26,7 @@ import {
 import { PARAMETERS, PARAMETER_CATEGORIES, Parameter } from '@/types/blood-tests';
 import { Info } from 'lucide-react';
 import { format } from 'date-fns';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface TrendChartProps {
   data: any[];
@@ -40,36 +41,48 @@ export const TrendChart = ({
   selectedParameter,
   onParameterChange,
 }: TrendChartProps) => {
+  const isMobile = useIsMobile();
   const selectedParamInfo = PARAMETERS.find(p => p.name === selectedParameter);
   const referenceRange = selectedParamInfo?.referenceRange;
 
-  // Format date for X-axis
   const formatXAxis = (tickItem: string) => {
     if (!tickItem) return '';
     const date = new Date(tickItem);
-    return format(date, 'MMM yyyy');
+    return format(date, isMobile ? 'MMM yy' : 'MMM yyyy');
   };
 
-  // Show all parameters in the dropdown, organized by category
   const availableParameters = PARAMETERS.map(param => ({
     ...param,
     hasData: parameters.includes(param.name)
   }));
 
-  // Find first parameter with data to use as default
   const firstAvailableParameter = parameters[0];
 
-  // Format value for tooltip and display
   const formatValue = (value: any) => {
     if (typeof value !== 'number') return value;
     return value.toFixed(2);
   };
 
+  const getRecommendedFrequency = () => {
+    if (!selectedParamInfo) return null;
+    const category = selectedParamInfo.category;
+    switch (category) {
+      case 'Lipids':
+        return 'Recommended every 6 months';
+      case 'Liver Function':
+        return 'Recommended annually';
+      case 'Kidney Function':
+        return 'Recommended every 6-12 months';
+      default:
+        return 'Frequency varies based on medical history';
+    }
+  };
+
   return (
-    <Card className="p-6 space-y-4">
-      <div className="flex justify-between items-center">
+    <Card className={`p-4 md:p-6 space-y-4 ${isMobile ? 'h-[500px]' : ''}`}>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center space-x-2">
-          <h2 className="text-2xl font-semibold">Trends</h2>
+          <h2 className="text-xl md:text-2xl font-semibold">Trends</h2>
           {selectedParamInfo && (
             <TooltipProvider>
               <Tooltip>
@@ -77,14 +90,19 @@ export const TrendChart = ({
                   <Info className="h-5 w-5 text-muted-foreground" />
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p className="max-w-xs">
-                    {selectedParamInfo.description}
+                  <div className="space-y-2">
+                    <p className="max-w-xs">
+                      {selectedParamInfo.description}
+                    </p>
                     {referenceRange && (
-                      <span className="block mt-1 text-sm text-muted-foreground">
+                      <p className="text-sm text-muted-foreground">
                         Normal range: {referenceRange.min}-{referenceRange.max} {referenceRange.unit}
-                      </span>
+                      </p>
                     )}
-                  </p>
+                    <p className="text-sm text-muted-foreground">
+                      {getRecommendedFrequency()}
+                    </p>
+                  </div>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -95,7 +113,7 @@ export const TrendChart = ({
           onValueChange={onParameterChange}
           defaultValue={firstAvailableParameter}
         >
-          <SelectTrigger className="w-[220px]">
+          <SelectTrigger className="w-full md:w-[220px]">
             <SelectValue placeholder="Select parameter" />
           </SelectTrigger>
           <SelectContent className="max-h-[300px]">
@@ -123,14 +141,14 @@ export const TrendChart = ({
           </SelectContent>
         </Select>
       </div>
-      <div className="h-[400px] w-full">
+      <div className={`${isMobile ? 'h-[400px]' : 'h-[400px]'} w-full`}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis 
               dataKey="date" 
               tickFormatter={formatXAxis}
-              minTickGap={50}
+              minTickGap={30}
             />
             <YAxis />
             <RechartsTooltip 
@@ -139,6 +157,12 @@ export const TrendChart = ({
             />
             {referenceRange && (
               <>
+                <ReferenceArea
+                  y1={referenceRange.min}
+                  y2={referenceRange.max}
+                  fill="hsl(var(--primary) / 0.1)"
+                  fillOpacity={0.3}
+                />
                 <ReferenceLine 
                   y={referenceRange.max} 
                   label="Max" 
