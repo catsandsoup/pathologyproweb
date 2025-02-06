@@ -50,14 +50,20 @@ export const TrendChart = ({
     return format(date, 'MMM yyyy');
   };
 
-  // Show all parameters in the dropdown, but indicate which ones have data
+  // Show all parameters in the dropdown, organized by category
   const availableParameters = PARAMETERS.map(param => ({
     ...param,
     hasData: parameters.includes(param.name)
   }));
 
   // Find first parameter with data to use as default
-  const firstAvailableParameter = parameters[0] || availableParameters[0]?.name;
+  const firstAvailableParameter = parameters[0];
+
+  // Format value for tooltip and display
+  const formatValue = (value: any) => {
+    if (typeof value !== 'number') return value;
+    return value.toFixed(2);
+  };
 
   return (
     <Card className="p-6 space-y-4">
@@ -129,7 +135,7 @@ export const TrendChart = ({
             <YAxis />
             <RechartsTooltip 
               labelFormatter={(label) => format(new Date(label), 'dd MMM yyyy')}
-              formatter={(value) => (typeof value === 'number' ? value.toFixed(2) : value)}
+              formatter={(value) => formatValue(value)}
             />
             {referenceRange && (
               <>
