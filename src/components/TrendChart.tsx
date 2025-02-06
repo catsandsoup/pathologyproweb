@@ -56,6 +56,9 @@ export const TrendChart = ({
     hasData: parameters.includes(param.name)
   }));
 
+  // Find first parameter with data to use as default
+  const firstAvailableParameter = parameters[0] || availableParameters[0]?.name;
+
   return (
     <Card className="p-6 space-y-4">
       <div className="flex justify-between items-center">
@@ -82,9 +85,9 @@ export const TrendChart = ({
           )}
         </div>
         <Select 
-          value={selectedParameter}
+          value={selectedParameter || firstAvailableParameter}
           onValueChange={onParameterChange}
-          defaultValue={parameters[0]}
+          defaultValue={firstAvailableParameter}
         >
           <SelectTrigger className="w-[220px]">
             <SelectValue placeholder="Select parameter" />
@@ -126,6 +129,7 @@ export const TrendChart = ({
             <YAxis />
             <RechartsTooltip 
               labelFormatter={(label) => format(new Date(label), 'dd MMM yyyy')}
+              formatter={(value) => (typeof value === 'number' ? value.toFixed(2) : value)}
             />
             {referenceRange && (
               <>
