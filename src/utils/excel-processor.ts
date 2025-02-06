@@ -2,9 +2,19 @@ import * as XLSX from 'xlsx';
 import { DataPoint, Metric } from '@/types/blood-test';
 import { PARAMETER_CATEGORIES } from '@/types/blood-tests';
 
-const parseDate = (dateStr: string | number): Date | null => {
+const parseDate = (dateStr: string | number | { _type: string; value: { iso: string } }): Date | null => {
   console.log('Parsing date:', dateStr, 'Type:', typeof dateStr);
   
+  // Handle Excel date object format
+  if (typeof dateStr === 'object' && dateStr !== null) {
+    if ('_type' in dateStr && dateStr._type === 'Date' && 'value' in dateStr) {
+      const dateValue = dateStr.value;
+      if ('iso' in dateValue) {
+        return new Date(dateValue.iso);
+      }
+    }
+  }
+
   // Handle Excel date number format
   if (typeof dateStr === 'number') {
     try {
@@ -42,8 +52,8 @@ export const processExcelData = (fileData: Uint8Array) => {
     console.log('Starting Excel processing');
     const workbook = XLSX.read(fileData, {
       type: 'array',
-      cellDates: true, // Try with true to let XLSX handle date parsing
-      dateNF: 'yyyy-mm-dd', // Specify date format
+      cellDates: true,
+      dateNF: 'yyyy-mm-dd',
     });
     
     console.log('Workbook loaded:', {
@@ -74,7 +84,7 @@ export const processExcelData = (fileData: Uint8Array) => {
     }
     
     // Get header row with dates
-    const headerRow = rawData[0] as (string | number)[];
+    const headerRow = rawData[0] as (string | number | { _type: string; value: { iso: string } })[];
     const dateColumns: { index: number; date: Date }[] = [];
     
     // Process date columns (starting from index 2)
@@ -87,7 +97,7 @@ export const processExcelData = (fileData: Uint8Array) => {
         if (parsedDate) {
           dateColumns.push({ index: i, date: parsedDate });
         } else {
-          console.warn(`Invalid date format in column ${i}: ${dateStr}`);
+          console.warn(`Invalid date format in column ${i}:`, dateStr);
         }
       }
     }
