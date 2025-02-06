@@ -50,10 +50,11 @@ export const TrendChart = ({
     return format(date, 'MMM yyyy');
   };
 
-  // Get available parameters from PARAMETERS that match the current data
-  const availableParameters = PARAMETERS.filter(param => 
-    parameters.includes(param.name)
-  );
+  // Show all parameters in the dropdown, but indicate which ones have data
+  const availableParameters = PARAMETERS.map(param => ({
+    ...param,
+    hasData: parameters.includes(param.name)
+  }));
 
   return (
     <Card className="p-6 space-y-4">
@@ -81,7 +82,7 @@ export const TrendChart = ({
           )}
         </div>
         <Select 
-          value={selectedParameter} 
+          value={selectedParameter}
           onValueChange={onParameterChange}
           defaultValue={parameters[0]}
         >
@@ -99,8 +100,12 @@ export const TrendChart = ({
                     {category}
                   </SelectLabel>
                   {categoryParams.map((param) => (
-                    <SelectItem key={param.name} value={param.name}>
-                      {param.name}
+                    <SelectItem 
+                      key={param.name} 
+                      value={param.name}
+                      className={!param.hasData ? "text-muted-foreground" : ""}
+                    >
+                      {param.name} {!param.hasData && "(No data)"}
                     </SelectItem>
                   ))}
                 </SelectGroup>
