@@ -6,80 +6,71 @@ export const processExcelData = (fileData: Uint8Array) => {
     const workbook = XLSX.read(fileData, {
       type: 'array',
       cellDates: true,
-      dateNF: 'dd/mm/yyyy'
+      dateNF: 'yyyy-mm-dd'
     });
     
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const dates: Date[] = [];
-    const dateColumns: string[] = [];
+    const rawData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
     
-    // Find all date columns (starting from C column)
-    for (let col = 'C'.charCodeAt(0); col <= 'G'.charCodeAt(0); col++) {
-      const colLetter = String.fromCharCode(col);
-      const cellRef = `${colLetter}1`;
-      const cell = sheet[cellRef];
-      
-      if (cell) {
-        let date: Date | null = null;
-        
-        // Handle different date formats
-        if (cell.t === 'd') {
-          // If it's already a date object
-          date = cell.v;
-        } else if (typeof cell.v === 'string' && cell.v.includes('/')) {
-          // If it's a date string in DD/MM/YYYY format
-          const [day, month, year] = cell.v.split('/').map(Number);
-          date = new Date(year, month - 1, day);
-        } else if (typeof cell.v === 'number') {
-          // If it's an Excel date number
-          date = XLSX.SSF.parse_date_code(cell.v);
-        }
-        
-        if (date && !isNaN(date.getTime())) {
-          dates.push(date);
-          dateColumns.push(colLetter);
+    // Get header row with dates
+    const headerRow = rawData[0] as string[];
+    const dateColumns: { index: number; date: Date }[] = [];
+    
+    // Process date columns (starting from index 2)
+    for (let i = 2; i < headerRow.length; i++) {
+      const dateStr = headerRow[i];
+      if (dateStr) {
+        try {
+          // Handle different date formats
+          let date: Date;
+          if (dateStr.includes('/')) {
+            const [day, month, year] = dateStr.split('/').map(Number);
+            date = new Date(year, month - 1, day);
+          } else {
+            date = new Date(dateStr);
+          }
+          if (!isNaN(date.getTime())) {
+            dateColumns.push({ index: i, date });
+          }
+        } catch (e) {
+          console.warn(`Invalid date format for column ${i}: ${dateStr}`);
         }
       }
     }
 
-    if (dates.length === 0) {
-      throw new Error('No valid dates found in the file');
-    }
-
-    // Sort dates in ascending order and keep track of column mapping
-    const sortedDateInfo = dates.map((date, index) => ({
-      date,
-      column: dateColumns[index]
-    })).sort((a, b) => a.date.getTime() - b.date.getTime());
+    // Sort date columns chronologically
+    dateColumns.sort((a, b) => a.date.getTime() - b.date.getTime());
 
     const params = new Set<string>();
     const testData: { [key: string]: { date: Date; value: number }[] } = {};
     const units: { [key: string]: string } = {};
 
-    // Process parameters and their values
-    for (let row = 2; row <= 50; row++) {
-      const paramCell = sheet[`A${row}`];
-      const unitCell = sheet[`B${row}`];
+    // Process each row
+    for (let rowIndex = 1; rowIndex < rawData.length; rowIndex++) {
+      const row = rawData[rowIndex] as (string | number)[];
+      const paramName = row[0]?.toString();
+      const unit = row[1]?.toString() || '';
       
-      if (paramCell && paramCell.v && paramCell.v !== 'Unit') {
-        const param = paramCell.v.toString();
-        params.add(param);
-        units[param] = unitCell?.v?.toString() || '';
+      if (paramName && paramName !== 'Unit' && !paramName.includes('(')) {
+        params.add(paramName);
+        units[paramName] = unit;
+        testData[paramName] = [];
         
-        testData[param] = [];
-        
-        // Use sorted date columns to collect values
-        sortedDateInfo.forEach(({ date, column }) => {
-          const cell = sheet[`${column}${row}`];
-          if (cell && typeof cell.v === 'number' && !isNaN(cell.v)) {
-            testData[param].push({ date, value: cell.v });
+        // Process values for each date column
+        dateColumns.forEach(({ index, date }) => {
+          const value = row[index];
+          if (value !== undefined && value !== '') {
+            const numValue = typeof value === 'number' ? value : parseFloat(value);
+            if (!isNaN(numValue)) {
+              testData[paramName].push({ date, value: numValue });
+            }
           }
         });
       }
     }
 
-    // Create chartData for all dates
-    const chartData: DataPoint[] = sortedDateInfo.map(({ date }) => {
+    // Create chartData array
+    const chartData: DataPoint[] = dateColumns.map(({ date }) => {
       const dataPoint: DataPoint = { date };
       params.forEach(param => {
         const paramData = testData[param];
@@ -91,7 +82,7 @@ export const processExcelData = (fileData: Uint8Array) => {
       return dataPoint;
     });
 
-    // Calculate metrics using the latest available values
+    // Calculate metrics
     const calculatedMetrics: Metric[] = Array.from(params).map(param => {
       const paramData = testData[param];
       const latestValue = paramData.length > 0 ? paramData[paramData.length - 1].value : undefined;
@@ -103,17 +94,10 @@ export const processExcelData = (fileData: Uint8Array) => {
       
       return {
         name: param,
-        value: latestValue !== undefined ? latestValue.toFixed(1) : 'N/A',
+        value: latestValue !== undefined ? latestValue.toString() : 'N/A',
         unit: units[param],
         trend
       };
-    });
-
-    console.log('Processed Data:', { 
-      chartData, 
-      calculatedMetrics,
-      parameters: Array.from(params),
-      testData
     });
 
     return {
