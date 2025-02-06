@@ -1,31 +1,20 @@
-import { Line, ReferenceLine } from 'recharts';
+import { Line } from 'recharts';
 import { Card } from '@/components/ui/card';
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import {
   LineChart,
   XAxis,
   YAxis,
   CartesianGrid,
+  Tooltip,
   ResponsiveContainer,
-  Tooltip as RechartsTooltip,
 } from 'recharts';
-import { PARAMETERS, PARAMETER_CATEGORIES, Parameter } from '@/types/blood-tests';
-import { Info } from 'lucide-react';
-import { format } from 'date-fns';
 
 interface TrendChartProps {
   data: any[];
@@ -40,72 +29,20 @@ export const TrendChart = ({
   selectedParameter,
   onParameterChange,
 }: TrendChartProps) => {
-  const selectedParamInfo = PARAMETERS.find(p => p.name === selectedParameter);
-  const referenceRange = selectedParamInfo?.referenceRange;
-
-  // Format date for X-axis
-  const formatXAxis = (tickItem: string) => {
-    if (!tickItem) return '';
-    const date = new Date(tickItem);
-    return format(date, 'MMM yyyy');
-  };
-
-  // Get available parameters from PARAMETERS that match the current data
-  const availableParameters = PARAMETERS.filter(param => 
-    parameters.includes(param.name)
-  );
-
   return (
     <Card className="p-6 space-y-4">
       <div className="flex justify-between items-center">
-        <div className="flex items-center space-x-2">
-          <h2 className="text-2xl font-semibold">Trends</h2>
-          {selectedParamInfo && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <Info className="h-5 w-5 text-muted-foreground" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="max-w-xs">
-                    {selectedParamInfo.description}
-                    {referenceRange && (
-                      <span className="block mt-1 text-sm text-muted-foreground">
-                        Normal range: {referenceRange.min}-{referenceRange.max} {referenceRange.unit}
-                      </span>
-                    )}
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
-        </div>
-        <Select 
-          value={selectedParameter} 
-          onValueChange={onParameterChange}
-          defaultValue={parameters[0]}
-        >
-          <SelectTrigger className="w-[220px]">
+        <h2 className="text-2xl font-semibold">Trends</h2>
+        <Select value={selectedParameter} onValueChange={onParameterChange}>
+          <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Select parameter" />
           </SelectTrigger>
           <SelectContent>
-            {Object.entries(PARAMETER_CATEGORIES).map(([key, category]) => {
-              const categoryParams = availableParameters.filter(p => p.category === category);
-              if (categoryParams.length === 0) return null;
-              
-              return (
-                <SelectGroup key={key}>
-                  <SelectLabel className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">
-                    {category}
-                  </SelectLabel>
-                  {categoryParams.map((param) => (
-                    <SelectItem key={param.name} value={param.name}>
-                      {param.name}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              );
-            })}
+            {parameters.map((param) => (
+              <SelectItem key={param} value={param}>
+                {param}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
@@ -113,31 +50,9 @@ export const TrendChart = ({
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis 
-              dataKey="date" 
-              tickFormatter={formatXAxis}
-              minTickGap={50}
-            />
+            <XAxis dataKey="date" />
             <YAxis />
-            <RechartsTooltip 
-              labelFormatter={(label) => format(new Date(label), 'dd MMM yyyy')}
-            />
-            {referenceRange && (
-              <>
-                <ReferenceLine 
-                  y={referenceRange.max} 
-                  label="Max" 
-                  stroke="hsl(var(--muted-foreground))" 
-                  strokeDasharray="3 3" 
-                />
-                <ReferenceLine 
-                  y={referenceRange.min} 
-                  label="Min" 
-                  stroke="hsl(var(--muted-foreground))" 
-                  strokeDasharray="3 3" 
-                />
-              </>
-            )}
+            <Tooltip />
             <Line
               type="monotone"
               dataKey={selectedParameter}
