@@ -5,10 +5,10 @@ import { PARAMETER_CATEGORIES } from '@/types/blood-tests';
 const parseDate = (dateStr: string | number): Date | null => {
   // Handle Excel date number format
   if (typeof dateStr === 'number') {
-    const date = XLSX.SSF.parse_date_code(dateStr);
-    if (date) {
-      return new Date(date.y, date.m - 1, date.d);
-    }
+    // Excel stores dates as days since 1900-01-01
+    const date = new Date(1900, 0, 1);
+    date.setDate(date.getDate() + dateStr - 2); // Subtract 2 to account for Excel's date system
+    return date;
   }
 
   // Handle string date formats
