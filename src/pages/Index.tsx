@@ -22,8 +22,18 @@ const BloodTestDashboard: React.FC = () => {
         setData(chartData);
         setParameters(processedParams);
         setSelectedParameter(processedParams[0]);
-        setMetrics(calculatedMetrics);
-        setHasData(true); // Set this after all other state updates
+        
+        // Filter out metrics that don't have any data
+        const metricsWithData = calculatedMetrics.filter(metric => {
+          const hasValue = chartData.some(point => 
+            point[metric.name] !== undefined && 
+            point[metric.name] !== null
+          );
+          return hasValue;
+        });
+        
+        setMetrics(metricsWithData);
+        setHasData(true);
       } else {
         throw new Error('No valid data found in the file');
       }
@@ -33,18 +43,10 @@ const BloodTestDashboard: React.FC = () => {
     }
   };
 
-  const formatDate = (date: Date): string => {
-    if (!date || !(date instanceof Date) || isNaN(date.getTime())) return 'Invalid Date';
-    return date.toLocaleDateString('en-US', { 
-      month: 'short',
-      year: 'numeric'
-    });
-  };
-
   const getLatestReading = (parameter: string): number | null => {
     for (let i = data.length - 1; i >= 0; i--) {
       const value = data[i][parameter];
-      if (value !== undefined && value !== null) {
+      if (value !== undefined && value !== null && !isNaN(value)) {
         return value;
       }
     }
@@ -72,17 +74,20 @@ const BloodTestDashboard: React.FC = () => {
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {metrics.map((metric) => (
-              <HealthMetricCard
-                key={metric.name}
-                title={metric.name}
-                value={getLatestReading(metric.name)?.toFixed(1) || 'N/A'}
-                unit={metric.unit}
-                trend={metric.trend}
-                isSelected={selectedParameter === metric.name}
-                onClick={() => setSelectedParameter(metric.name)}
-              />
-            ))}
+            {metrics.map((metric) => {
+              const latestValue = getLatestReading(metric.name);
+              return latestValue !== null && (
+                <HealthMetricCard
+                  key={metric.name}
+                  title={metric.name}
+                  value={latestValue}
+                  unit={metric.unit}
+                  trend={metric.trend}
+                  isSelected={selectedParameter === metric.name}
+                  onClick={() => setSelectedParameter(metric.name)}
+                />
+              );
+            })}
           </div>
         </>
       )}

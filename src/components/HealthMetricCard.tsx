@@ -15,9 +15,7 @@ export const HealthMetricCard: React.FC<HealthMetricCardProps> = ({
     ? value < 1 
       ? value.toFixed(3)  // Show 3 decimal places for all numbers less than 1
       : value.toFixed(2)  // Show 2 decimal places for larger numbers
-    : value === 'N/A' 
-      ? '0.00' 
-      : value;
+    : 'N/A';  // Changed from '0.00' to 'N/A' for null/undefined values
 
   return (
     <div 
