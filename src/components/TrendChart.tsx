@@ -98,7 +98,7 @@ export const TrendChart = ({
           <SelectTrigger className="w-[220px]">
             <SelectValue placeholder="Select parameter" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="max-h-[300px]">
             {Object.entries(PARAMETER_CATEGORIES).map(([key, category]) => {
               const categoryParams = availableParameters.filter(p => p.category === category);
               if (categoryParams.length === 0) return null;

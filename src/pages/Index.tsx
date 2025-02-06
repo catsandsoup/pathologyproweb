@@ -5,6 +5,7 @@ import { HealthMetricCard } from '@/components/HealthMetricCard';
 import { FileUpload } from '@/components/FileUpload';
 import { processExcelData } from '@/utils/excel-processor';
 import { TrendChart } from '@/components/TrendChart';
+import { PARAMETER_CATEGORIES } from '@/types/blood-tests';
 
 const BloodTestDashboard: React.FC = () => {
   const [data, setData] = useState<DataPoint[]>([]);
@@ -17,7 +18,6 @@ const BloodTestDashboard: React.FC = () => {
     try {
       const { chartData, calculatedMetrics, parameters: processedParams } = processExcelData(fileData);
       
-      // Ensure we have valid data before updating state
       if (chartData && chartData.length > 0 && processedParams && processedParams.length > 0) {
         setData(chartData);
         setParameters(processedParams);
@@ -53,6 +53,19 @@ const BloodTestDashboard: React.FC = () => {
     return null;
   };
 
+  // Group metrics by category
+  const groupedMetrics = metrics.reduce((acc, metric) => {
+    const category = Object.entries(PARAMETER_CATEGORIES).find(([_, value]) => 
+      metrics.find(m => m.name === metric.name)?.category === value
+    )?.[1] || 'Other';
+    
+    if (!acc[category]) {
+      acc[category] = [];
+    }
+    acc[category].push(metric);
+    return acc;
+  }, {} as Record<string, Metric[]>);
+
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">
       {!hasData ? (
@@ -73,21 +86,28 @@ const BloodTestDashboard: React.FC = () => {
             onParameterChange={setSelectedParameter}
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {metrics.map((metric) => {
-              const latestValue = getLatestReading(metric.name);
-              return latestValue !== null && (
-                <HealthMetricCard
-                  key={metric.name}
-                  title={metric.name}
-                  value={latestValue}
-                  unit={metric.unit}
-                  trend={metric.trend}
-                  isSelected={selectedParameter === metric.name}
-                  onClick={() => setSelectedParameter(metric.name)}
-                />
-              );
-            })}
+          <div className="space-y-6">
+            {Object.entries(groupedMetrics).map(([category, categoryMetrics]) => (
+              <div key={category} className="space-y-4">
+                <h2 className="text-xl font-semibold text-gray-700">{category}</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {categoryMetrics.map((metric) => {
+                    const latestValue = getLatestReading(metric.name);
+                    return latestValue !== null && (
+                      <HealthMetricCard
+                        key={metric.name}
+                        title={metric.name}
+                        value={latestValue}
+                        unit={metric.unit}
+                        trend={metric.trend}
+                        isSelected={selectedParameter === metric.name}
+                        onClick={() => setSelectedParameter(metric.name)}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </div>
         </>
       )}
