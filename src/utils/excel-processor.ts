@@ -1,3 +1,4 @@
+
 import * as XLSX from 'xlsx';
 import { DataPoint, Metric } from '@/types/blood-test';
 
@@ -10,35 +11,24 @@ export const processExcelData = (fileData: Uint8Array) => {
     
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const dates: Date[] = [];
-    const dateColumns: string[] = [];
-    
-    // Find all date columns (starting from C column)
     for (let col = 'C'.charCodeAt(0); col <= 'G'.charCodeAt(0); col++) {
-      const colLetter = String.fromCharCode(col);
-      const cellRef = `${colLetter}1`;
+      const cellRef = `${String.fromCharCode(col)}1`;
       if (sheet[cellRef]) {
-        const cellValue = sheet[cellRef].v;
-        // Parse the date string (assuming DD/MM/YYYY format)
-        const [day, month, year] = cellValue.split('/').map(Number);
-        const date = new Date(year, month - 1, day);
-        if (!isNaN(date.getTime())) {
-          dates.push(date);
-          dateColumns.push(colLetter);
+        const dateValue = new Date(sheet[cellRef].v);
+        if (!isNaN(dateValue.getTime())) {
+          dates.push(dateValue);
         }
       }
     }
 
-    // Sort dates in ascending order and keep track of column mapping
-    const sortedDateInfo = dates.map((date, index) => ({
-      date,
-      column: dateColumns[index]
-    })).sort((a, b) => a.date.getTime() - b.date.getTime());
+    // Sort dates in ascending order
+    dates.sort((a, b) => a.getTime() - b.getTime());
 
     const params = new Set<string>();
     const testData: { [key: string]: { date: Date; value: number }[] } = {};
     const units: { [key: string]: string } = {};
 
-    // Process parameters and their values
+    // First pass: collect all parameters and their values
     for (let row = 2; row <= 50; row++) {
       const paramCell = sheet[`A${row}`];
       const unitCell = sheet[`B${row}`];
@@ -50,39 +40,39 @@ export const processExcelData = (fileData: Uint8Array) => {
         
         testData[param] = [];
         
-        // Use sorted date columns to collect values
-        sortedDateInfo.forEach(({ date, column }) => {
-          const cellValue = sheet[`${column}${row}`]?.v;
-          if (typeof cellValue === 'number' && !isNaN(cellValue)) {
+        dates.forEach((date, index) => {
+          const colLetter = String.fromCharCode('C'.charCodeAt(0) + index);
+          const cellValue = sheet[`${colLetter}${row}`]?.v;
+          if (typeof cellValue === 'number') {
             testData[param].push({ date, value: cellValue });
           }
         });
       }
     }
 
-    // Create chartData for all dates
-    const chartData: DataPoint[] = sortedDateInfo.map(({ date }) => {
+    // Create chartData using the actual data points we have
+    const chartData: DataPoint[] = dates.map(date => {
       const dataPoint: DataPoint = { date };
       params.forEach(param => {
-        const paramData = testData[param];
-        const matchingData = paramData.find(d => d.date.getTime() === date.getTime());
-        if (matchingData) {
-          dataPoint[param] = matchingData.value;
+        const paramDataPoint = testData[param].find(d => d.date.getTime() === date.getTime());
+        if (paramDataPoint) {
+          dataPoint[param] = paramDataPoint.value;
         }
       });
       return dataPoint;
     });
 
-    // Calculate metrics using the latest available values
+    // Calculate metrics using the actual data we have
     const calculatedMetrics: Metric[] = Array.from(params).map(param => {
       const paramData = testData[param];
-      // Get the latest non-null value
       const latestValue = paramData.length > 0 ? paramData[paramData.length - 1].value : undefined;
       const previousValue = paramData.length > 1 ? paramData[paramData.length - 2].value : undefined;
       
       const trend = latestValue !== undefined && previousValue !== undefined 
         ? latestValue - previousValue 
         : 0;
+      
+      console.log(`Parameter: ${param}, Latest: ${latestValue}, Previous: ${previousValue}, Trend: ${trend}`);
       
       return {
         name: param,
@@ -94,9 +84,9 @@ export const processExcelData = (fileData: Uint8Array) => {
 
     console.log('Processed Data:', { 
       chartData, 
-      calculatedMetrics,
-      parameters: Array.from(params),
-      testData
+      calculatedMetrics, 
+      dates,
+      testData 
     });
 
     return {
