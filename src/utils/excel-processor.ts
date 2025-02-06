@@ -4,8 +4,9 @@ import { DataPoint, Metric } from '@/types/blood-test';
 export const processExcelData = (fileData: Uint8Array) => {
   try {
     const workbook = XLSX.read(fileData, {
+      type: 'array',
       cellDates: true,
-      cellStyles: true
+      dateNF: 'dd/mm/yyyy'
     });
     
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -16,16 +17,33 @@ export const processExcelData = (fileData: Uint8Array) => {
     for (let col = 'C'.charCodeAt(0); col <= 'G'.charCodeAt(0); col++) {
       const colLetter = String.fromCharCode(col);
       const cellRef = `${colLetter}1`;
-      if (sheet[cellRef]) {
-        const cellValue = sheet[cellRef].v;
-        // Parse the date string (assuming DD/MM/YYYY format)
-        const [day, month, year] = cellValue.split('/').map(Number);
-        const date = new Date(year, month - 1, day);
-        if (!isNaN(date.getTime())) {
+      const cell = sheet[cellRef];
+      
+      if (cell) {
+        let date: Date | null = null;
+        
+        // Handle different date formats
+        if (cell.t === 'd') {
+          // If it's already a date object
+          date = cell.v;
+        } else if (typeof cell.v === 'string' && cell.v.includes('/')) {
+          // If it's a date string in DD/MM/YYYY format
+          const [day, month, year] = cell.v.split('/').map(Number);
+          date = new Date(year, month - 1, day);
+        } else if (typeof cell.v === 'number') {
+          // If it's an Excel date number
+          date = XLSX.SSF.parse_date_code(cell.v);
+        }
+        
+        if (date && !isNaN(date.getTime())) {
           dates.push(date);
           dateColumns.push(colLetter);
         }
       }
+    }
+
+    if (dates.length === 0) {
+      throw new Error('No valid dates found in the file');
     }
 
     // Sort dates in ascending order and keep track of column mapping
@@ -44,17 +62,17 @@ export const processExcelData = (fileData: Uint8Array) => {
       const unitCell = sheet[`B${row}`];
       
       if (paramCell && paramCell.v && paramCell.v !== 'Unit') {
-        const param = paramCell.v as string;
+        const param = paramCell.v.toString();
         params.add(param);
-        units[param] = unitCell?.v || '';
+        units[param] = unitCell?.v?.toString() || '';
         
         testData[param] = [];
         
         // Use sorted date columns to collect values
         sortedDateInfo.forEach(({ date, column }) => {
-          const cellValue = sheet[`${column}${row}`]?.v;
-          if (typeof cellValue === 'number' && !isNaN(cellValue)) {
-            testData[param].push({ date, value: cellValue });
+          const cell = sheet[`${column}${row}`];
+          if (cell && typeof cell.v === 'number' && !isNaN(cell.v)) {
+            testData[param].push({ date, value: cell.v });
           }
         });
       }
@@ -76,7 +94,6 @@ export const processExcelData = (fileData: Uint8Array) => {
     // Calculate metrics using the latest available values
     const calculatedMetrics: Metric[] = Array.from(params).map(param => {
       const paramData = testData[param];
-      // Get the latest non-null value
       const latestValue = paramData.length > 0 ? paramData[paramData.length - 1].value : undefined;
       const previousValue = paramData.length > 1 ? paramData[paramData.length - 2].value : undefined;
       
