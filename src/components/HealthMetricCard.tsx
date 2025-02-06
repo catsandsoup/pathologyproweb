@@ -12,8 +12,8 @@ export const HealthMetricCard: React.FC<HealthMetricCardProps> = ({
 }) => {
   // Format the value with appropriate decimal places
   const formattedValue = typeof value === 'number' 
-    ? value < 0.1 
-      ? value.toFixed(3)  // Show 3 decimal places for very small numbers
+    ? value < 1 
+      ? value.toFixed(3)  // Show 3 decimal places for all numbers less than 1
       : value.toFixed(2)  // Show 2 decimal places for larger numbers
     : value === 'N/A' 
       ? '0.00' 
