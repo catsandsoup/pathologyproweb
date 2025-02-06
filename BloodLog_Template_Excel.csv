@@ -1,0 +1,43 @@
+﻿Haematology,Unit,16/7/2016,3/7/2017,2/8/2018,36/5/2019,10/7/2020
+Basophils,x10^9/L,0.02,0.05,0.02,,0.03
+Eosinophils,x10^9/L,0.19,0.14,0.12,,0.36
+Haematocrit,,0.44,0.41,0.42,,0.39
+Monocytes,x10^9/L,0.67,0.45,0.46,,0.54
+Lymphocytes,x10^9/L,2.2,2.03,1.65,,1.84
+Potassium,mmol/l,3.7,4.1,4.1,3.6,4.1
+Neutrophils,x10^9/L,3.93,4.02,2.19,,6.66
+ESR,mm/h,4,,,3,
+RCC,x10^12/L,5,4.7,4.8,,4.5
+Urea,mmol/l,6.8,5.2,6.1,7,7.6
+WCC,x10^9/L,7,6.7,4.4,,9.4
+RDW,,13.8,12.7,13.3,,13.2
+GGT,U/L,14,12,14,14,16
+Bili.Total,umol/L,14,17,19,20,17
+ALT,U/L,19,19,20,24,15
+AST,U/L,21,20,21,24,21
+Bicarbonate,mmol/l,24,27,28,27,24
+Globulin,g/L,29,25,27,27,25
+MCH,pg,31.4,31,31.1,,31.3
+Albumin,g/L,52,55,55,56,51
+ALP,U/L,54,40,45,51,53
+Total Protein,g/L,81,80,82,83,76
+MCV,fL,89,88,87,,87
+Creatinine,umol/l,90,85,75,90,90
+eGFR,mL/min/1.73m2,90,90,90,90,90
+Chloride,mmol/l,107,105,103,104,104
+Sodium,mmol/l,144,139,142,141,141
+Haemoglobin,g/L,156,144,150,,141
+LD,U/L,181,174,189,176,233
+Platelets,x10^9/L,205,197,199,,292
+MCHC,g/L,351,354,358,,360
+NRBC,/100 WBC,,1,1,,
+Hep B Surface Ab,IU/L,,,,,242
+,,,,,,
+Biochemistry,,,,,,
+,,,,,,
+Lipids (Fasting),,,,,,
+Cholesterol,mmol/l,,,3.6,4,
+Triglycerides,mmol/l,,,0.6,0.6,
+HDL,mmol/l,,,1.4,1.4,
+LDL,mmol/l,,,1.9,2.3,
+Non-HDL Cholesterol,mmol/l,,,,2.6,
