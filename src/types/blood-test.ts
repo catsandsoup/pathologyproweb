@@ -1,4 +1,3 @@
-
 export interface HealthMetricCardProps {
   title: string;
   value: string | number;
@@ -22,4 +21,5 @@ export interface Metric {
   value: string;
   unit: string;
   trend: number;
+  category: string;  // Added this line to fix the TypeScript error
 }
