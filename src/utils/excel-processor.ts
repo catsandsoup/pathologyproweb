@@ -8,42 +8,41 @@ const parseDate = (dateStr: string | number): Date | null => {
   // Handle Excel date number format
   if (typeof dateStr === 'number') {
     try {
-      const date = XLSX.SSF.parse_date_code(dateStr);
-      console.log('Parsed Excel date:', date);
-      if (date) {
-        return new Date(date.y, date.m - 1, date.d);
-      }
+      return new Date(Math.round((dateStr - 25569) * 86400 * 1000));
     } catch (error) {
-      console.error('Error parsing Excel date:', error);
+      console.error('Error parsing Excel date number:', error);
     }
   }
 
   // Handle string date formats
   if (typeof dateStr === 'string') {
-    // Fix incorrect date format (36/5/2019)
+    // Try parsing DD/MM/YYYY format
     if (dateStr.includes('/')) {
       const [day, month, year] = dateStr.split('/');
-      console.log('Parsing string date:', { day, month, year });
-      if (parseInt(day) > 31) {
-        return new Date(`${year}-${month}-01`); // Default to first of the month for invalid dates
+      const parsedDate = new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`);
+      if (!isNaN(parsedDate.getTime())) {
+        return parsedDate;
       }
-      return new Date(`${year}-${month}-${day}`);
     }
 
-    const date = new Date(dateStr);
-    return isNaN(date.getTime()) ? null : date;
+    // Try parsing YYYY-MM-DD format
+    const isoDate = new Date(dateStr);
+    if (!isNaN(isoDate.getTime())) {
+      return isoDate;
+    }
   }
 
+  console.warn('Failed to parse date:', dateStr);
   return null;
 };
 
 export const processExcelData = (fileData: Uint8Array) => {
   try {
-    console.log('Starting Excel processing');
+    console.log('Starting file processing');
     const workbook = XLSX.read(fileData, {
       type: 'array',
-      cellDates: true, // Try with true to let XLSX handle date parsing
-      dateNF: 'yyyy-mm-dd', // Specify date format
+      cellDates: false,
+      raw: true
     });
     
     console.log('Workbook loaded:', {
@@ -65,7 +64,12 @@ export const processExcelData = (fileData: Uint8Array) => {
       throw new Error('First sheet is empty');
     }
 
-    const rawData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+    const rawData = XLSX.utils.sheet_to_json(sheet, { 
+      header: 1,
+      raw: true,
+      defval: null
+    });
+    
     console.log('Raw data first row:', rawData[0]);
     console.log('Raw data second row:', rawData[1]);
 
@@ -104,8 +108,10 @@ export const processExcelData = (fileData: Uint8Array) => {
     // Process each row starting from row 1 (skipping header)
     for (let rowIndex = 1; rowIndex < rawData.length; rowIndex++) {
       const row = rawData[rowIndex] as (string | number)[];
-      const paramName = row[0]?.toString();
-      const unit = row[1]?.toString() || '';
+      if (!row || !row.length) continue;
+
+      const paramName = row[0]?.toString().trim();
+      const unit = row[1]?.toString().trim() || '';
       
       console.log(`Processing row ${rowIndex}:`, { paramName, unit, row });
       
@@ -127,7 +133,7 @@ export const processExcelData = (fileData: Uint8Array) => {
       // Process values for each date column
       dateColumns.forEach(({ index, date }) => {
         const value = row[index];
-        if (value !== undefined && value !== '') {
+        if (value !== undefined && value !== null && value !== '') {
           const numValue = typeof value === 'number' ? value : parseFloat(value);
           if (!isNaN(numValue)) {
             testData[paramName].push({ date, value: numValue });
@@ -158,7 +164,7 @@ export const processExcelData = (fileData: Uint8Array) => {
 
     // Calculate metrics with category
     const calculatedMetrics: Metric[] = Array.from(params).map(param => {
-      const paramData = testData[param];
+      const paramData = testData[param] || [];
       const latestValue = paramData.length > 0 ? paramData[paramData.length - 1].value : undefined;
       const previousValue = paramData.length > 1 ? paramData[paramData.length - 2].value : undefined;
       
