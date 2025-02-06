@@ -2,37 +2,56 @@ import * as XLSX from 'xlsx';
 import { DataPoint, Metric } from '@/types/blood-test';
 import { PARAMETER_CATEGORIES } from '@/types/blood-tests';
 
-const parseDate = (dateStr: string): Date | null => {
+const parseDate = (dateStr: string | number): Date | null => {
   // Handle Excel date number format
   if (typeof dateStr === 'number') {
-    return XLSX.SSF.parse_date_code(dateStr);
-  }
-
-  // Fix incorrect date format (36/5/2019)
-  if (dateStr.includes('/')) {
-    const [day, month, year] = dateStr.split('/');
-    if (parseInt(day) > 31) {
-      return new Date(`${year}-${month}-01`); // Default to first of the month for invalid dates
+    const date = XLSX.SSF.parse_date_code(dateStr);
+    if (date) {
+      return new Date(date.y, date.m - 1, date.d);
     }
-    return new Date(`${year}-${month}-${day}`);
   }
 
-  const date = new Date(dateStr);
-  return isNaN(date.getTime()) ? null : date;
+  // Handle string date formats
+  if (typeof dateStr === 'string') {
+    // Fix incorrect date format (36/5/2019)
+    if (dateStr.includes('/')) {
+      const [day, month, year] = dateStr.split('/');
+      if (parseInt(day) > 31) {
+        return new Date(`${year}-${month}-01`); // Default to first of the month for invalid dates
+      }
+      return new Date(`${year}-${month}-${day}`);
+    }
+
+    const date = new Date(dateStr);
+    return isNaN(date.getTime()) ? null : date;
+  }
+
+  return null;
 };
 
 export const processExcelData = (fileData: Uint8Array) => {
   try {
     const workbook = XLSX.read(fileData, {
       type: 'array',
-      cellDates: true,
+      cellDates: false, // Set to false to handle date parsing manually
     });
     
+    if (!workbook.SheetNames.length) {
+      throw new Error('No sheets found in the file');
+    }
+
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    if (!sheet) {
+      throw new Error('First sheet is empty');
+    }
+
     const rawData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+    if (!rawData.length) {
+      throw new Error('No data found in the sheet');
+    }
     
     // Get header row with dates
-    const headerRow = rawData[0] as string[];
+    const headerRow = rawData[0] as (string | number)[];
     const dateColumns: { index: number; date: Date }[] = [];
     
     // Process date columns (starting from index 2)
