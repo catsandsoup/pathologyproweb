@@ -3,12 +3,19 @@ import { DataPoint, Metric } from '@/types/blood-test';
 import { PARAMETER_CATEGORIES } from '@/types/blood-tests';
 
 const parseDate = (dateStr: string | number): Date | null => {
+  console.log('Parsing date:', dateStr, 'Type:', typeof dateStr);
+  
   // Handle Excel date number format
   if (typeof dateStr === 'number') {
-    // Excel stores dates as days since 1900-01-01
-    const date = new Date(1900, 0, 1);
-    date.setDate(date.getDate() + dateStr - 2); // Subtract 2 to account for Excel's date system
-    return date;
+    try {
+      const date = XLSX.SSF.parse_date_code(dateStr);
+      console.log('Parsed Excel date:', date);
+      if (date) {
+        return new Date(date.y, date.m - 1, date.d);
+      }
+    } catch (error) {
+      console.error('Error parsing Excel date:', error);
+    }
   }
 
   // Handle string date formats
@@ -16,6 +23,7 @@ const parseDate = (dateStr: string | number): Date | null => {
     // Fix incorrect date format (36/5/2019)
     if (dateStr.includes('/')) {
       const [day, month, year] = dateStr.split('/');
+      console.log('Parsing string date:', { day, month, year });
       if (parseInt(day) > 31) {
         return new Date(`${year}-${month}-01`); // Default to first of the month for invalid dates
       }
@@ -31,21 +39,36 @@ const parseDate = (dateStr: string | number): Date | null => {
 
 export const processExcelData = (fileData: Uint8Array) => {
   try {
+    console.log('Starting Excel processing');
     const workbook = XLSX.read(fileData, {
       type: 'array',
-      cellDates: false, // Set to false to handle date parsing manually
+      cellDates: true, // Try with true to let XLSX handle date parsing
+      dateNF: 'yyyy-mm-dd', // Specify date format
     });
     
+    console.log('Workbook loaded:', {
+      sheetNames: workbook.SheetNames,
+      props: workbook.Props
+    });
+
     if (!workbook.SheetNames.length) {
       throw new Error('No sheets found in the file');
     }
 
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    console.log('First sheet:', {
+      range: sheet['!ref'],
+      firstCell: sheet['A1']
+    });
+
     if (!sheet) {
       throw new Error('First sheet is empty');
     }
 
     const rawData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+    console.log('Raw data first row:', rawData[0]);
+    console.log('Raw data second row:', rawData[1]);
+
     if (!rawData.length) {
       throw new Error('No data found in the sheet');
     }
@@ -57,8 +80,10 @@ export const processExcelData = (fileData: Uint8Array) => {
     // Process date columns (starting from index 2)
     for (let i = 2; i < headerRow.length; i++) {
       const dateStr = headerRow[i];
+      console.log(`Processing header column ${i}:`, dateStr);
       if (dateStr) {
         const parsedDate = parseDate(dateStr);
+        console.log('Parsed header date:', parsedDate);
         if (parsedDate) {
           dateColumns.push({ index: i, date: parsedDate });
         } else {
@@ -69,6 +94,7 @@ export const processExcelData = (fileData: Uint8Array) => {
 
     // Sort date columns chronologically
     dateColumns.sort((a, b) => a.date.getTime() - b.date.getTime());
+    console.log('Processed date columns:', dateColumns);
 
     const params = new Set<string>();
     const testData: { [key: string]: { date: Date; value: number }[] } = {};
@@ -80,6 +106,8 @@ export const processExcelData = (fileData: Uint8Array) => {
       const row = rawData[rowIndex] as (string | number)[];
       const paramName = row[0]?.toString();
       const unit = row[1]?.toString() || '';
+      
+      console.log(`Processing row ${rowIndex}:`, { paramName, unit, row });
       
       // Skip empty rows or category headers
       if (!paramName || paramName === 'Unit' || paramName.includes('(')) {
@@ -112,6 +140,9 @@ export const processExcelData = (fileData: Uint8Array) => {
       throw new Error('No valid data found in the file');
     }
 
+    console.log('Processed parameters:', Array.from(params));
+    console.log('Sample test data:', Object.entries(testData)[0]);
+
     // Create chartData array
     const chartData: DataPoint[] = dateColumns.map(({ date }) => {
       const dataPoint: DataPoint = { date };
@@ -142,6 +173,12 @@ export const processExcelData = (fileData: Uint8Array) => {
         trend,
         category: categories[param]
       };
+    });
+
+    console.log('Final output:', {
+      chartDataLength: chartData.length,
+      metricsLength: calculatedMetrics.length,
+      parametersLength: params.size
     });
 
     return {
