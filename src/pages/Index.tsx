@@ -1,9 +1,11 @@
+
 import React, { useState } from 'react';
-import { Activity, FileDown, Calendar } from 'lucide-react';
+import { Activity, FileDown, Calendar, Play } from 'lucide-react';
 import { DataPoint, Metric } from '@/types/blood-test';
 import { HealthMetricCard } from '@/components/HealthMetricCard';
 import { FileUpload } from '@/components/FileUpload';
 import { processExcelData } from '@/utils/excel-processor';
+import { generateSampleData } from '@/utils/sample-data';
 import { TrendChart } from '@/components/TrendChart';
 import { PARAMETER_CATEGORIES } from '@/types/blood-tests';
 import { PDFDownloadLink } from '@react-pdf/renderer';
@@ -11,6 +13,7 @@ import { BloodTestPDF } from '@/components/BloodTestPDF';
 import { Button } from '@/components/ui/button';
 import { DateRange } from 'react-day-picker';
 import { format } from 'date-fns';
+import { useToast } from "@/hooks/use-toast";
 import {
   Popover,
   PopoverContent,
@@ -26,6 +29,7 @@ const BloodTestDashboard: React.FC = () => {
   const [metrics, setMetrics] = useState<Metric[]>([]);
   const [hasData, setHasData] = useState(false);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const { toast } = useToast();
 
   const handleFileUpload = (fileData: Uint8Array) => {
     try {
@@ -53,6 +57,19 @@ const BloodTestDashboard: React.FC = () => {
       console.error('Error processing file:', error);
       alert(error instanceof Error ? error.message : 'An error occurred while processing the file');
     }
+  };
+
+  const handleLoadDemo = () => {
+    const { chartData, calculatedMetrics, parameters: demoParams } = generateSampleData();
+    setData(chartData);
+    setParameters(demoParams);
+    setSelectedParameter(demoParams[0]);
+    setMetrics(calculatedMetrics);
+    setHasData(true);
+    toast({
+      title: "Demo data loaded",
+      description: "Sample blood test results for a healthy individual have been loaded.",
+    });
   };
 
   const getLatestReading = (parameter: string): number | null => {
@@ -92,7 +109,19 @@ const BloodTestDashboard: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">
       {!hasData ? (
-        <FileUpload onFileUpload={handleFileUpload} />
+        <div className="space-y-4">
+          <FileUpload onFileUpload={handleFileUpload} />
+          <div className="flex justify-center">
+            <Button 
+              onClick={handleLoadDemo}
+              className="mt-4"
+              variant="outline"
+            >
+              <Play className="w-4 h-4 mr-2" />
+              Load Demo Data
+            </Button>
+          </div>
+        </div>
       ) : (
         <>
           <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
@@ -101,6 +130,14 @@ const BloodTestDashboard: React.FC = () => {
               <h1 className="text-2xl font-semibold">Blood Tests</h1>
             </div>
             <div className="flex items-center space-x-4">
+              <Button 
+                onClick={handleLoadDemo} 
+                variant="outline"
+                size="sm"
+              >
+                <Play className="w-4 h-4 mr-2" />
+                Reload Demo
+              </Button>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
