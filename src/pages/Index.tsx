@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Activity, FileDown, Calendar, Play } from 'lucide-react';
 import { DataPoint, Metric } from '@/types/blood-test';
@@ -114,8 +113,7 @@ const BloodTestDashboard: React.FC = () => {
           <div className="flex justify-center">
             <Button 
               onClick={handleLoadDemo}
-              className="mt-4"
-              variant="outline"
+              className="mt-4 bg-[#FF2D55] hover:bg-[#FF2D55]/90 text-white"
             >
               <Play className="w-4 h-4 mr-2" />
               Load Demo Data
@@ -126,13 +124,13 @@ const BloodTestDashboard: React.FC = () => {
         <>
           <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
             <div className="flex items-center space-x-3">
-              <Activity className="w-8 h-8 text-red-500" />
+              <Activity className="w-8 h-8 text-[#FF2D55]" />
               <h1 className="text-2xl font-semibold">Blood Tests</h1>
             </div>
             <div className="flex items-center space-x-4">
               <Button 
                 onClick={handleLoadDemo} 
-                variant="outline"
+                className="bg-[#FF2D55] hover:bg-[#FF2D55]/90 text-white"
                 size="sm"
               >
                 <Play className="w-4 h-4 mr-2" />
