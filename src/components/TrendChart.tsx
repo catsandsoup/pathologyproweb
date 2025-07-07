@@ -23,8 +23,7 @@ import {
   ResponsiveContainer,
   Tooltip as RechartsTooltip,
 } from 'recharts';
-import { PARAMETERS, PARAMETER_CATEGORIES, Parameter, getReferenceRange } from '@/types/blood-tests';
-import { useUnitSystem } from '@/contexts/UnitSystemContext';
+import { PARAMETERS, PARAMETER_CATEGORIES, Parameter } from '@/types/blood-tests';
 import { Info } from 'lucide-react';
 import { format, isValid } from 'date-fns';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -43,9 +42,8 @@ export const TrendChart = ({
   onParameterChange,
 }: TrendChartProps) => {
   const isMobile = useIsMobile();
-  const { unitSystem } = useUnitSystem();
   const selectedParamInfo = PARAMETERS.find(p => p.name === selectedParameter);
-  const referenceRange = getReferenceRange(selectedParamInfo!, unitSystem);
+  const referenceRange = selectedParamInfo?.referenceRange;
 
   const formatXAxis = (tickItem: string) => {
     if (!tickItem) return '';

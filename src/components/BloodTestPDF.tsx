@@ -1,7 +1,7 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 import { DataPoint, Metric } from '@/types/blood-test';
-import { PARAMETERS, getReferenceRange } from '@/types/blood-tests';
+import { PARAMETERS } from '@/types/blood-tests';
 import { format } from 'date-fns';
 
 const styles = StyleSheet.create({
@@ -89,13 +89,11 @@ export const BloodTestPDF: React.FC<BloodTestPDFProps> = ({ data, metrics }) => 
             </View>
             {metrics.map((metric) => {
               const paramInfo = PARAMETERS.find(p => p.name === metric.name);
-              // Use imperial as default for PDF export
-              const referenceRange = paramInfo ? getReferenceRange(paramInfo, 'imperial') : undefined;
               const latestValue = getLatestReading(metric.name);
-              const status = latestValue !== null && referenceRange
-                ? latestValue < referenceRange.min
+              const status = latestValue !== null && paramInfo?.referenceRange
+                ? latestValue < paramInfo.referenceRange.min
                   ? 'Low'
-                  : latestValue > referenceRange.max
+                  : latestValue > paramInfo.referenceRange.max
                     ? 'High'
                     : 'Normal'
                 : 'N/A';
@@ -112,8 +110,8 @@ export const BloodTestPDF: React.FC<BloodTestPDFProps> = ({ data, metrics }) => 
                   </View>
                   <View style={styles.tableCol}>
                     <Text style={styles.tableCell}>
-                      {referenceRange 
-                        ? `${referenceRange.min}-${referenceRange.max} ${referenceRange.unit}`
+                      {paramInfo?.referenceRange 
+                        ? `${paramInfo.referenceRange.min}-${paramInfo.referenceRange.max} ${paramInfo.referenceRange.unit}`
                         : 'N/A'}
                     </Text>
                   </View>

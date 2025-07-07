@@ -6,8 +6,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { PARAMETERS, getReferenceRange } from '@/types/blood-tests';
-import { useUnitSystem } from '@/contexts/UnitSystemContext';
+import { PARAMETERS } from '@/types/blood-tests';
 import { Line } from 'recharts';
 
 export const HealthMetricCard: React.FC<HealthMetricCardProps> = ({ 
@@ -19,7 +18,6 @@ export const HealthMetricCard: React.FC<HealthMetricCardProps> = ({
   isSelected,
   historicalData = [] 
 }) => {
-  const { unitSystem } = useUnitSystem();
   const formattedValue = typeof value === 'number' 
     ? value < 1 
       ? value.toFixed(3)
@@ -27,7 +25,7 @@ export const HealthMetricCard: React.FC<HealthMetricCardProps> = ({
     : 'N/A';
 
   const paramInfo = PARAMETERS.find(p => p.name === title);
-  const referenceRange = getReferenceRange(paramInfo!, unitSystem);
+  const referenceRange = paramInfo?.referenceRange;
   
   const getSeverityColor = (value: number) => {
     if (!referenceRange) return 'bg-white';
