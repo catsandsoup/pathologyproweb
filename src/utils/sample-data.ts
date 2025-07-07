@@ -1,6 +1,6 @@
 
 import { DataPoint, Metric } from '@/types/blood-test';
-import { PARAMETERS } from '@/types/blood-tests';
+import { PARAMETERS, getReferenceRange } from '@/types/blood-tests';
 
 // Generate a series of dates for the last 6 months
 const generateDates = (count: number): Date[] => {
@@ -27,16 +27,19 @@ const generateHealthyValue = (min: number, max: number): number => {
 
 export const generateSampleData = () => {
   const dates = generateDates(6); // 6 months of data
-  const parameters = PARAMETERS.filter(param => param.referenceRange);
+  // Use imperial system as default for sample data
+  const unitSystem = 'imperial' as const;
+  const parameters = PARAMETERS.filter(param => param.referenceRanges);
 
   // Generate chart data
   const chartData: DataPoint[] = dates.map(date => {
     const dataPoint: DataPoint = { date };
     parameters.forEach(param => {
-      if (param.referenceRange) {
+      const referenceRange = getReferenceRange(param, unitSystem);
+      if (referenceRange) {
         dataPoint[param.name] = generateHealthyValue(
-          param.referenceRange.min,
-          param.referenceRange.max
+          referenceRange.min,
+          referenceRange.max
         );
       }
     });
@@ -45,22 +48,23 @@ export const generateSampleData = () => {
 
   // Generate metrics
   const calculatedMetrics: Metric[] = parameters.map(param => {
-    if (!param.referenceRange) return null;
+    const referenceRange = getReferenceRange(param, unitSystem);
+    if (!referenceRange) return null;
     
     const latestValue = generateHealthyValue(
-      param.referenceRange.min,
-      param.referenceRange.max
+      referenceRange.min,
+      referenceRange.max
     );
     
     const previousValue = generateHealthyValue(
-      param.referenceRange.min,
-      param.referenceRange.max
+      referenceRange.min,
+      referenceRange.max
     );
 
     return {
       name: param.name,
       value: latestValue.toString(),
-      unit: param.referenceRange.unit,
+      unit: referenceRange.unit,
       trend: latestValue - previousValue,
       category: param.category
     };

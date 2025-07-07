@@ -9,10 +9,12 @@ import { TrendChart } from '@/components/TrendChart';
 import { PARAMETER_CATEGORIES } from '@/types/blood-tests';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { BloodTestPDF } from '@/components/BloodTestPDF';
+import { UnitSystemSelector } from '@/components/UnitSystemSelector';
 import { Button } from '@/components/ui/button';
 import { DateRange } from 'react-day-picker';
 import { format } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
+import { testDualUnitSystem } from '@/utils/unit-testing';
 import {
   Popover,
   PopoverContent,
@@ -65,6 +67,10 @@ const BloodTestDashboard: React.FC = () => {
     setSelectedParameter(demoParams[0]);
     setMetrics(calculatedMetrics);
     setHasData(true);
+    
+    // Test dual unit system
+    testDualUnitSystem();
+    
     toast({
       title: "Demo data loaded",
       description: "Sample blood test results for a healthy individual have been loaded.",
@@ -128,6 +134,7 @@ const BloodTestDashboard: React.FC = () => {
               <h1 className="text-2xl font-semibold">Blood Tests</h1>
             </div>
             <div className="flex items-center space-x-4">
+              <UnitSystemSelector />
               <Button 
                 onClick={handleLoadDemo} 
                 className="bg-[#FF2D55] hover:bg-[#FF2D55]/90 text-white"
