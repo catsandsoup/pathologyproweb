@@ -232,5 +232,128 @@ export const PARAMETERS: Parameter[] = [
     unit: 'μmol/L',
     referenceRange: { min: 10, max: 30, unit: 'μmol/L' },
     description: 'Serum iron level'
+  },
+  // Additional Haematology Parameters from your data
+  {
+    name: 'RCC',
+    category: PARAMETER_CATEGORIES.HAEMATOLOGY,
+    unit: 'x10^12/L',
+    referenceRange: { min: 4.5, max: 6.5, unit: 'x10^12/L' },
+    description: 'Red Cell Count - measures the number of red blood cells'
+  },
+  // Additional Biochemistry Parameters
+  {
+    name: 'GGT',
+    category: PARAMETER_CATEGORIES.BIOCHEMISTRY,
+    unit: 'U/L',
+    referenceRange: { min: 0, max: 60, unit: 'U/L' },
+    description: 'Gamma-glutamyl transferase - liver enzyme'
+  },
+  {
+    name: 'Bilirubin Total',
+    category: PARAMETER_CATEGORIES.BIOCHEMISTRY,
+    unit: 'μmol/L',
+    referenceRange: { min: 0, max: 20, unit: 'μmol/L' },
+    description: 'Total bilirubin - waste product from red blood cell breakdown'
+  },
+  {
+    name: 'Bili.Total',
+    category: PARAMETER_CATEGORIES.BIOCHEMISTRY,
+    unit: 'μmol/L',
+    referenceRange: { min: 0, max: 20, unit: 'μmol/L' },
+    description: 'Total bilirubin - waste product from red blood cell breakdown'
+  },
+  {
+    name: 'Bicarbonate',
+    category: PARAMETER_CATEGORIES.BIOCHEMISTRY,
+    unit: 'mmol/L',
+    referenceRange: { min: 22, max: 28, unit: 'mmol/L' },
+    description: 'Bicarbonate - helps maintain acid-base balance'
+  },
+  {
+    name: 'Globulin',
+    category: PARAMETER_CATEGORIES.BIOCHEMISTRY,
+    unit: 'g/L',
+    referenceRange: { min: 20, max: 35, unit: 'g/L' },
+    description: 'Globulin proteins in blood'
+  },
+  {
+    name: 'Albumin',
+    category: PARAMETER_CATEGORIES.BIOCHEMISTRY,
+    unit: 'g/L',
+    referenceRange: { min: 35, max: 50, unit: 'g/L' },
+    description: 'Main protein in blood plasma'
+  },
+  {
+    name: 'Total Protein',
+    category: PARAMETER_CATEGORIES.BIOCHEMISTRY,
+    unit: 'g/L',
+    referenceRange: { min: 60, max: 80, unit: 'g/L' },
+    description: 'Total protein in blood'
+  },
+  {
+    name: 'Chloride',
+    category: PARAMETER_CATEGORIES.BIOCHEMISTRY,
+    unit: 'mmol/L',
+    referenceRange: { min: 98, max: 107, unit: 'mmol/L' },
+    description: 'Chloride electrolyte'
+  },
+  {
+    name: 'eGFR',
+    category: PARAMETER_CATEGORIES.BIOCHEMISTRY,
+    unit: 'mL/min/1.73m²',
+    referenceRange: { min: 90, max: 120, unit: 'mL/min/1.73m²' },
+    description: 'Estimated glomerular filtration rate - kidney function'
+  },
+  {
+    name: 'LDH',
+    category: PARAMETER_CATEGORIES.BIOCHEMISTRY,
+    unit: 'U/L',
+    referenceRange: { min: 140, max: 280, unit: 'U/L' },
+    description: 'Lactate dehydrogenase - enzyme found in many tissues'
+  },
+  {
+    name: 'LD',
+    category: PARAMETER_CATEGORIES.BIOCHEMISTRY,
+    unit: 'U/L',
+    referenceRange: { min: 140, max: 280, unit: 'U/L' },
+    description: 'Lactate dehydrogenase - enzyme found in many tissues'
+  },
+  // Additional Lipid Parameters
+  {
+    name: 'Cholesterol',
+    category: PARAMETER_CATEGORIES.LIPIDS,
+    unit: 'mmol/L',
+    referenceRange: { min: 0, max: 5.2, unit: 'mmol/L' },
+    description: 'Total blood cholesterol level'
+  },
+  {
+    name: 'Triglycerides',
+    category: PARAMETER_CATEGORIES.LIPIDS,
+    unit: 'mmol/L',
+    referenceRange: { min: 0, max: 1.7, unit: 'mmol/L' },
+    description: 'Blood triglyceride level'
+  },
+  {
+    name: 'Non-HDL Cholesterol',
+    category: PARAMETER_CATEGORIES.LIPIDS,
+    unit: 'mmol/L',
+    referenceRange: { min: 0, max: 3.4, unit: 'mmol/L' },
+    description: 'Non-HDL cholesterol calculation'
+  },
+  // Specialized Tests
+  {
+    name: 'NRBC',
+    category: PARAMETER_CATEGORIES.SPECIALIZED,
+    unit: '/100 WBC',
+    referenceRange: { min: 0, max: 2, unit: '/100 WBC' },
+    description: 'Nucleated red blood cells'
+  },
+  {
+    name: 'Hep B Surface Ab',
+    category: PARAMETER_CATEGORIES.SPECIALIZED,
+    unit: 'IU/L',
+    referenceRange: { min: 10, max: 1000, unit: 'IU/L' },
+    description: 'Hepatitis B surface antibody - immunity marker'
   }
 ];

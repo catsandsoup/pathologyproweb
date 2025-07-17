@@ -1,6 +1,66 @@
 import * as XLSX from 'xlsx';
 import { DataPoint, Metric } from '@/types/blood-test';
-import { PARAMETER_CATEGORIES } from '@/types/blood-tests';
+import { PARAMETER_CATEGORIES, PARAMETERS } from '@/types/blood-tests';
+
+// Create a mapping from various parameter name variations to standardized names
+const createParameterMapping = (): Map<string, string> => {
+  const mapping = new Map<string, string>();
+  
+  PARAMETERS.forEach(param => {
+    // Add exact match
+    mapping.set(param.name.toLowerCase(), param.name);
+    
+    // Add common variations
+    const variations = [
+      param.name.replace(/\s+/g, '').toLowerCase(), // Remove spaces
+      param.name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase(), // Remove special chars
+      param.name.replace(/\./g, '').toLowerCase(), // Remove dots
+    ];
+    
+    variations.forEach(variation => {
+      mapping.set(variation, param.name);
+    });
+  });
+  
+  // Add specific mappings for common variations in your data
+  const specificMappings = {
+    'rbc': 'RBC',
+    'rcc': 'RBC', // Your data uses RCC instead of RBC
+    'wbc': 'WCC', // Your data might use WBC
+    'wcc': 'WCC',
+    'haemoglobin': 'Haemoglobin',
+    'hemoglobin': 'Haemoglobin',
+    'haematocrit': 'Haematocrit',
+    'hematocrit': 'Haematocrit',
+    'bilitotal': 'Bilirubin Total',
+    'bili.total': 'Bilirubin Total',
+    'totalprotein': 'Total Protein',
+    'total protein': 'Total Protein',
+    'cholesterol': 'Total Cholesterol',
+    'totalcholesterol': 'Total Cholesterol',
+    'egfr': 'eGFR',
+    'ld': 'LDH',
+    'nrbc': 'NRBC',
+    'hepbsurfaceab': 'Hep B Surface Ab',
+    'hep b surface ab': 'Hep B Surface Ab',
+    'nonhdlcholesterol': 'Non-HDL Cholesterol',
+    'non-hdl cholesterol': 'Non-HDL Cholesterol',
+    'non hdl cholesterol': 'Non-HDL Cholesterol'
+  };
+  
+  Object.entries(specificMappings).forEach(([key, value]) => {
+    mapping.set(key.toLowerCase(), value);
+  });
+  
+  return mapping;
+};
+
+const parameterMapping = createParameterMapping();
+
+const normalizeParameterName = (paramName: string): string => {
+  const cleaned = paramName.trim().toLowerCase();
+  return parameterMapping.get(cleaned) || paramName;
+};
 
 const parseDate = (dateStr: string | number): Date | null => {
   console.log('Attempting to parse date:', dateStr, 'Type:', typeof dateStr);
@@ -136,30 +196,34 @@ export const processExcelData = (fileData: Uint8Array) => {
       const row = rawData[rowIndex] as (string | number)[];
       if (!row || !row.length) continue;
 
-      const paramName = row[0]?.toString()?.trim();
-      if (!paramName) {
+      const rawParamName = row[0]?.toString()?.trim();
+      if (!rawParamName) {
         console.warn(`Skipping row ${rowIndex}: No parameter name`);
         continue;
       }
 
       const unit = row[1]?.toString()?.trim() || '';
       
-      console.log(`Processing row ${rowIndex}:`, { paramName, unit, rowData: row });
+      console.log(`Processing row ${rowIndex}:`, { rawParamName, unit, rowData: row });
       
       // Skip empty rows or category headers
-      if (paramName === 'Unit' || paramName.includes('(')) {
+      if (rawParamName === 'Unit' || rawParamName.includes('(') || rawParamName === '') {
         continue;
       }
 
+      // Normalize parameter name to match standard names
+      const normalizedParamName = normalizeParameterName(rawParamName);
+      const paramInfo = PARAMETERS.find(p => p.name === normalizedParamName);
+      
+      // Use the standardized name if found, otherwise use original
+      const paramName = paramInfo ? paramInfo.name : rawParamName;
+      
       params.add(paramName);
-      units[paramName] = unit;
+      units[paramName] = paramInfo?.unit || unit;
       testData[paramName] = [];
 
-      // Determine category for the parameter
-      const category = Object.entries(PARAMETER_CATEGORIES).find(([_, tests]) =>
-        tests.includes(paramName)
-      )?.[1] || 'Other';
-      categories[paramName] = category;
+      // Use the category from PARAMETERS if available
+      categories[paramName] = paramInfo?.category || 'Other';
       
       // Process values for each date column
       dateColumns.forEach(({ index, date }) => {
@@ -198,8 +262,26 @@ export const processExcelData = (fileData: Uint8Array) => {
       return dataPoint;
     });
 
-    // Calculate metrics with category
-    const calculatedMetrics: Metric[] = Array.from(params).map(param => {
+    // Sort parameters according to predefined order in PARAMETERS array
+    const sortedParams = Array.from(params).sort((a, b) => {
+      const indexA = PARAMETERS.findIndex(p => p.name === a);
+      const indexB = PARAMETERS.findIndex(p => p.name === b);
+      
+      // If both parameters are in PARAMETERS, sort by their index
+      if (indexA !== -1 && indexB !== -1) {
+        return indexA - indexB;
+      }
+      
+      // If only one is in PARAMETERS, prioritize it
+      if (indexA !== -1) return -1;
+      if (indexB !== -1) return 1;
+      
+      // If neither is in PARAMETERS, sort alphabetically
+      return a.localeCompare(b);
+    });
+
+    // Calculate metrics with category, maintaining sorted order
+    const calculatedMetrics: Metric[] = sortedParams.map(param => {
       const paramData = testData[param] || [];
       const latestValue = paramData.length > 0 ? paramData[paramData.length - 1].value : undefined;
       const previousValue = paramData.length > 1 ? paramData[paramData.length - 2].value : undefined;
@@ -220,13 +302,14 @@ export const processExcelData = (fileData: Uint8Array) => {
     console.log('Final output:', {
       chartDataLength: chartData.length,
       metricsLength: calculatedMetrics.length,
-      parametersLength: params.size
+      parametersLength: params.size,
+      sortedParameters: sortedParams
     });
 
     return {
       chartData,
       calculatedMetrics,
-      parameters: Array.from(params)
+      parameters: sortedParams
     };
   } catch (error) {
     console.error('Error processing file:', error);
