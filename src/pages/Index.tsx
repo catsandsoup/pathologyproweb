@@ -183,14 +183,41 @@ const BloodTestDashboard: React.FC = () => {
             </div>
             <div className="flex items-center space-x-4">
               {isUsingDemoData && (
-                <Button 
-                  onClick={handleLoadDemo} 
-                  className="bg-[#FF2D55] hover:bg-[#FF2D55]/90 text-white"
-                  size="sm"
-                >
-                  <Play className="w-4 h-4 mr-2" />
-                  Reload Demo
-                </Button>
+                <div className="flex items-center space-x-2">
+                  <Select value={currentDemoProfile} onValueChange={(value: DemoProfile) => setCurrentDemoProfile(value)}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="healthy-male">Healthy Adult Male</SelectItem>
+                      <SelectItem value="healthy-female">Healthy Adult Female</SelectItem>
+                      <SelectItem value="elderly-male">Healthy Elderly Male</SelectItem>
+                      <SelectItem value="elderly-female">Healthy Elderly Female</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button 
+                    onClick={() => handleLoadDemo(currentDemoProfile)} 
+                    className="bg-[#FF2D55] hover:bg-[#FF2D55]/90 text-white"
+                    size="sm"
+                  >
+                    <Play className="w-4 h-4 mr-2" />
+                    Load Demo
+                  </Button>
+                  <Button 
+                    onClick={() => {
+                      setHasData(false);
+                      setIsUsingDemoData(false);
+                      setData([]);
+                      setParameters([]);
+                      setMetrics([]);
+                      setDateRange(undefined);
+                    }}
+                    variant="outline"
+                    size="sm"
+                  >
+                    Upload Your Data
+                  </Button>
+                </div>
               )}
               {!isUsingDemoData && (
                 <Button 

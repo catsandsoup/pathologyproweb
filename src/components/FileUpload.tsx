@@ -105,10 +105,19 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
               <p className="text-base text-[#8E8E93]">
                 or click to upload
               </p>
-              <div className="pt-4">
+              <div className="pt-4 space-y-2">
                 <p className="text-sm text-[#8E8E93]">
                   Supports Excel (.xlsx, .xls) and CSV files
                 </p>
+                <div className="flex items-center justify-center">
+                  <a 
+                    href="/BloodLog_Template.csv" 
+                    download="BloodLog_Template.csv"
+                    className="text-sm text-[#FF2D55] hover:text-[#FF2D55]/80 underline"
+                  >
+                    Download Template File
+                  </a>
+                </div>
               </div>
             </div>
           </label>
@@ -124,6 +133,22 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
               <p className="text-sm font-medium text-green-800 mb-1">Your data stays private</p>
               <p className="text-sm text-green-700">
                 Files are processed locally in your browser and never leave your device. No data is stored on our servers.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Legal Disclaimer */}
+        <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div className="flex items-start space-x-3">
+            <svg className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+            <div>
+              <p className="text-sm font-medium text-red-800 mb-1">Important Legal Notice</p>
+              <p className="text-sm text-red-700">
+                This tool displays data only - no medical advice, diagnosis, or treatment recommendations are provided. 
+                Use at your own risk. By using this tool, you agree to hold the creator harmless from any claims or liability.
               </p>
             </div>
           </div>
