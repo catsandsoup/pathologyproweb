@@ -121,14 +121,12 @@ const BloodTestDashboard: React.FC = () => {
     <div className="max-w-7xl mx-auto p-6 space-y-6">
       {!hasData ? (
         <div className="space-y-6">
-          <FileUpload onFileUpload={handleFileUpload} />
-          
-          {/* Demo Data Section */}
+          {/* Demo Data Section - Moved to top for better UX */}
           <div className="flex flex-col items-center space-y-4">
             <div className="text-center">
-              <h3 className="text-lg font-semibold text-gray-700 mb-2">Or Try Demo Data</h3>
-              <p className="text-sm text-gray-500 mb-4">
-                Explore the interface with sample blood test results
+              <h3 className="text-xl font-semibold text-gray-700 mb-2">Try Demo Data</h3>
+              <p className="text-base text-gray-600 mb-4">
+                Explore the interface instantly with sample blood test results
               </p>
             </div>
             
@@ -147,13 +145,22 @@ const BloodTestDashboard: React.FC = () => {
               
               <Button 
                 onClick={() => handleLoadDemo(currentDemoProfile)}
-                className="bg-[#FF2D55] hover:bg-[#FF2D55]/90 text-white"
+                className="bg-[#FF2D55] hover:bg-[#FF2D55]/90 text-white px-6 py-2"
               >
                 <Play className="w-4 h-4 mr-2" />
-                Load Demo Data
+                Explore Demo
               </Button>
             </div>
           </div>
+
+          {/* Divider */}
+          <div className="flex items-center justify-center">
+            <div className="flex-grow border-t border-gray-200"></div>
+            <span className="px-4 text-sm text-gray-500 bg-white">or upload your own data</span>
+            <div className="flex-grow border-t border-gray-200"></div>
+          </div>
+          
+          <FileUpload onFileUpload={handleFileUpload} />
         </div>
       ) : (
         <>
