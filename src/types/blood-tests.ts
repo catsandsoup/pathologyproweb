@@ -341,6 +341,87 @@ export const PARAMETERS: Parameter[] = [
     referenceRange: { min: 0, max: 3.4, unit: 'mmol/L' },
     description: 'Non-HDL cholesterol calculation'
   },
+  // Additional Biochemistry Parameters
+  {
+    name: 'Calcium',
+    category: PARAMETER_CATEGORIES.BIOCHEMISTRY,
+    unit: 'mmol/L',
+    referenceRange: { min: 2.15, max: 2.55, unit: 'mmol/L' },
+    description: 'Essential mineral for bones and muscle function'
+  },
+  {
+    name: 'Magnesium',
+    category: PARAMETER_CATEGORIES.BIOCHEMISTRY,
+    unit: 'mmol/L',
+    referenceRange: { min: 0.7, max: 1.0, unit: 'mmol/L' },
+    description: 'Essential mineral for enzyme function'
+  },
+  {
+    name: 'Phosphate',
+    category: PARAMETER_CATEGORIES.BIOCHEMISTRY,
+    unit: 'mmol/L',
+    referenceRange: { min: 0.8, max: 1.5, unit: 'mmol/L' },
+    description: 'Essential mineral for bones and energy metabolism'
+  },
+  {
+    name: 'Urate',
+    category: PARAMETER_CATEGORIES.BIOCHEMISTRY,
+    unit: 'mmol/L',
+    referenceRange: { min: 0.15, max: 0.45, unit: 'mmol/L' },
+    description: 'Uric acid - waste product that can cause gout if elevated'
+  },
+  {
+    name: 'F Glucose Plasma',
+    category: PARAMETER_CATEGORIES.BIOCHEMISTRY,
+    unit: 'mmol/L',
+    referenceRange: { min: 3.0, max: 6.0, unit: 'mmol/L' },
+    description: 'Fasting blood glucose level'
+  },
+  {
+    name: 'R Glucose Serum',
+    category: PARAMETER_CATEGORIES.BIOCHEMISTRY,
+    unit: 'mmol/L',
+    referenceRange: { min: 3.0, max: 7.8, unit: 'mmol/L' },
+    description: 'Random blood glucose level'
+  },
+  // Additional Iron Studies
+  {
+    name: 'Iron Saturation',
+    category: PARAMETER_CATEGORIES.IRON_STUDIES,
+    unit: '%',
+    referenceRange: { min: 20, max: 50, unit: '%' },
+    description: 'Percentage of transferrin saturated with iron'
+  },
+  {
+    name: 'TIBC',
+    category: PARAMETER_CATEGORIES.IRON_STUDIES,
+    unit: 'μmol/L',
+    referenceRange: { min: 45, max: 70, unit: 'μmol/L' },
+    description: 'Total Iron Binding Capacity - measures transferrin capacity'
+  },
+  {
+    name: 'Transferrin',
+    category: PARAMETER_CATEGORIES.IRON_STUDIES,
+    unit: 'g/L',
+    referenceRange: { min: 2.0, max: 3.6, unit: 'g/L' },
+    description: 'Protein that transports iron in blood'
+  },
+  // Hormone Tests
+  {
+    name: 'TSH',
+    category: PARAMETER_CATEGORIES.HORMONES,
+    unit: 'mU/L',
+    referenceRange: { min: 0.27, max: 4.2, unit: 'mU/L' },
+    description: 'Thyroid Stimulating Hormone - controls thyroid function'
+  },
+  // Vitamins and Minerals
+  {
+    name: '25-OH Vitamin D',
+    category: PARAMETER_CATEGORIES.VITAMINS,
+    unit: 'nmol/L',
+    referenceRange: { min: 50, max: 125, unit: 'nmol/L' },
+    description: 'Vitamin D level - important for bone health and immunity'
+  },
   // Specialized Tests
   {
     name: 'NRBC',

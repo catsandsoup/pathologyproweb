@@ -25,27 +25,43 @@ const createParameterMapping = (): Map<string, string> => {
   // Add specific mappings for common variations in your data
   const specificMappings = {
     'rbc': 'RBC',
-    'rcc': 'RBC', // Your data uses RCC instead of RBC
+    'rcc': 'RCC', // Your data uses RCC
     'wbc': 'WCC', // Your data might use WBC
     'wcc': 'WCC',
     'haemoglobin': 'Haemoglobin',
     'hemoglobin': 'Haemoglobin',
     'haematocrit': 'Haematocrit',
     'hematocrit': 'Haematocrit',
-    'bilitotal': 'Bilirubin Total',
-    'bili.total': 'Bilirubin Total',
+    'bilitotal': 'Bili.Total',
+    'bili.total': 'Bili.Total',
     'totalprotein': 'Total Protein',
     'total protein': 'Total Protein',
-    'cholesterol': 'Total Cholesterol',
+    'cholesterol': 'Cholesterol',
     'totalcholesterol': 'Total Cholesterol',
     'egfr': 'eGFR',
-    'ld': 'LDH',
+    'ld': 'LD',
     'nrbc': 'NRBC',
     'hepbsurfaceab': 'Hep B Surface Ab',
     'hep b surface ab': 'Hep B Surface Ab',
     'nonhdlcholesterol': 'Non-HDL Cholesterol',
     'non-hdl cholesterol': 'Non-HDL Cholesterol',
-    'non hdl cholesterol': 'Non-HDL Cholesterol'
+    'non hdl cholesterol': 'Non-HDL Cholesterol',
+    // New mappings for the parameters in "Other" category
+    '25-oh vitamin d': '25-OH Vitamin D',
+    '25ohvitamind': '25-OH Vitamin D',
+    'calcium': 'Calcium',
+    'f glucose plasma': 'F Glucose Plasma',
+    'fglucoseplasma': 'F Glucose Plasma',
+    'iron saturation': 'Iron Saturation',
+    'ironsaturation': 'Iron Saturation',
+    'magnesium': 'Magnesium',
+    'phosphate': 'Phosphate',
+    'r glucose serum': 'R Glucose Serum',
+    'rglucoseserum': 'R Glucose Serum',
+    'tibc': 'TIBC',
+    'transferrin': 'Transferrin',
+    'tsh': 'TSH',
+    'urate': 'Urate'
   };
   
   Object.entries(specificMappings).forEach(([key, value]) => {
