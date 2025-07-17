@@ -112,7 +112,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
                 <div className="flex items-center justify-center">
                   <a 
                     href="/PathologyPro_Template.xlsx" 
-                    download=/public/"PathologyPro_Template.xlsx "
+                    download="PathologyPro_Template.xlsx"
                     className="text-sm text-[#FF2D55] hover:text-[#FF2D55]/80 underline"
                   >
                     Download Template File
