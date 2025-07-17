@@ -240,7 +240,7 @@ const BloodTestDashboard: React.FC = () => {
                   <Button
                     variant="outline"
                     className={cn(
-                      "justify-start text-left font-normal",
+                      "justify-start text-left font-normal min-w-[280px]",
                       !dateRange && "text-muted-foreground"
                     )}
                   >
@@ -255,19 +255,43 @@ const BloodTestDashboard: React.FC = () => {
                         format(dateRange.from, "LLL dd, y")
                       )
                     ) : (
-                      <span>Pick a date range</span>
+                      <span>Filter by date range</span>
                     )}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="end">
-                  <CalendarComponent
-                    initialFocus
-                    mode="range"
-                    defaultMonth={dateRange?.from}
-                    selected={dateRange}
-                    onSelect={setDateRange}
-                    numberOfMonths={2}
-                  />
+                  <div className="p-3">
+                    <CalendarComponent
+                      initialFocus
+                      mode="range"
+                      defaultMonth={dateRange?.from || new Date()}
+                      selected={dateRange}
+                      onSelect={(range) => {
+                        setDateRange(range);
+                      }}
+                      numberOfMonths={2}
+                      disabled={(date) => 
+                        date > new Date() || date < new Date("1900-01-01")
+                      }
+                    />
+                    <div className="flex items-center justify-between pt-3 border-t">
+                      <div className="text-sm text-muted-foreground">
+                        {dateRange?.from && dateRange?.to 
+                          ? `${Math.ceil((dateRange.to.getTime() - dateRange.from.getTime()) / (1000 * 60 * 60 * 24))} days selected`
+                          : "Select start and end dates"
+                        }
+                      </div>
+                      {dateRange && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setDateRange(undefined)}
+                        >
+                          Clear
+                        </Button>
+                      )}
+                    </div>
+                  </div>
                 </PopoverContent>
               </Popover>
               
