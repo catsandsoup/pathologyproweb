@@ -40,50 +40,8 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
           Take Control of Your Health
         </h1>
         <p className="text-[#8E8E93] text-xl md:text-2xl max-w-2xl mx-auto leading-relaxed">
-          Transform your blood test results into actionable health insights with beautiful visualizations and expert interpretations
+          Transform your blood test results into actionable health insights with beautiful visualizations
         </p>
-      </div>
-
-      {/* How It Works Section */}
-      <div className="mb-12 w-full max-w-4xl">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-semibold text-[#1C1C1E] mb-2">How It Works</h2>
-          <p className="text-[#8E8E93] text-lg">Simple, secure, and private blood test analysis</p>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="text-center p-4">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-100 flex items-center justify-center">
-              <span className="text-2xl font-bold text-blue-600">1</span>
-            </div>
-            <h3 className="font-semibold text-[#1C1C1E] mb-2">Upload Your Data</h3>
-            <p className="text-sm text-[#8E8E93]">Drop your Excel or CSV file with blood test results</p>
-          </div>
-          
-          <div className="text-center p-4">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center">
-              <span className="text-2xl font-bold text-green-600">2</span>
-            </div>
-            <h3 className="font-semibold text-[#1C1C1E] mb-2">Local Processing</h3>
-            <p className="text-sm text-[#8E8E93]">Data is processed entirely in your browser - never uploaded to servers</p>
-          </div>
-          
-          <div className="text-center p-4">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-purple-100 flex items-center justify-center">
-              <span className="text-2xl font-bold text-purple-600">3</span>
-            </div>
-            <h3 className="font-semibold text-[#1C1C1E] mb-2">Visualize Trends</h3>
-            <p className="text-sm text-[#8E8E93]">See your health metrics with beautiful charts and reference ranges</p>
-          </div>
-          
-          <div className="text-center p-4">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-orange-100 flex items-center justify-center">
-              <span className="text-2xl font-bold text-orange-600">4</span>
-            </div>
-            <h3 className="font-semibold text-[#1C1C1E] mb-2">Export & Share</h3>
-            <p className="text-sm text-[#8E8E93]">Generate PDF reports to share with your healthcare provider</p>
-          </div>
-        </div>
       </div>
 
       {/* Feature Highlights */}
