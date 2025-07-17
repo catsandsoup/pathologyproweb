@@ -414,6 +414,83 @@ export const PARAMETERS: Parameter[] = [
     referenceRange: { min: 0.27, max: 4.2, unit: 'mU/L' },
     description: 'Thyroid Stimulating Hormone - controls thyroid function'
   },
+  {
+    name: 'Free T4',
+    category: PARAMETER_CATEGORIES.HORMONES,
+    unit: 'pmol/L',
+    referenceRange: { min: 12, max: 22, unit: 'pmol/L' },
+    description: 'Free Thyroxine - main thyroid hormone'
+  },
+  {
+    name: 'Free T3',
+    category: PARAMETER_CATEGORIES.HORMONES,
+    unit: 'pmol/L',
+    referenceRange: { min: 3.1, max: 6.8, unit: 'pmol/L' },
+    description: 'Free Triiodothyronine - active thyroid hormone'
+  },
+  {
+    name: 'Testosterone',
+    category: PARAMETER_CATEGORIES.HORMONES,
+    unit: 'nmol/L',
+    referenceRange: { min: 8.6, max: 29, unit: 'nmol/L' },
+    description: 'Male hormone - important for muscle mass and energy (male range)'
+  },
+  {
+    name: 'Testosterone (Female)',
+    category: PARAMETER_CATEGORIES.HORMONES,
+    unit: 'nmol/L',
+    referenceRange: { min: 0.3, max: 2.4, unit: 'nmol/L' },
+    description: 'Testosterone level in females - important for energy and wellbeing'
+  },
+  {
+    name: 'Oestradiol',
+    category: PARAMETER_CATEGORIES.HORMONES,
+    unit: 'pmol/L',
+    referenceRange: { min: 46, max: 607, unit: 'pmol/L' },
+    description: 'Main female hormone - varies with menstrual cycle'
+  },
+  {
+    name: 'Progesterone',
+    category: PARAMETER_CATEGORIES.HORMONES,
+    unit: 'nmol/L',
+    referenceRange: { min: 16, max: 85, unit: 'nmol/L' },
+    description: 'Female hormone - important for menstrual cycle and pregnancy'
+  },
+  {
+    name: 'LH',
+    category: PARAMETER_CATEGORIES.HORMONES,
+    unit: 'IU/L',
+    referenceRange: { min: 2.4, max: 12.6, unit: 'IU/L' },
+    description: 'Luteinizing Hormone - regulates reproductive function'
+  },
+  {
+    name: 'FSH',
+    category: PARAMETER_CATEGORIES.HORMONES,
+    unit: 'IU/L',
+    referenceRange: { min: 3.5, max: 12.5, unit: 'IU/L' },
+    description: 'Follicle Stimulating Hormone - regulates reproductive function'
+  },
+  {
+    name: 'Prolactin',
+    category: PARAMETER_CATEGORIES.HORMONES,
+    unit: 'mIU/L',
+    referenceRange: { min: 102, max: 496, unit: 'mIU/L' },
+    description: 'Hormone that stimulates milk production'
+  },
+  {
+    name: 'Cortisol',
+    category: PARAMETER_CATEGORIES.HORMONES,
+    unit: 'nmol/L',
+    referenceRange: { min: 166, max: 507, unit: 'nmol/L' },
+    description: 'Stress hormone - important for metabolism and immune function'
+  },
+  {
+    name: 'DHEA-S',
+    category: PARAMETER_CATEGORIES.HORMONES,
+    unit: 'μmol/L',
+    referenceRange: { min: 2.2, max: 11.2, unit: 'μmol/L' },
+    description: 'Dehydroepiandrosterone sulfate - adrenal hormone'
+  },
   // Vitamins and Minerals
   {
     name: '25-OH Vitamin D',

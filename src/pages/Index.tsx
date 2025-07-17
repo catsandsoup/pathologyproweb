@@ -4,7 +4,7 @@ import { DataPoint, Metric } from '@/types/blood-test';
 import { HealthMetricCard } from '@/components/HealthMetricCard';
 import { FileUpload } from '@/components/FileUpload';
 import { processExcelData } from '@/utils/excel-processor';
-import { generateSampleData } from '@/utils/sample-data';
+import { generateSampleData, DemoProfile } from '@/utils/sample-data';
 import { TrendChart } from '@/components/TrendChart';
 import { PARAMETER_CATEGORIES } from '@/types/blood-tests';
 import { PDFDownloadLink } from '@react-pdf/renderer';
@@ -18,6 +18,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { cn } from '@/lib/utils';
 
@@ -27,6 +34,8 @@ const BloodTestDashboard: React.FC = () => {
   const [selectedParameter, setSelectedParameter] = useState<string>('');
   const [metrics, setMetrics] = useState<Metric[]>([]);
   const [hasData, setHasData] = useState(false);
+  const [isUsingDemoData, setIsUsingDemoData] = useState(false);
+  const [currentDemoProfile, setCurrentDemoProfile] = useState<DemoProfile>('healthy-male');
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const { toast } = useToast();
 
@@ -49,6 +58,7 @@ const BloodTestDashboard: React.FC = () => {
         
         setMetrics(metricsWithData);
         setHasData(true);
+        setIsUsingDemoData(false);
       } else {
         throw new Error('No valid data found in the file');
       }
@@ -58,16 +68,18 @@ const BloodTestDashboard: React.FC = () => {
     }
   };
 
-  const handleLoadDemo = () => {
-    const { chartData, calculatedMetrics, parameters: demoParams } = generateSampleData();
+  const handleLoadDemo = (profile: DemoProfile = currentDemoProfile) => {
+    const { chartData, calculatedMetrics, parameters: demoParams, profileDescription } = generateSampleData(profile);
     setData(chartData);
     setParameters(demoParams);
     setSelectedParameter(demoParams[0]);
     setMetrics(calculatedMetrics);
     setHasData(true);
+    setIsUsingDemoData(true);
+    setCurrentDemoProfile(profile);
     toast({
       title: "Demo data loaded",
-      description: "Sample blood test results for a healthy individual have been loaded.",
+      description: profileDescription,
     });
   };
 
@@ -108,34 +120,94 @@ const BloodTestDashboard: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">
       {!hasData ? (
-        <div className="space-y-4">
+        <div className="space-y-6">
           <FileUpload onFileUpload={handleFileUpload} />
-          <div className="flex justify-center">
-            <Button 
-              onClick={handleLoadDemo}
-              className="mt-4 bg-[#FF2D55] hover:bg-[#FF2D55]/90 text-white"
-            >
-              <Play className="w-4 h-4 mr-2" />
-              Load Demo Data
-            </Button>
+          
+          {/* Demo Data Section */}
+          <div className="flex flex-col items-center space-y-4">
+            <div className="text-center">
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">Or Try Demo Data</h3>
+              <p className="text-sm text-gray-500 mb-4">
+                Explore the interface with sample blood test results
+              </p>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <Select value={currentDemoProfile} onValueChange={(value: DemoProfile) => setCurrentDemoProfile(value)}>
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Select demo profile" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="healthy-male">Healthy Adult Male</SelectItem>
+                  <SelectItem value="healthy-female">Healthy Adult Female</SelectItem>
+                  <SelectItem value="elderly-male">Healthy Elderly Male</SelectItem>
+                  <SelectItem value="elderly-female">Healthy Elderly Female</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              <Button 
+                onClick={() => handleLoadDemo(currentDemoProfile)}
+                className="bg-[#FF2D55] hover:bg-[#FF2D55]/90 text-white"
+              >
+                <Play className="w-4 h-4 mr-2" />
+                Load Demo Data
+              </Button>
+            </div>
           </div>
         </div>
       ) : (
         <>
+          {/* Demo Data Banner */}
+          {isUsingDemoData && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <div className="flex items-start space-x-3">
+                <svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                  <p className="text-sm font-medium text-blue-800 mb-1">Demo Data Active</p>
+                  <p className="text-sm text-blue-700">
+                    You're viewing sample blood test results for a healthy individual. This data is fictional and for demonstration purposes only.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
             <div className="flex items-center space-x-3">
               <Activity className="w-8 h-8 text-[#FF2D55]" />
-              <h1 className="text-2xl font-semibold">Blood Tests</h1>
+              <h1 className="text-2xl font-semibold">
+                {isUsingDemoData ? "Blood Tests (Demo)" : "Blood Tests"}
+              </h1>
             </div>
             <div className="flex items-center space-x-4">
-              <Button 
-                onClick={handleLoadDemo} 
-                className="bg-[#FF2D55] hover:bg-[#FF2D55]/90 text-white"
-                size="sm"
-              >
-                <Play className="w-4 h-4 mr-2" />
-                Reload Demo
-              </Button>
+              {isUsingDemoData && (
+                <Button 
+                  onClick={handleLoadDemo} 
+                  className="bg-[#FF2D55] hover:bg-[#FF2D55]/90 text-white"
+                  size="sm"
+                >
+                  <Play className="w-4 h-4 mr-2" />
+                  Reload Demo
+                </Button>
+              )}
+              {!isUsingDemoData && (
+                <Button 
+                  onClick={() => {
+                    setHasData(false);
+                    setIsUsingDemoData(false);
+                    setData([]);
+                    setParameters([]);
+                    setMetrics([]);
+                    setDateRange(undefined);
+                  }}
+                  variant="outline"
+                  size="sm"
+                >
+                  Upload New File
+                </Button>
+              )}
               <Popover>
                 <PopoverTrigger asChild>
                   <Button

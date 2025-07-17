@@ -88,70 +88,92 @@ export const HealthMetricCard: React.FC<HealthMetricCardProps> = ({
   })).filter(point => point.value !== undefined && point.value !== null);
 
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <div 
-          onClick={onClick}
-          className={`p-4 rounded-xl cursor-pointer transition-all duration-200 border ${
-            isSelected ? 'border-2 border-blue-500' : severityColor
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-500">{title}</span>
-            <div className="flex items-center gap-2">
-              {valueStatus?.status === 'High' || valueStatus?.status === 'Low' ? (
-                <AlertCircle className="w-4 h-4 text-red-500" />
-              ) : null}
-              {trend > 0 ? (
-                <TrendingUp className="w-4 h-4 text-green-500" />
-              ) : trend < 0 ? (
-                <TrendingDown className="w-4 h-4 text-red-500" />
-              ) : (
-                <Circle className="w-4 h-4 text-gray-400" />
-              )}
-              <Info className="w-4 h-4 text-blue-500" />
-            </div>
-          </div>
-          <div className="mt-2">
-            <span className="text-2xl font-semibold">{formattedValue}</span>
-            <span className="ml-1 text-sm text-gray-500">{unit}</span>
-          </div>
-          {miniChartData.length > 1 && (
-            <div className="h-10 mt-2">
-              <Line
-                data={miniChartData}
-                type="monotone"
-                dataKey="value"
-                stroke="hsl(var(--primary))"
-                dot={false}
-              />
-            </div>
+    <div 
+      onClick={onClick}
+      className={`p-4 rounded-xl cursor-pointer transition-all duration-200 border ${
+        isSelected ? 'border-2 border-blue-500' : severityColor
+      }`}
+    >
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium text-gray-500">{title}</span>
+        <div className="flex items-center gap-2">
+          {valueStatus?.status === 'High' || valueStatus?.status === 'Low' ? (
+            <AlertCircle className="w-4 h-4 text-red-500" />
+          ) : null}
+          {trend > 0 ? (
+            <TrendingUp className="w-4 h-4 text-green-500" />
+          ) : trend < 0 ? (
+            <TrendingDown className="w-4 h-4 text-red-500" />
+          ) : (
+            <Circle className="w-4 h-4 text-gray-400" />
           )}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button 
+                className="p-1 rounded-full hover:bg-blue-100 transition-colors duration-200"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Info className="w-4 h-4 text-blue-500" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent className="w-80 p-4 max-w-sm">
+              <div className="space-y-3">
+                <div className="font-semibold text-base">{title}</div>
+                {referenceRange && (
+                  <div className="text-sm bg-gray-50 p-2 rounded">
+                    <span className="font-medium">Normal range:</span> {referenceRange.min}-{referenceRange.max} {referenceRange.unit}
+                  </div>
+                )}
+                {paramInfo?.description && (
+                  <div className="text-sm text-gray-600 leading-relaxed">{paramInfo.description}</div>
+                )}
+                {valueStatus && (
+                  <div className="mt-3 p-3 rounded-lg bg-gray-50">
+                    <div className={`font-medium mb-2 ${
+                      valueStatus.status === 'High' ? 'text-red-600' : 
+                      valueStatus.status === 'Low' ? 'text-yellow-600' : 
+                      'text-green-600'
+                    }`}>
+                      Status: {valueStatus.status}
+                    </div>
+                    <ul className="text-sm text-gray-600 space-y-1">
+                      {valueStatus.implications.map((implication, index) => (
+                        <li key={index} className="flex items-start">
+                          <span className="w-1 h-1 bg-gray-400 rounded-full mt-2 mr-2 flex-shrink-0"></span>
+                          {implication}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                <div className="text-xs text-gray-500 pt-2 border-t">
+                  Click the card to view this parameter's trend chart
+                </div>
+              </div>
+            </TooltipContent>
+          </Tooltip>
         </div>
-      </TooltipTrigger>
-      <TooltipContent className="w-64 p-3">
-        <div className="space-y-2">
-          <div className="font-semibold">{title}</div>
-          {referenceRange && (
-            <div className="text-sm">
-              Normal range: {referenceRange.min}-{referenceRange.max} {referenceRange.unit}
-            </div>
-          )}
-          {paramInfo?.description && (
-            <div className="text-sm text-gray-500">{paramInfo.description}</div>
-          )}
-          {valueStatus && (
-            <div className="mt-2">
-              <div className="font-medium">{valueStatus.status}</div>
-              <ul className="text-sm text-gray-500 list-disc pl-4 mt-1">
-                {valueStatus.implications.map((implication, index) => (
-                  <li key={index}>{implication}</li>
-                ))}
-              </ul>
-            </div>
-          )}
+      </div>
+      <div className="mt-2">
+        <span className="text-2xl font-semibold">{formattedValue}</span>
+        <span className="ml-1 text-sm text-gray-500">{unit}</span>
+        {referenceRange && (
+          <div className="text-xs text-gray-400 mt-1">
+            Normal: {referenceRange.min}-{referenceRange.max}
+          </div>
+        )}
+      </div>
+      {miniChartData.length > 1 && (
+        <div className="h-10 mt-2">
+          <Line
+            data={miniChartData}
+            type="monotone"
+            dataKey="value"
+            stroke="hsl(var(--primary))"
+            dot={false}
+          />
         </div>
-      </TooltipContent>
-    </Tooltip>
+      )}
+    </div>
   );
 };
