@@ -3,10 +3,13 @@ import { Activity, FileDown, Calendar, Play } from 'lucide-react';
 import { DataPoint, Metric, UserProfile, SessionState } from '@/types/blood-test';
 import { HealthMetricCard } from '@/components/HealthMetricCard';
 import { FileUpload } from '@/components/FileUpload';
+import { BiologicalSexPrompt } from '@/components/BiologicalSexPrompt';
+import { SexToggle } from '@/components/SexToggle';
 import { processExcelData } from '@/utils/excel-processor';
 import { generateSampleData, DemoProfile } from '@/utils/sample-data';
 import { 
-  createInitialSessionState
+  createInitialSessionState,
+  updateUserProfileWithSex
 } from '@/utils/biological-sex';
 import { TrendChart } from '@/components/TrendChart';
 import { PARAMETER_CATEGORIES } from '@/types/blood-tests';
@@ -62,6 +65,56 @@ const BloodTestDashboard: React.FC = () => {
   });
   
   const { toast } = useToast();
+
+  // Biological sex prompt handlers
+  const handleBiologicalSexSelect = (biologicalSex: 'male' | 'female') => {
+    setSessionState(prevState => ({
+      ...prevState,
+      userProfile: updateUserProfileWithSex(prevState.userProfile, biologicalSex),
+      sexPromptShown: true,
+      currentReferenceMode: 'sex-specific'
+    }));
+    
+    toast({
+      title: "Reference ranges updated",
+      description: `Now using ${biologicalSex}-specific reference ranges for more accurate results.`,
+    });
+  };
+
+  const handleBiologicalSexDismiss = () => {
+    setSessionState(prevState => ({
+      ...prevState,
+      sexPromptShown: true,
+      userProfile: {
+        ...prevState.userProfile,
+        preferences: {
+          ...prevState.userProfile.preferences,
+          showSexPrompt: false
+        }
+      }
+    }));
+  };
+
+  // Sex toggle handler
+  const handleSexToggle = (biologicalSex: 'male' | 'female') => {
+    setSessionState(prevState => ({
+      ...prevState,
+      userProfile: updateUserProfileWithSex(prevState.userProfile, biologicalSex),
+      currentReferenceMode: 'sex-specific'
+    }));
+    
+    toast({
+      title: "Reference ranges updated",
+      description: `Switched to ${biologicalSex}-specific reference ranges.`,
+    });
+  };
+
+  // Check if biological sex prompt should be shown
+  const shouldShowSexPrompt = 
+    sessionState.dataProcessingComplete && 
+    !sessionState.sexPromptShown && 
+    sessionState.userProfile.preferences.showSexPrompt &&
+    !sessionState.userProfile.biologicalSex;
 
   const handleFileUpload = (fileData: Uint8Array) => {
     try {
@@ -156,6 +209,13 @@ const BloodTestDashboard: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">
+      {/* Biological Sex Prompt */}
+      <BiologicalSexPrompt
+        isOpen={shouldShowSexPrompt}
+        onSelect={handleBiologicalSexSelect}
+        onDismiss={handleBiologicalSexDismiss}
+      />
+      
       {!hasData ? (
         <div className="space-y-4">
           <FileUpload onFileUpload={handleFileUpload} />
@@ -196,6 +256,14 @@ const BloodTestDashboard: React.FC = () => {
               </h1>
             </div>
             <div className="flex items-center space-x-4">
+              {/* Sex Toggle - only show when biological sex is specified */}
+              {sessionState.userProfile.biologicalSex && (
+                <SexToggle
+                  currentSex={sessionState.userProfile.biologicalSex}
+                  onSexChange={handleSexToggle}
+                />
+              )}
+              
               {isUsingDemoData && (
                 <div className="flex items-center space-x-2">
                   <Select value={currentDemoProfile} onValueChange={(value: DemoProfile) => setCurrentDemoProfile(value)}>
