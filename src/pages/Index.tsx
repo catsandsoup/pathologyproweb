@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { Activity, FileDown, Calendar, Play } from 'lucide-react';
-import { DataPoint, Metric } from '@/types/blood-test';
+import { DataPoint, Metric, UserProfile, SessionState } from '@/types/blood-test';
 import { HealthMetricCard } from '@/components/HealthMetricCard';
 import { FileUpload } from '@/components/FileUpload';
 import { processExcelData } from '@/utils/excel-processor';
 import { generateSampleData, DemoProfile } from '@/utils/sample-data';
+import { 
+  createInitialSessionState
+} from '@/utils/biological-sex';
 import { TrendChart } from '@/components/TrendChart';
 import { PARAMETER_CATEGORIES } from '@/types/blood-tests';
 import { PDFDownloadLink } from '@react-pdf/renderer';
@@ -37,6 +40,27 @@ const BloodTestDashboard: React.FC = () => {
   const [isUsingDemoData, setIsUsingDemoData] = useState(false);
   const [currentDemoProfile, setCurrentDemoProfile] = useState<DemoProfile>('healthy-male');
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  
+  // New biological sex state management with error handling
+  const [sessionState, setSessionState] = useState<SessionState>(() => {
+    try {
+      return createInitialSessionState();
+    } catch (error) {
+      console.error('Failed to create initial session state:', error);
+      // Fallback to minimal safe state
+      return {
+        userProfile: {
+          biologicalSex: undefined,
+          sessionId: `fallback_${Date.now()}`,
+          preferences: { showSexPrompt: true, rememberChoice: true }
+        },
+        dataProcessingComplete: false,
+        sexPromptShown: false,
+        currentReferenceMode: 'broad'
+      };
+    }
+  });
+  
   const { toast } = useToast();
 
   const handleFileUpload = (fileData: Uint8Array) => {
@@ -59,6 +83,12 @@ const BloodTestDashboard: React.FC = () => {
         setMetrics(metricsWithData);
         setHasData(true);
         setIsUsingDemoData(false);
+        
+        // Update session state to indicate data processing is complete
+        setSessionState(prevState => ({
+          ...prevState,
+          dataProcessingComplete: true
+        }));
       } else {
         throw new Error('No valid data found in the file');
       }
@@ -77,6 +107,13 @@ const BloodTestDashboard: React.FC = () => {
     setHasData(true);
     setIsUsingDemoData(true);
     setCurrentDemoProfile(profile);
+    
+    // Update session state to indicate data processing is complete
+    setSessionState(prevState => ({
+      ...prevState,
+      dataProcessingComplete: true
+    }));
+    
     toast({
       title: "Demo data loaded",
       description: profileDescription,
@@ -188,6 +225,8 @@ const BloodTestDashboard: React.FC = () => {
                       setParameters([]);
                       setMetrics([]);
                       setDateRange(undefined);
+                      // Reset session state
+                      setSessionState(createInitialSessionState());
                     }}
                     variant="outline"
                     size="sm"
@@ -205,6 +244,8 @@ const BloodTestDashboard: React.FC = () => {
                     setParameters([]);
                     setMetrics([]);
                     setDateRange(undefined);
+                    // Reset session state
+                    setSessionState(createInitialSessionState());
                   }}
                   variant="outline"
                   size="sm"
