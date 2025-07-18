@@ -29,3 +29,20 @@ export interface ValueStatus {
   status: 'Low' | 'Normal' | 'High';
   implications: string[];
 }
+
+// New interfaces for biological sex functionality
+export interface UserProfile {
+  biologicalSex?: 'male' | 'female';
+  sessionId: string;
+  preferences: {
+    showSexPrompt: boolean;
+    rememberChoice: boolean;
+  };
+}
+
+export interface SessionState {
+  userProfile: UserProfile;
+  dataProcessingComplete: boolean;
+  sexPromptShown: boolean;
+  currentReferenceMode: 'broad' | 'sex-specific';
+}

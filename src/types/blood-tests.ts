@@ -2,14 +2,20 @@ export interface ReferenceRange {
   min: number;
   max: number;
   unit: string;
+  sex?: 'male' | 'female' | 'both'; // default 'both' for backward compatibility
+  source?: string; // e.g., 'medscape', 'existing'
 }
 
 export interface Parameter {
   name: string;
   category: string;
   unit: string;
-  referenceRange?: ReferenceRange;
+  referenceRange?: ReferenceRange; // Keep for backward compatibility
+  referenceRanges?: ReferenceRange[]; // New array-based approach
+  aliases?: string[]; // Alternative spellings
   description: string;
+  isNew?: boolean; // Flag for newly added tests
+  migrationStatus?: 'pending' | 'migrated' | 'verified'; // Track migration progress
 }
 
 export const PARAMETER_CATEGORIES = {
@@ -21,6 +27,9 @@ export const PARAMETER_CATEGORIES = {
   HORMONES: 'Hormone Tests',
   VITAMINS: 'Vitamins and Minerals',
   SPECIALIZED: 'Specialized Tests',
+  CARDIAC: 'Cardiac Enzymes',
+  COAGULATION: 'Coagulation Studies',
+  TUMOR_MARKERS: 'Tumor Markers',
   OTHER: 'Other'
 } as const;
 
