@@ -6,6 +6,7 @@ export interface HealthMetricCardProps {
   onClick: () => void;
   isSelected: boolean;
   historicalData?: DataPoint[];
+  biologicalSex?: 'male' | 'female';
 }
 
 export interface FileUploadProps {

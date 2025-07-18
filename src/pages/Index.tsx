@@ -419,6 +419,7 @@ const BloodTestDashboard: React.FC = () => {
                         isSelected={selectedParameter === metric.name}
                         onClick={() => setSelectedParameter(metric.name)}
                         historicalData={filteredData}
+                        biologicalSex={sessionState.userProfile.biologicalSex}
                       />
                     );
                   })}

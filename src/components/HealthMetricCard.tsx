@@ -1,4 +1,3 @@
-import React from 'react';
 import { TrendingUp, TrendingDown, Circle, AlertCircle, Info } from 'lucide-react';
 import { HealthMetricCardProps } from '@/types/blood-test';
 import {
@@ -7,17 +6,19 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { PARAMETERS } from '@/types/blood-tests';
+import { ReferenceRangeResolver } from '@/utils/reference-range-resolver';
 import { Line } from 'recharts';
 
-export const HealthMetricCard: React.FC<HealthMetricCardProps> = ({ 
+export const HealthMetricCard = ({ 
   title, 
   value, 
   unit, 
   trend, 
   onClick, 
   isSelected,
-  historicalData = [] 
-}) => {
+  historicalData = [],
+  biologicalSex
+}: HealthMetricCardProps) => {
   const formattedValue = typeof value === 'number' 
     ? value < 1 
       ? value.toFixed(3)
@@ -25,7 +26,10 @@ export const HealthMetricCard: React.FC<HealthMetricCardProps> = ({
     : 'N/A';
 
   const paramInfo = PARAMETERS.find(p => p.name === title);
-  const referenceRange = paramInfo?.referenceRange;
+  
+  // Use ReferenceRangeResolver for sex-specific ranges
+  const referenceRange = ReferenceRangeResolver.getRangeForParameter(title, biologicalSex);
+  const hasSexSpecificRanges = ReferenceRangeResolver.hasSexSpecificRanges(title);
   
   const getSeverityColor = (value: number) => {
     if (!referenceRange) return 'bg-white';
@@ -45,38 +49,42 @@ export const HealthMetricCard: React.FC<HealthMetricCardProps> = ({
 
   const getValueStatus = (value: number) => {
     if (!referenceRange) return null;
-    const { min, max } = referenceRange;
     
-    if (value < min) {
-      return {
-        status: 'Low',
-        implications: [
-          'May indicate deficiency',
-          'Could affect body functions',
-          'Common causes:',
-          '- Nutritional deficiency',
-          '- Underlying medical condition',
-          '- Medication effects'
-        ]
-      };
+    const status = ReferenceRangeResolver.isValueInRange(value, title, biologicalSex);
+    
+    switch (status) {
+      case 'low':
+        return {
+          status: 'Low',
+          implications: [
+            'May indicate deficiency',
+            'Could affect body functions',
+            'Common causes:',
+            '- Nutritional deficiency',
+            '- Underlying medical condition',
+            '- Medication effects'
+          ]
+        };
+      case 'high':
+        return {
+          status: 'High',
+          implications: [
+            'May indicate excess',
+            'Could suggest underlying condition',
+            'Common causes:',
+            '- Inflammation',
+            '- Organ dysfunction',
+            '- Medication effects'
+          ]
+        };
+      case 'normal':
+        return {
+          status: 'Normal',
+          implications: ['Within healthy range']
+        };
+      default:
+        return null;
     }
-    if (value > max) {
-      return {
-        status: 'High',
-        implications: [
-          'May indicate excess',
-          'Could suggest underlying condition',
-          'Common causes:',
-          '- Inflammation',
-          '- Organ dysfunction',
-          '- Medication effects'
-        ]
-      };
-    }
-    return {
-      status: 'Normal',
-      implications: ['Within healthy range']
-    };
   };
 
   const valueStatus = typeof value === 'number' ? getValueStatus(value) : null;
@@ -122,6 +130,16 @@ export const HealthMetricCard: React.FC<HealthMetricCardProps> = ({
                 {referenceRange && (
                   <div className="text-sm bg-gray-50 p-2 rounded">
                     <span className="font-medium">Normal range:</span> {referenceRange.min}-{referenceRange.max} {referenceRange.unit}
+                    {hasSexSpecificRanges && biologicalSex && (
+                      <div className="text-xs text-blue-600 mt-1">
+                        Using {biologicalSex}-specific ranges
+                      </div>
+                    )}
+                    {hasSexSpecificRanges && !biologicalSex && (
+                      <div className="text-xs text-gray-500 mt-1">
+                        Broad ranges (specify biological sex for more accuracy)
+                      </div>
+                    )}
                   </div>
                 )}
                 {paramInfo?.description && (
