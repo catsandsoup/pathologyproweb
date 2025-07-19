@@ -78,6 +78,37 @@ const BloodTestDashboard: React.FC = () => {
     return () => window.removeEventListener('loadDemo', handleLoadDemoFromEvent);
   }, []);
 
+  // Handle sex toggle changes for demo data
+  useEffect(() => {
+    if (isUsingDemoData && sessionState.userProfile.biologicalSex) {
+      // Determine the appropriate demo profile based on current profile and new biological sex
+      let newProfile: DemoProfile;
+      
+      if (currentDemoProfile.includes('elderly')) {
+        newProfile = sessionState.userProfile.biologicalSex === 'male' ? 'elderly-male' : 'elderly-female';
+      } else {
+        newProfile = sessionState.userProfile.biologicalSex === 'male' ? 'healthy-male' : 'healthy-female';
+      }
+      
+      // Only regenerate if the profile actually changed
+      if (newProfile !== currentDemoProfile) {
+        console.log('Sex toggle triggered demo data regeneration:', currentDemoProfile, '->', newProfile);
+        const { chartData, calculatedMetrics, parameters: demoParams } = generateSampleData(newProfile);
+        setData(chartData);
+        setParameters(demoParams);
+        setMetrics(calculatedMetrics);
+        setCurrentDemoProfile(newProfile);
+        
+        // Keep the same selected parameter if it exists in the new data
+        if (selectedParameter && demoParams.includes(selectedParameter)) {
+          setSelectedParameter(selectedParameter);
+        } else if (demoParams.length > 0) {
+          setSelectedParameter(demoParams[0]);
+        }
+      }
+    }
+  }, [sessionState.userProfile.biologicalSex, isUsingDemoData, currentDemoProfile]);
+
 
 
   // Function to return to landing page
@@ -99,11 +130,6 @@ const BloodTestDashboard: React.FC = () => {
       sexPromptShown: true,
       currentReferenceMode: 'sex-specific'
     }));
-
-    toast({
-      title: "Reference ranges updated",
-      description: `Now using ${biologicalSex}-specific reference ranges for more accurate results.`,
-    });
   };
 
   const handleBiologicalSexDismiss = () => {
@@ -127,11 +153,6 @@ const BloodTestDashboard: React.FC = () => {
       userProfile: updateUserProfileWithSex(prevState.userProfile, biologicalSex),
       currentReferenceMode: 'sex-specific'
     }));
-
-    toast({
-      title: "Reference ranges updated",
-      description: `Switched to ${biologicalSex}-specific reference ranges.`,
-    });
   };
 
   // Check if biological sex prompt should be shown (but not for demo data)
@@ -202,10 +223,7 @@ const BloodTestDashboard: React.FC = () => {
       return newState;
     });
 
-    toast({
-      title: "Demo data loaded",
-      description: profileDescription,
-    });
+
   };
 
   const getLatestReading = (parameter: string): number | null => {

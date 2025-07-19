@@ -84,6 +84,29 @@ export const TrendChart = ({
     return value.toFixed(2);
   };
 
+  const formatYAxis = (value: any) => {
+    if (typeof value !== 'number') return '';
+    
+    // Handle very large numbers
+    if (Math.abs(value) >= 1000000) {
+      return (value / 1000000).toFixed(1) + 'M';
+    }
+    if (Math.abs(value) >= 1000) {
+      return (value / 1000).toFixed(1) + 'K';
+    }
+    
+    // Handle decimal places based on the magnitude
+    if (Math.abs(value) >= 100) {
+      return value.toFixed(0);
+    } else if (Math.abs(value) >= 10) {
+      return value.toFixed(1);
+    } else if (Math.abs(value) >= 1) {
+      return value.toFixed(2);
+    } else {
+      return value.toFixed(3);
+    }
+  };
+
   const getRecommendedFrequency = () => {
     if (!selectedParamInfo) return null;
     const category = selectedParamInfo.category;
@@ -103,31 +126,36 @@ export const TrendChart = ({
   const getYAxisDomain = () => {
     const values = validData
       .map(item => item[selectedParameter])
-      .filter(val => val !== undefined && val !== null && !isNaN(val));
+      .filter(val => val !== undefined && val !== null && !isNaN(val) && isFinite(val));
     
     if (values.length === 0) return ['auto', 'auto'];
     
     const minValue = Math.min(...values);
     const maxValue = Math.max(...values);
     
+    // Sanity check for extreme values
+    if (!isFinite(minValue) || !isFinite(maxValue) || Math.abs(maxValue - minValue) > 1e6) {
+      return ['auto', 'auto'];
+    }
+    
     let domainMin = minValue;
     let domainMax = maxValue;
     
     // Include reference range in domain calculation if available
-    if (referenceRange) {
+    if (referenceRange && isFinite(referenceRange.min) && isFinite(referenceRange.max)) {
       domainMin = Math.min(domainMin, referenceRange.min);
       domainMax = Math.max(domainMax, referenceRange.max);
     }
     
-    // Calculate padding as 20% of the range for better visualization
+    // Calculate padding as 15% of the range for better visualization
     const range = domainMax - domainMin;
-    const padding = Math.max(range * 0.2, Math.abs(domainMax) * 0.05); // Dynamic padding
+    const padding = Math.max(range * 0.15, Math.abs(domainMax) * 0.05);
     
     // Smart domain calculation - don't force to 0 unless values are close to 0
     const lowestReasonableValue = Math.min(domainMin, referenceRange?.min || domainMin);
     if (lowestReasonableValue > 10) {
       // If the lowest reasonable value is well above 0, don't force the chart to start at 0
-      domainMin = Math.max(lowestReasonableValue - padding, lowestReasonableValue * 0.8);
+      domainMin = Math.max(lowestReasonableValue - padding, lowestReasonableValue * 0.85);
     } else {
       // For values close to 0, it makes sense to start from 0
       domainMin = Math.max(0, domainMin - padding);
@@ -135,10 +163,10 @@ export const TrendChart = ({
     
     domainMax = domainMax + padding;
     
-    // Ensure we have a reasonable range
-    if (domainMax - domainMin < 2) {
+    // Ensure we have a reasonable range (minimum 10% of the center value)
+    if (domainMax - domainMin < Math.abs((domainMax + domainMin) / 2) * 0.1) {
       const center = (domainMax + domainMin) / 2;
-      const minRange = Math.max(2, center * 0.1);
+      const minRange = Math.max(1, Math.abs(center) * 0.2);
       domainMin = center - minRange / 2;
       domainMax = center + minRange / 2;
       
@@ -149,13 +177,10 @@ export const TrendChart = ({
       }
     }
     
-    console.log('Domain calculation:', {
-      selectedParameter,
-      values: values.slice(0, 3),
-      referenceRange,
-      calculatedDomain: [domainMin, domainMax],
-      originalRange: [minValue, maxValue]
-    });
+    // Final sanity check
+    if (!isFinite(domainMin) || !isFinite(domainMax) || domainMin >= domainMax) {
+      return ['auto', 'auto'];
+    }
     
     return [domainMin, domainMax];
   };
@@ -232,7 +257,10 @@ export const TrendChart = ({
               tickFormatter={formatXAxis}
               minTickGap={30}
             />
-            <YAxis domain={getYAxisDomain()} />
+            <YAxis 
+              domain={getYAxisDomain()} 
+              tickFormatter={formatYAxis}
+            />
             <RechartsTooltip 
               labelFormatter={formatTooltipDate}
               formatter={(value, name) => [
