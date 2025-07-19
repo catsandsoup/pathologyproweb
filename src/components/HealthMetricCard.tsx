@@ -33,19 +33,19 @@ export const HealthMetricCard = ({
   const hasSexSpecificRanges = ReferenceRangeResolver.hasSexSpecificRanges(title);
   
   const getSeverityColor = (value: number) => {
-    if (!referenceRange) return 'bg-white border-slate-200 shadow-sm';
+    if (!referenceRange) return 'bg-white border border-gray-200 shadow-sm';
     
     const { min, max } = referenceRange;
     const criticalLow = min - (min * 0.3);
     const criticalHigh = max + (max * 0.3);
     
     if (value <= criticalLow || value >= criticalHigh) {
-      return 'bg-white border-l-4 border-l-red-500 border-slate-200 shadow-md';
+      return 'bg-white border border-gray-200 shadow-md hover:shadow-lg transition-shadow';
     }
     if (value < min || value > max) {
-      return 'bg-white border-l-4 border-l-amber-500 border-slate-200 shadow-md';
+      return 'bg-white border border-gray-200 shadow-md hover:shadow-lg transition-shadow';
     }
-    return 'bg-white border-l-4 border-l-emerald-500 border-slate-200 shadow-md';
+    return 'bg-white border border-gray-200 shadow-md hover:shadow-lg transition-shadow';
   };
 
   const getValueStatus = (value: number) => {
@@ -96,33 +96,56 @@ export const HealthMetricCard = ({
     date: new Date(point.date)
   })).filter(point => point.value !== undefined && point.value !== null);
 
+  // Get status indicator color like iOS Health app
+  const getStatusIndicator = (value: number) => {
+    if (!referenceRange) return null;
+    
+    const { min, max } = referenceRange;
+    const criticalLow = min - (min * 0.3);
+    const criticalHigh = max + (max * 0.3);
+    
+    if (value <= criticalLow || value >= criticalHigh) {
+      return 'bg-red-500';
+    }
+    if (value < min || value > max) {
+      return 'bg-orange-500';
+    }
+    return 'bg-green-500';
+  };
+
+  const statusIndicator = typeof value === 'number' ? getStatusIndicator(value) : null;
+
   return (
     <div 
       onClick={onClick}
-      className={`apple-p-4 apple-rounded-medium cursor-pointer transition-all duration-200 ease-out border apple-shadow-small hover:apple-shadow-medium active:scale-95 transform ${
-        isSelected ? 'border-2 border-apple-blue apple-shadow-medium' : severityColor
+      className={`apple-p-4 apple-rounded-medium cursor-pointer transition-all duration-200 ease-out border hover:shadow-lg active:scale-95 transform relative ${
+        isSelected ? 'border-2 border-red-500 shadow-lg' : severityColor
       }`}
     >
-      <div className="flex items-center justify-between">
-        <AppleCaption1 className="apple-text-secondary">{title}</AppleCaption1>
+      {/* iOS Health-style status indicator */}
+      {statusIndicator && (
+        <div className={`absolute top-3 right-3 w-2 h-2 rounded-full ${statusIndicator}`}></div>
+      )}
+      <div className="flex items-center justify-between mb-2">
+        <div className="text-sm font-medium text-gray-600 uppercase tracking-wide">{title}</div>
         <div className="flex items-center apple-gap-2">
           {valueStatus?.status === 'High' || valueStatus?.status === 'Low' ? (
-            <AlertCircle className="w-4 h-4 text-apple-red" />
+            <AlertCircle className="w-4 h-4 text-red-500" />
           ) : null}
           {trend > 0 ? (
-            <TrendingUp className="w-4 h-4 text-apple-green" />
+            <TrendingUp className="w-4 h-4 text-green-500" />
           ) : trend < 0 ? (
-            <TrendingDown className="w-4 h-4 text-apple-red" />
+            <TrendingDown className="w-4 h-4 text-red-500" />
           ) : (
-            <Circle className="w-4 h-4 text-apple-gray" />
+            <Circle className="w-4 h-4 text-gray-400" />
           )}
           <Tooltip>
             <TooltipTrigger asChild>
               <button 
-                className="p-1 apple-rounded-small hover:bg-apple-blue/10 transition-colors duration-200"
+                className="p-1 rounded-full hover:bg-gray-100 transition-colors duration-200"
                 onClick={(e) => e.stopPropagation()}
               >
-                <Info className="w-4 h-4 text-apple-blue" />
+                <Info className="w-4 h-4 text-gray-400" />
               </button>
             </TooltipTrigger>
             <TooltipContent className="w-96 p-4 max-w-md z-50 bg-white shadow-xl border border-slate-200">
@@ -222,33 +245,19 @@ export const HealthMetricCard = ({
           </Tooltip>
         </div>
       </div>
-      <div className="apple-spacing-2">
-        <div className="flex items-baseline apple-gap-2">
-          <AppleTitle2 className="apple-text-label">{formattedValue}</AppleTitle2>
-          <AppleCaption1 className="apple-text-secondary">{unit}</AppleCaption1>
+      <div className="mt-3">
+        <div className="flex items-baseline apple-gap-2 mb-2">
+          <div className="text-3xl font-bold text-gray-900">{formattedValue}</div>
+          <div className="text-sm font-medium text-gray-500 uppercase tracking-wide">{unit}</div>
         </div>
         {referenceRange && (
-          <div className="mt-3 p-2 bg-slate-50 border border-slate-200 apple-rounded-small">
-            <div className="flex items-center justify-between">
-              <AppleFootnote className="text-slate-700 font-medium">
-                Normal: {referenceRange.min}-{referenceRange.max} {referenceRange.unit}
-              </AppleFootnote>
-              {hasSexSpecificRanges && (
-                <div className="flex items-center apple-gap-1">
-                  {biologicalSex ? (
-                    <div className="px-2 py-0.5 bg-blue-50 text-blue-700 apple-rounded-small border border-blue-200">
-                      <AppleCaption1 className="font-medium text-xs">
-                        {biologicalSex === 'male' ? '♂' : '♀'} Specific
-                      </AppleCaption1>
-                    </div>
-                  ) : (
-                    <div className="px-2 py-0.5 bg-slate-100 text-slate-600 apple-rounded-small border border-slate-200">
-                      <AppleCaption1 className="font-medium text-xs">Broad</AppleCaption1>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
+          <div className="text-xs text-gray-500 font-medium">
+            Normal: {referenceRange.min}-{referenceRange.max} {referenceRange.unit}
+            {hasSexSpecificRanges && biologicalSex && (
+              <span className="ml-2 px-2 py-0.5 bg-red-500 text-white rounded-full text-xs font-semibold">
+                {biologicalSex === 'male' ? '♂' : '♀'}
+              </span>
+            )}
           </div>
         )}
       </div>

@@ -234,26 +234,26 @@ const BloodTestDashboard: React.FC = () => {
         </div>
       ) : (
         <>
-          {/* Demo Data Banner */}
+          {/* Demo Data Banner - iOS Health style */}
           {isUsingDemoData && (
-            <div className="bg-blue-50 border border-blue-200 apple-rounded-large apple-p-4 mb-6 shadow-sm">
+            <div className="bg-white border border-gray-200 apple-rounded-large apple-p-4 mb-6 shadow-sm">
               <div className="flex items-start apple-gap-3">
-                <div className="w-8 h-8 bg-blue-100 apple-rounded-medium flex items-center justify-center flex-shrink-0 border border-blue-200">
-                  <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-8 h-8 bg-orange-500 apple-rounded-medium flex items-center justify-center flex-shrink-0">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
                     <div>
-                      <AppleHeadline className="text-blue-800 mb-1">Demo Data Active</AppleHeadline>
-                      <AppleCallout className="text-blue-700 leading-relaxed">
+                      <div className="text-base font-semibold text-gray-900 mb-1">Demo Data Active</div>
+                      <div className="text-sm text-gray-600 leading-relaxed">
                         You're viewing sample blood test results. This data is fictional and for demonstration purposes only.
-                      </AppleCallout>
+                      </div>
                     </div>
-                    <div className="ml-4 flex items-center apple-gap-2 apple-caption-2 text-blue-700 bg-blue-100 apple-p-2 apple-rounded-medium border border-blue-200">
-                      <span className="w-2 h-2 bg-blue-600 apple-rounded-small animate-pulse"></span>
-                      <span className="font-medium">DEMO</span>
+                    <div className="ml-4 flex items-center apple-gap-2 px-3 py-1 bg-orange-100 apple-rounded-medium">
+                      <span className="w-2 h-2 bg-orange-500 apple-rounded-small animate-pulse"></span>
+                      <span className="text-xs font-semibold text-orange-700 uppercase tracking-wide">DEMO</span>
                     </div>
                   </div>
                 </div>
@@ -261,17 +261,17 @@ const BloodTestDashboard: React.FC = () => {
             </div>
           )}
 
-          <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0 bg-white apple-p-4 apple-rounded-medium border border-slate-200 shadow-sm">
-            <div className="flex items-center apple-gap-3">
-              <div className="apple-p-3 bg-slate-50 apple-rounded-medium border border-slate-200">
-                <Activity className="w-6 h-6 text-slate-600" />
+          <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0 bg-white apple-p-6 apple-rounded-large border border-gray-200 shadow-sm">
+            <div className="flex items-center apple-gap-4">
+              <div className="w-12 h-12 bg-red-500 apple-rounded-medium flex items-center justify-center shadow-sm">
+                <Activity className="w-6 h-6 text-white" />
               </div>
               <div>
-                <AppleLargeTitle className="apple-text-label">
+                <div className="text-2xl font-bold text-gray-900 mb-1">
                   Blood Tests
-                </AppleLargeTitle>
+                </div>
                 {isUsingDemoData && (
-                  <AppleCallout className="apple-text-secondary">Demo Mode</AppleCallout>
+                  <div className="text-sm text-gray-500 font-medium">Demo Mode</div>
                 )}
               </div>
             </div>
@@ -423,12 +423,9 @@ const BloodTestDashboard: React.FC = () => {
           <div className="space-y-8">
             {Object.entries(groupedMetrics).map(([category, categoryMetrics]) => (
               <div key={category} className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <div className="h-px bg-gradient-to-r from-slate-300 to-transparent flex-1"></div>
-                  <AppleTitle2 className="apple-text-label px-4 py-2 bg-slate-50 rounded-full border border-slate-200 text-slate-700 font-medium">
-                    {category}
-                  </AppleTitle2>
-                  <div className="h-px bg-gradient-to-l from-slate-300 to-transparent flex-1"></div>
+                <div className="mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-1">{category}</h3>
+                  <div className="h-px bg-gray-200"></div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {categoryMetrics.map((metric: Metric) => {

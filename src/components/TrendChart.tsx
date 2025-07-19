@@ -245,8 +245,8 @@ export const TrendChart = ({
                 <ReferenceArea
                   y1={referenceRange.min}
                   y2={referenceRange.max}
-                  fill="#10b981"
-                  fillOpacity={0.05}
+                  fill="#f3f4f6"
+                  fillOpacity={0.3}
                   stroke="none"
                 />
                 <ReferenceLine 
@@ -254,34 +254,34 @@ export const TrendChart = ({
                   label={{ 
                     value: "Upper", 
                     position: "topRight",
-                    style: { fill: "#64748b", fontWeight: "500", fontSize: "11px" }
+                    style: { fill: "#9ca3af", fontWeight: "500", fontSize: "11px" }
                   }}
-                  stroke="#64748b" 
+                  stroke="#d1d5db" 
                   strokeDasharray="2 2" 
                   strokeWidth={1}
-                  strokeOpacity={0.6}
+                  strokeOpacity={0.8}
                 />
                 <ReferenceLine 
                   y={referenceRange.min} 
                   label={{ 
                     value: "Lower", 
                     position: "bottomRight",
-                    style: { fill: "#64748b", fontWeight: "500", fontSize: "11px" }
+                    style: { fill: "#9ca3af", fontWeight: "500", fontSize: "11px" }
                   }}
-                  stroke="#64748b" 
+                  stroke="#d1d5db" 
                   strokeDasharray="2 2" 
                   strokeWidth={1}
-                  strokeOpacity={0.6}
+                  strokeOpacity={0.8}
                 />
               </>
             )}
             <Line
               type="monotone"
               dataKey={selectedParameter}
-              stroke="#3b82f6"
+              stroke="#ef4444"
               strokeWidth={3}
-              dot={{ fill: "#3b82f6", strokeWidth: 2, stroke: "#ffffff", r: 3 }}
-              activeDot={{ r: 5, fill: "#3b82f6", stroke: "#ffffff", strokeWidth: 2 }}
+              dot={{ fill: "#ef4444", strokeWidth: 2, stroke: "#ffffff", r: 4 }}
+              activeDot={{ r: 6, fill: "#ef4444", stroke: "#ffffff", strokeWidth: 2 }}
             />
           </LineChart>
         </ResponsiveContainer>
