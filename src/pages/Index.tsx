@@ -188,13 +188,19 @@ const BloodTestDashboard: React.FC = () => {
     setCurrentDemoProfile(profile);
 
     // Extract biological sex from the profile and update session state
-    const biologicalSex = profile.includes('male') ? 'male' : 'female';
-    setSessionState(prevState => ({
-      ...prevState,
-      userProfile: updateUserProfileWithSex(prevState.userProfile, biologicalSex),
-      dataProcessingComplete: true,
-      currentReferenceMode: 'sex-specific'
-    }));
+    const biologicalSex = profile.includes('female') ? 'female' : 'male';
+    console.log('Loading demo profile:', profile, 'Extracted biological sex:', biologicalSex);
+    
+    setSessionState(prevState => {
+      const newState = {
+        ...prevState,
+        userProfile: updateUserProfileWithSex(prevState.userProfile, biologicalSex),
+        dataProcessingComplete: true,
+        currentReferenceMode: 'sex-specific'
+      };
+      console.log('Updated session state:', newState);
+      return newState;
+    });
 
     toast({
       title: "Demo data loaded",
@@ -300,32 +306,41 @@ const BloodTestDashboard: React.FC = () => {
                 )}
               </div>
             </div>
-            <div className="flex flex-col md:flex-row items-stretch md:items-center space-y-3 md:space-y-0 md:space-x-3 w-full md:w-auto">
-              {/* Sex Toggle - only show when biological sex is specified */}
-              {sessionState.userProfile.biologicalSex && (
-                <div className="w-full md:w-auto">
-                  <SexToggle
-                    currentSex={sessionState.userProfile.biologicalSex}
-                    onSexChange={handleSexToggle}
-                  />
-                </div>
-              )}
+            <div className="flex flex-col space-y-3 md:space-y-0 w-full md:w-auto">
+              {/* First row: Sex Toggle and Demo Profile Selector */}
+              <div className="flex flex-col md:flex-row items-stretch md:items-center space-y-2 md:space-y-0 md:space-x-3">
+                {/* Sex Toggle - only show when biological sex is specified */}
+                {sessionState.userProfile.biologicalSex && (
+                  <div className="w-full md:w-auto">
+                    <SexToggle
+                      currentSex={sessionState.userProfile.biologicalSex}
+                      onSexChange={handleSexToggle}
+                    />
+                  </div>
+                )}
 
-              {isUsingDemoData && (
-                <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 w-full md:w-auto">
-                  <Select value={currentDemoProfile} onValueChange={(value: DemoProfile) => {
-                    handleLoadDemo(value);
-                  }}>
-                    <SelectTrigger className="w-full md:w-[180px] h-11 text-sm">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="healthy-male">Healthy Adult Male</SelectItem>
-                      <SelectItem value="healthy-female">Healthy Adult Female</SelectItem>
-                      <SelectItem value="elderly-male">Healthy Elderly Male</SelectItem>
-                      <SelectItem value="elderly-female">Healthy Elderly Female</SelectItem>
-                    </SelectContent>
-                  </Select>
+                {isUsingDemoData && (
+                  <div className="w-full md:w-auto">
+                    <Select value={currentDemoProfile} onValueChange={(value: DemoProfile) => {
+                      handleLoadDemo(value);
+                    }}>
+                      <SelectTrigger className="w-full md:w-[200px] h-11 text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="healthy-male">Healthy Adult Male</SelectItem>
+                        <SelectItem value="healthy-female">Healthy Adult Female</SelectItem>
+                        <SelectItem value="elderly-male">Healthy Elderly Male</SelectItem>
+                        <SelectItem value="elderly-female">Healthy Elderly Female</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </div>
+
+              {/* Second row: Action buttons */}
+              <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
+                {isUsingDemoData && (
                   <AppleTertiaryButton
                     onClick={() => {
                       setHasData(false);
@@ -340,27 +355,27 @@ const BloodTestDashboard: React.FC = () => {
                   >
                     Upload Your Data
                   </AppleTertiaryButton>
-                </div>
-              )}
-              {!isUsingDemoData && (
-                <AppleTertiaryButton
-                  onClick={() => {
-                    setHasData(false);
-                    setIsUsingDemoData(false);
-                    setData([]);
-                    setParameters([]);
-                    setMetrics([]);
-                    setDateRange(undefined);
-                    setSessionState(createInitialSessionState());
-                  }}
-                  className="w-full md:w-auto h-11 text-sm px-4"
-                >
-                  Upload New File
-                </AppleTertiaryButton>
-              )}
+                )}
+                {!isUsingDemoData && (
+                  <AppleTertiaryButton
+                    onClick={() => {
+                      setHasData(false);
+                      setIsUsingDemoData(false);
+                      setData([]);
+                      setParameters([]);
+                      setMetrics([]);
+                      setDateRange(undefined);
+                      setSessionState(createInitialSessionState());
+                    }}
+                    className="w-full md:w-auto h-11 text-sm px-4"
+                  >
+                    Upload New File
+                  </AppleTertiaryButton>
+                )}
+              </div>
               
-              {/* Mobile-optimized controls */}
-              <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 w-full md:w-auto">
+              {/* Third row: Date filter and Export controls */}
+              <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
