@@ -34,181 +34,199 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
-      {/* Navigation Header */}
-      <nav className="w-full bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center">
-                <BarChart3 className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">BloodLog Pro</h1>
-                <p className="text-xs text-gray-500">Professional Blood Test Analysis</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <button className="text-sm text-gray-600 hover:text-gray-900 font-medium">
-                About
-              </button>
-              <button className="text-sm text-gray-600 hover:text-gray-900 font-medium">
-                Privacy
-              </button>
-              <button className="text-sm text-gray-600 hover:text-gray-900 font-medium">
-                Support
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      <div className="max-w-6xl mx-auto px-6 py-12">
-        {/* Hero Section */}
-        <div className="text-center mb-16">
-          <h1 className="text-5xl font-bold text-gray-900 mb-6 leading-tight">
-            Take Control of Your Health
+    <div className="min-h-screen bg-white">
+      <div className="max-w-4xl mx-auto px-6 py-20">
+        {/* Hero Section - Apple Style */}
+        <div className="text-center mb-20">
+          <h1 className="text-6xl font-bold text-gray-900 mb-8 leading-tight tracking-tight">
+            Pathologist Pro
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed mb-8">
-            Transform your blood test results into actionable health insights with professional-grade 
-            visualizations and comprehensive analysis tools trusted by healthcare professionals.
+          <p className="text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed mb-12">
+            Upload your blood test results and instantly visualize trends, understand reference ranges, 
+            and gain insights into your health data with professional-grade analysis tools.
           </p>
-          <div className="flex items-center justify-center space-x-2 text-sm text-gray-500">
-            <Shield className="w-4 h-4" />
-            <span>100% Private & Secure</span>
-            <span className="mx-2">•</span>
-            <span>No Data Stored</span>
-            <span className="mx-2">•</span>
-            <span>Instant Analysis</span>
-          </div>
         </div>
 
-        {/* Feature Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-200 text-center hover:shadow-md transition-shadow">
-            <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <Shield className="w-8 h-8 text-green-600" />
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">100% Private</h3>
-            <p className="text-gray-600 leading-relaxed">
-              All processing happens locally in your browser. Your sensitive health data never leaves your device.
-            </p>
-          </div>
-          
-          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-200 text-center hover:shadow-md transition-shadow">
-            <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <BarChart3 className="w-8 h-8 text-blue-600" />
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">Smart Analysis</h3>
-            <p className="text-gray-600 leading-relaxed">
-              Advanced trend detection, sex-specific reference ranges, and comprehensive health insights.
-            </p>
-          </div>
-          
-          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-200 text-center hover:shadow-md transition-shadow">
-            <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <Zap className="w-8 h-8 text-purple-600" />
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">Instant Results</h3>
-            <p className="text-gray-600 leading-relaxed">
-              Beautiful charts, detailed explanations, and actionable insights generated in seconds.
-            </p>
-          </div>
-        </div>
-
-        {/* Upload Section */}
-        <div className="max-w-2xl mx-auto">
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-            <div className="p-8">
-              <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">
-                Upload Your Blood Test Results
+        {/* Upload Section - Centered and Prominent */}
+        <div className="max-w-2xl mx-auto mb-16">
+          <div
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+            className="border-2 border-dashed border-gray-300 rounded-3xl p-16 text-center 
+                     transition-all duration-300 hover:border-red-400 hover:bg-red-50/30
+                     focus-within:border-red-400 focus-within:bg-red-50/30"
+          >
+            <input
+              type="file"
+              accept=".xlsx,.xls,.csv"
+              onChange={handleFileSelect}
+              className="hidden"
+              id="file-upload"
+            />
+            <label htmlFor="file-upload" className="cursor-pointer">
+              <div className="w-24 h-24 bg-red-500 rounded-3xl flex items-center justify-center mx-auto mb-8
+                           transition-all duration-300 hover:bg-red-600 hover:scale-105">
+                <Upload className="w-12 h-12 text-white" />
+              </div>
+              <h2 className="text-3xl font-semibold text-gray-900 mb-4">
+                Upload Your Results
               </h2>
-              <p className="text-gray-600 text-center mb-8">
-                Drag and drop your file or click to browse. We support Excel and CSV formats.
+              <p className="text-lg text-gray-600 mb-6">
+                Drag and drop your blood test file or click to browse
               </p>
-              
-              <div
-                onDragOver={handleDragOver}
-                onDrop={handleDrop}
-                className="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center 
-                         transition-all duration-200 hover:border-red-400 hover:bg-red-50/50
-                         focus-within:border-red-400 focus-within:bg-red-50/50"
-              >
-                <input
-                  type="file"
-                  accept=".xlsx,.xls,.csv"
-                  onChange={handleFileSelect}
-                  className="hidden"
-                  id="file-upload"
-                />
-                <label htmlFor="file-upload" className="cursor-pointer">
-                  <div className="w-20 h-20 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-6
-                               transition-all duration-200 hover:bg-red-200">
-                    <Upload className="w-10 h-10 text-red-600" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                    Drop your blood test file here
-                  </h3>
-                  <p className="text-gray-600 mb-4">
-                    or click to browse your files
-                  </p>
-                  <p className="text-sm text-gray-500 mb-4">
-                    Supports Excel (.xlsx, .xls) and CSV files
-                  </p>
-                  <a 
-                    href="/PathologyPro_Template.xlsx" 
-                    download="PathologyPro_Template.xlsx"
-                    className="inline-flex items-center text-sm text-red-600 hover:text-red-700 font-medium"
-                  >
-                    Download Template File →
-                  </a>
-                </label>
+              <p className="text-sm text-gray-500 mb-6">
+                Supports Excel (.xlsx, .xls) and CSV files
+              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+                <ApplePrimaryButton
+                  onClick={() => document.getElementById('file-upload')?.click()}
+                  className="px-8 py-3"
+                >
+                  Choose File
+                </ApplePrimaryButton>
+                <button
+                  onClick={() => {
+                    const event = new CustomEvent('loadDemo');
+                    window.dispatchEvent(event);
+                  }}
+                  className="text-red-600 hover:text-red-700 font-medium"
+                >
+                  Try Demo Data
+                </button>
               </div>
-            </div>
-            
-            {/* Privacy & Legal Section */}
-            <div className="bg-gray-50 p-6 space-y-4">
-              {/* Privacy Notice */}
-              <div className="flex items-start space-x-3 p-4 bg-green-50 rounded-lg border border-green-200">
-                <Shield className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-                <div>
-                  <h4 className="font-semibold text-green-900 mb-1">Your Data Stays Private</h4>
-                  <p className="text-sm text-green-800">
-                    Files are processed locally in your browser and never leave your device. 
-                    No data is stored on our servers or transmitted anywhere.
-                  </p>
-                </div>
+              <div className="mt-6">
+                <a 
+                  href="/PathologyPro_Template.xlsx" 
+                  download="PathologyPro_Template.xlsx"
+                  className="text-sm text-gray-500 hover:text-gray-700 underline"
+                >
+                  Download Template File
+                </a>
               </div>
+            </label>
+          </div>
+        </div>
 
-              {/* Legal Disclaimer */}
-              <div className="flex items-start space-x-3 p-4 bg-amber-50 rounded-lg border border-amber-200">
-                <svg className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                </svg>
-                <div>
-                  <h4 className="font-semibold text-amber-900 mb-1">Important Legal Notice</h4>
-                  <p className="text-sm text-amber-800">
-                    This tool displays data only - no medical advice, diagnosis, or treatment recommendations are provided. 
-                    Use at your own risk. By using this tool, you agree to hold the creator harmless from any claims or liability.
-                  </p>
-                </div>
-              </div>
+        {/* Apple TV Style Feature Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-16 mb-24">
+          {/* Privacy Feature - Apple TV Style */}
+          <div className="text-left">
+            <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+              <Shield className="w-8 h-8 text-white" />
             </div>
+            <h3 className="text-2xl font-semibold text-gray-900 mb-4">Privacy First</h3>
+            <p className="text-gray-600 leading-relaxed mb-6">
+              Up to unlimited blood test analysis with everything processed locally in your browser. 
+              Your sensitive health data never leaves your device — synced across all your sessions. 
+              Plus powerful features to protect your privacy.
+            </p>
+            <button className="text-green-600 hover:text-green-700 font-medium text-sm transition-colors">
+              Learn more →
+            </button>
           </div>
           
-          {/* Demo Button */}
-          <div className="text-center mt-8">
-            <p className="text-gray-600 mb-4">Want to see how it works first?</p>
-            <ApplePrimaryButton
-              onClick={() => {
-                // This will be handled by the parent component
-                const event = new CustomEvent('loadDemo');
-                window.dispatchEvent(event);
-              }}
-              className="px-8 py-3"
-            >
-              Try Demo Data
-            </ApplePrimaryButton>
+          {/* Analysis Feature - Apple TV Style */}
+          <div className="text-left">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+              <BarChart3 className="w-8 h-8 text-white" />
+            </div>
+            <h3 className="text-2xl font-semibold text-gray-900 mb-4">Smart Analysis</h3>
+            <p className="text-gray-600 leading-relaxed mb-6">
+              Advanced trend detection, sex-specific reference ranges, and comprehensive health insights. 
+              Watch patterns, identify changes, and discover trends from the most sophisticated analysis tools 
+              — with new insights added every upload.
+            </p>
+            <button className="text-blue-600 hover:text-blue-700 font-medium text-sm transition-colors">
+              Learn more →
+            </button>
+          </div>
+          
+          {/* Results Feature - Apple TV Style */}
+          <div className="text-left">
+            <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+              <Zap className="w-8 h-8 text-white" />
+            </div>
+            <h3 className="text-2xl font-semibold text-gray-900 mb-4">Instant Insights</h3>
+            <p className="text-gray-600 leading-relaxed mb-6">
+              Stream or analyze more than 100 million data points and 30,000 parameters. 
+              Experience professional-grade visualizations, the world's largest medical reference 
+              database, and beautiful charts — all ad-free.
+            </p>
+            <button className="text-purple-600 hover:text-purple-700 font-medium text-sm transition-colors">
+              Learn more →
+            </button>
+          </div>
+        </div>
+
+        {/* Additional Apple TV Style Services Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-16 mb-24">
+          {/* Trends Feature */}
+          <div className="text-left">
+            <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              </svg>
+            </div>
+            <h3 className="text-2xl font-semibold text-gray-900 mb-4">Trend Analysis</h3>
+            <p className="text-gray-600 leading-relaxed mb-6">
+              Get unlimited access to over 200 incredibly detailed trend analyses, all with no ads 
+              or in-app purchases. Track patterns, identify changes across your favorite 
+              health metrics.
+            </p>
+            <button className="text-red-600 hover:text-red-700 font-medium text-sm transition-colors">
+              Learn more →
+            </button>
+          </div>
+          
+          {/* Reference Ranges */}
+          <div className="text-left">
+            <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+            <h3 className="text-2xl font-semibold text-gray-900 mb-4">Reference Ranges</h3>
+            <p className="text-gray-600 leading-relaxed mb-6">
+              Choose from 12 reference types, everything from general population to sex-specific ranges. 
+              With new parameters added every week, five to 45 minutes. 
+              And get personalized recommendations just for you.
+            </p>
+            <button className="text-orange-600 hover:text-orange-700 font-medium text-sm transition-colors">
+              Learn more →
+            </button>
+          </div>
+          
+          {/* Export & Share */}
+          <div className="text-left">
+            <div className="w-16 h-16 bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <h3 className="text-2xl font-semibold text-gray-900 mb-4">Export & Share</h3>
+            <p className="text-gray-600 leading-relaxed mb-6">
+              Access to hundreds of export formats, leading healthcare providers and sports 
+              medicine coverage featuring the week's best analysis tools.
+            </p>
+            <button className="text-teal-600 hover:text-teal-700 font-medium text-sm transition-colors">
+              Learn more →
+            </button>
+          </div>
+        </div>
+        
+        {/* Legal Notices - Minimal */}
+        <div className="max-w-2xl mx-auto space-y-4">
+          <div className="text-center p-4 bg-green-50 rounded-2xl border border-green-200">
+            <p className="text-sm text-green-800">
+              <Shield className="w-4 h-4 inline mr-2" />
+              Your data stays private - files are processed locally and never leave your device
+            </p>
+          </div>
+
+          <div className="text-center p-4 bg-amber-50 rounded-2xl border border-amber-200">
+            <p className="text-sm text-amber-800">
+              This tool displays data only - no medical advice provided. Use at your own risk.
+            </p>
           </div>
         </div>
       </div>

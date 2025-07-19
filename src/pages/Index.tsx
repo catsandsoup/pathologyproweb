@@ -299,21 +299,9 @@ const BloodTestDashboard: React.FC = () => {
                     <BarChart3 className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h1 className="text-lg font-bold text-gray-900">BloodLog Pro</h1>
-                    <p className="text-xs text-gray-500">Professional Blood Test Analysis</p>
+                    <h1 className="text-lg font-bold text-gray-900">Pathologist Pro</h1>
                   </div>
                 </div>
-              </div>
-              <div className="flex items-center space-x-4">
-                <button className="text-sm text-gray-600 hover:text-gray-900 font-medium">
-                  About
-                </button>
-                <button className="text-sm text-gray-600 hover:text-gray-900 font-medium">
-                  Privacy
-                </button>
-                <button className="text-sm text-gray-600 hover:text-gray-900 font-medium">
-                  Support
-                </button>
               </div>
             </div>
           </nav>
