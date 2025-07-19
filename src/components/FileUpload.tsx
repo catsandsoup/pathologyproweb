@@ -148,9 +148,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
             </div>
             <h3 className="text-xl md:text-2xl font-semibold text-gray-900 mb-3 md:mb-4">Instant Insights</h3>
             <p className="text-gray-600 leading-relaxed mb-4 md:mb-6 text-sm md:text-base">
-              Stream or analyze more than 100 million data points and 30,000 parameters. 
-              Experience professional-grade visualizations, the world's largest medical reference 
-              database, and beautiful charts — all ad-free.
+              Experience professional-grade visualizations and beautiful charts.
             </p>
             <button className="text-purple-600 hover:text-purple-700 font-medium text-sm transition-colors touch-manipulation">
               Learn more →
