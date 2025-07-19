@@ -431,9 +431,9 @@ const BloodTestDashboard: React.FC = () => {
                   <div className="h-px bg-gradient-to-l from-gray-300 to-transparent flex-1"></div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {categoryMetrics.map((metric) => {
+                  {categoryMetrics.map((metric: Metric) => {
                     const latestValue = getLatestReading(metric.name);
-                    return latestValue !== null && (
+                    return latestValue !== null ? (
                       <HealthMetricCard
                         key={metric.name}
                         title={metric.name}
@@ -445,7 +445,7 @@ const BloodTestDashboard: React.FC = () => {
                         historicalData={filteredData}
                         biologicalSex={sessionState.userProfile.biologicalSex}
                       />
-                    );
+                    ) : null;
                   })}
                 </div>
               </div>

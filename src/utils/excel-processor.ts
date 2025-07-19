@@ -1,81 +1,30 @@
 import * as XLSX from 'xlsx';
 import { DataPoint, Metric } from '@/types/blood-test';
 import { PARAMETER_CATEGORIES, PARAMETERS } from '@/types/blood-tests';
+import { ParameterAliasResolver } from '@/utils/parameter-alias-resolver';
 
-// Create a mapping from various parameter name variations to standardized names
-const createParameterMapping = (): Map<string, string> => {
-  const mapping = new Map<string, string>();
-  
-  PARAMETERS.forEach(param => {
-    // Add exact match
-    mapping.set(param.name.toLowerCase(), param.name);
-    
-    // Add common variations
-    const variations = [
-      param.name.replace(/\s+/g, '').toLowerCase(), // Remove spaces
-      param.name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase(), // Remove special chars
-      param.name.replace(/\./g, '').toLowerCase(), // Remove dots
-    ];
-    
-    variations.forEach(variation => {
-      mapping.set(variation, param.name);
-    });
-  });
-  
-  // Add specific mappings for common variations in your data
-  const specificMappings = {
-    'rbc': 'RBC',
-    'rcc': 'RCC', // Your data uses RCC
-    'wbc': 'WCC', // Your data might use WBC
-    'wcc': 'WCC',
-    'haemoglobin': 'Haemoglobin',
-    'hemoglobin': 'Haemoglobin',
-    'haematocrit': 'Haematocrit',
-    'hematocrit': 'Haematocrit',
-    'bilitotal': 'Bili.Total',
-    'bili.total': 'Bili.Total',
-    'totalprotein': 'Total Protein',
-    'total protein': 'Total Protein',
-    'cholesterol': 'Cholesterol',
-    'totalcholesterol': 'Total Cholesterol',
-    'egfr': 'eGFR',
-    'ld': 'LD',
-    'nrbc': 'NRBC',
-    'hepbsurfaceab': 'Hep B Surface Ab',
-    'hep b surface ab': 'Hep B Surface Ab',
-    'nonhdlcholesterol': 'Non-HDL Cholesterol',
-    'non-hdl cholesterol': 'Non-HDL Cholesterol',
-    'non hdl cholesterol': 'Non-HDL Cholesterol',
-    // New mappings for the parameters in "Other" category
-    '25-oh vitamin d': '25-OH Vitamin D',
-    '25ohvitamind': '25-OH Vitamin D',
-    'calcium': 'Calcium',
-    'f glucose plasma': 'F Glucose Plasma',
-    'fglucoseplasma': 'F Glucose Plasma',
-    'iron saturation': 'Iron Saturation',
-    'ironsaturation': 'Iron Saturation',
-    'magnesium': 'Magnesium',
-    'phosphate': 'Phosphate',
-    'r glucose serum': 'R Glucose Serum',
-    'rglucoseserum': 'R Glucose Serum',
-    'tibc': 'TIBC',
-    'transferrin': 'Transferrin',
-    'tsh': 'TSH',
-    'urate': 'Urate'
-  };
-  
-  Object.entries(specificMappings).forEach(([key, value]) => {
-    mapping.set(key.toLowerCase(), value);
-  });
-  
-  return mapping;
-};
-
-const parameterMapping = createParameterMapping();
-
+// Enhanced parameter normalization using the new alias resolver
 const normalizeParameterName = (paramName: string): string => {
-  const cleaned = paramName.trim().toLowerCase();
-  return parameterMapping.get(cleaned) || paramName;
+  if (!paramName) return paramName;
+  
+  // First try exact resolution using the alias resolver
+  const resolvedName = ParameterAliasResolver.resolveParameterName(paramName.trim());
+  
+  // If we found a match, return it
+  if (ParameterAliasResolver.parameterExists(resolvedName)) {
+    return resolvedName;
+  }
+  
+  // If no exact match, try fuzzy matching with a lower threshold for better coverage
+  const fuzzyMatch = ParameterAliasResolver.findBestMatch(paramName.trim(), 0.7);
+  if (fuzzyMatch) {
+    console.log(`Fuzzy matched "${paramName}" to "${fuzzyMatch}"`);
+    return fuzzyMatch;
+  }
+  
+  // Return original if no match found
+  console.log(`No match found for parameter: "${paramName}"`);
+  return paramName.trim();
 };
 
 const parseDate = (dateStr: string | number): Date | null => {

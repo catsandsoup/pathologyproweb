@@ -40,12 +40,12 @@ export const HealthMetricCard = ({
     const criticalHigh = max + (max * 0.3);
     
     if (value <= criticalLow || value >= criticalHigh) {
-      return 'bg-red-50 border-apple-red/30';
+      return 'bg-gradient-to-br from-red-50 to-red-100 border-red-200 shadow-red-100/50';
     }
     if (value < min || value > max) {
-      return 'bg-orange-50 border-apple-orange/30';
+      return 'bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 shadow-orange-100/50';
     }
-    return 'bg-green-50 border-apple-green/30';
+    return 'bg-gradient-to-br from-green-50 to-green-100 border-green-200 shadow-green-100/50';
   };
 
   const getValueStatus = (value: number) => {
@@ -223,12 +223,33 @@ export const HealthMetricCard = ({
         </div>
       </div>
       <div className="apple-spacing-2">
-        <AppleTitle2 className="apple-text-label">{formattedValue}</AppleTitle2>
-        <AppleCaption1 className="apple-text-secondary ml-1">{unit}</AppleCaption1>
+        <div className="flex items-baseline apple-gap-2">
+          <AppleTitle2 className="apple-text-label">{formattedValue}</AppleTitle2>
+          <AppleCaption1 className="apple-text-secondary">{unit}</AppleCaption1>
+        </div>
         {referenceRange && (
-          <AppleFootnote className="apple-text-tertiary mt-1 block">
-            Normal: {referenceRange.min}-{referenceRange.max}
-          </AppleFootnote>
+          <div className="mt-2 p-2 bg-white/60 apple-rounded-small border border-gray-200/50">
+            <div className="flex items-center justify-between">
+              <AppleFootnote className="apple-text-secondary font-medium">
+                Normal: {referenceRange.min}-{referenceRange.max}
+              </AppleFootnote>
+              {hasSexSpecificRanges && (
+                <div className="flex items-center apple-gap-1">
+                  {biologicalSex ? (
+                    <div className="px-2 py-0.5 bg-blue-100 text-blue-700 apple-rounded-small">
+                      <AppleCaption1 className="font-medium">
+                        {biologicalSex === 'male' ? '♂' : '♀'} Specific
+                      </AppleCaption1>
+                    </div>
+                  ) : (
+                    <div className="px-2 py-0.5 bg-gray-100 text-gray-600 apple-rounded-small">
+                      <AppleCaption1 className="font-medium">Broad</AppleCaption1>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
         )}
       </div>
 

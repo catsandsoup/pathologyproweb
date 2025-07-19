@@ -52,7 +52,7 @@
   - Create unit tests for toggle behavior
   - _Requirements: 2.1, 2.2, 2.3, 8.2, 8.3_
 
-- [ ] 7. Enhance HealthMetricCard with sex-specific ranges
+- [x] 7. Enhance HealthMetricCard with sex-specific ranges
   - Update HealthMetricCard to use ReferenceRangeResolver
   - Add visual indicators for which reference ranges are being used
   - Maintain backward compatibility with existing metric cards
@@ -73,7 +73,7 @@
 
 ## Phase 3: Parameter Migration (Gradual)
 
-- [ ] 9. Create parameter alias system
+- [x] 9. Create parameter alias system
   - Implement PARAMETER_ALIASES mapping for spelling variations
   - Create alias resolution logic in parameter matching
   - Add support for "Hemoglobin"/"Haemoglobin" and other common variations
@@ -81,9 +81,7 @@
   - Test alias resolution with various input spellings
   - _Requirements: 4.1, 4.2, 4.3, 4.4_
 
-- [ ] 10. Migrate Hematology parameters to sex-specific ranges
-
-
+- [x] 10. Migrate Hematology parameters to sex-specific ranges
   - Update Hemoglobin with male (140-180 g/L) and female (120-160 g/L) ranges
   - Update Hematocrit with male (42-50%) and female (37-47%) ranges
   - Update other hematology parameters with Medscape sex-specific ranges
@@ -91,48 +89,48 @@
   - Create migration tests to verify no functionality breaks
   - _Requirements: 5.1, 5.2, 5.3, 6.1, 7.1_
 
-- [ ] 11. Migrate Biochemistry parameters to sex-specific ranges
-  - Update Creatinine with male (53-106 μmol/L) and female (44-97 μmol/L) ranges
-  - Update Ferritin with male (12-300 ng/mL) and female (10-150 ng/mL) ranges
-  - Update other biochemistry parameters with sex-specific ranges where available
+- [x] 11. Migrate Biochemistry parameters to sex-specific ranges
+  - Update Creatinine with male (62-106 μmol/L) and female (44-80 μmol/L) ranges
+  - Update Ferritin with male (12-300 μg/L) and female (10-150 μg/L) ranges
+  - Update Urate with male (0.24-0.51 mmol/L) and female (0.16-0.43 mmol/L) ranges
   - Convert units to match existing SI unit patterns
   - Test parameter migration with real data uploads
   - _Requirements: 5.1, 5.2, 5.3, 6.1, 7.1_
 
-- [ ] 12. Migrate remaining parameter categories
+- [x] 12. Migrate remaining parameter categories
   - Update Lipid parameters with sex-specific ranges (HDL, etc.)
+  - Update Iron Studies parameters with sex-specific ranges (Ferritin, Iron Saturation)
   - Update Hormone parameters with appropriate sex-specific ranges
-  - Update Iron Studies parameters with sex-specific ranges
   - Ensure all migrations maintain backward compatibility
   - Create comprehensive tests for all migrated parameters
   - _Requirements: 5.1, 5.2, 5.3, 6.1, 7.1_
 
 ## Phase 4: New Tests Integration (Category by Category)
 
-- [ ] 13. Add Cardiac enzymes category and tests
+- [x] 13. Add Cardiac enzymes category and tests
   - Create CARDIAC category in PARAMETER_CATEGORIES
-  - Add Creatine kinase (CK) with reference range 20-200 U/L
+  - Add Creatine kinase (CK) with sex-specific reference ranges
   - Add Creatine kinase MB (CKMB) with reference range < 5% of total CK
   - Add Cardiac Troponin T and I with appropriate ranges
   - Add High-sensitivity Troponin T with sex-specific ranges
   - Test new cardiac parameters with file uploads
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 14. Add Coagulation tests category and tests
+- [x] 14. Add Coagulation tests category and tests
   - Create COAGULATION category or add to HAEMATOLOGY
   - Add Prothrombin time (PT) with reference range 11-12.5 s
   - Add International normalized ratio (INR) with range 0.8-1.1
   - Add Activated partial thromboplastin time (aPTT) with range 30-40 s
-  - Add Fibrinogen with reference range 200-400 mg/dL
+  - Add Fibrinogen with reference range 2.0-4.0 g/L (converted to SI units)
   - Add D-dimer with reference range < 500 μg/L
   - Test coagulation parameters with various input formats
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 15. Add Tumor markers category and tests
+- [x] 15. Add Tumor markers category and tests
   - Create TUMOR_MARKERS category in PARAMETER_CATEGORIES
   - Add α fetoprotein (AFP) with reference range < 40 ng/mL
   - Add β human chorionic gonadotropin (β-hCG) with sex-specific ranges
-  - Add CA19.9 with reference range 0-37 U/mL
+  - Add CA19-9 with reference range 0-37 U/mL
   - Add Carcinoembryonic antigen (CEA) with range < 2.5 ng/mL
   - Add Prostate-specific antigen (PSA) with male-specific range 0-2.5 ng/mL
   - Test tumor marker detection and categorization
