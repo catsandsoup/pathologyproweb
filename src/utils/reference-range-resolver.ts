@@ -12,24 +12,38 @@ export class ReferenceRangeResolver {
     biologicalSex?: 'male' | 'female'
   ): ReferenceRange | null {
     try {
-      // Find the parameter definition
-      const parameter = PARAMETERS.find(p => 
-        p.name === parameterName || 
-        (p.aliases && p.aliases.includes(parameterName))
-      );
+      // Find the parameter definition with improved matching
+      const parameter = PARAMETERS.find(p => {
+        // Direct name match
+        if (p.name === parameterName) return true;
+        
+        // Case-insensitive name match
+        if (p.name.toLowerCase() === parameterName.toLowerCase()) return true;
+        
+        // Alias match (case-insensitive)
+        if (p.aliases && p.aliases.some(alias => 
+          alias.toLowerCase() === parameterName.toLowerCase()
+        )) return true;
+        
+        return false;
+      });
 
       if (!parameter) {
-        console.warn(`Parameter not found: ${parameterName}`);
+        console.warn(`Parameter not found: ${parameterName}. Available parameters:`, 
+          PARAMETERS.map(p => p.name).slice(0, 10));
         return null;
       }
 
       // If we have the new referenceRanges array, use it
       if (parameter.referenceRanges && parameter.referenceRanges.length > 0) {
-        return this.resolveFromRangesArray(parameter.referenceRanges, biologicalSex);
+        const resolvedRange = this.resolveFromRangesArray(parameter.referenceRanges, biologicalSex);
+        console.log(`Resolved range for ${parameterName} (${biologicalSex || 'unspecified'}):`, resolvedRange);
+        return resolvedRange;
       }
 
       // Fallback to single referenceRange for backward compatibility
       if (parameter.referenceRange) {
+        console.log(`Using fallback range for ${parameterName}:`, parameter.referenceRange);
         return parameter.referenceRange;
       }
 

@@ -7,7 +7,6 @@ import {
 } from "@/components/ui/tooltip";
 import { PARAMETERS } from '@/types/blood-tests';
 import { ReferenceRangeResolver } from '@/utils/reference-range-resolver';
-import { Line } from 'recharts';
 
 export const HealthMetricCard = ({ 
   title, 
@@ -32,19 +31,19 @@ export const HealthMetricCard = ({
   const hasSexSpecificRanges = ReferenceRangeResolver.hasSexSpecificRanges(title);
   
   const getSeverityColor = (value: number) => {
-    if (!referenceRange) return 'bg-white';
+    if (!referenceRange) return 'bg-white border-gray-200';
     
     const { min, max } = referenceRange;
     const criticalLow = min - (min * 0.3);
     const criticalHigh = max + (max * 0.3);
     
     if (value <= criticalLow || value >= criticalHigh) {
-      return 'bg-red-50 border-red-500';
+      return 'bg-red-50 border-red-300';
     }
     if (value < min || value > max) {
-      return 'bg-yellow-50 border-yellow-500';
+      return 'bg-yellow-50 border-yellow-300';
     }
-    return 'bg-green-50 border-green-500';
+    return 'bg-green-50 border-green-300';
   };
 
   const getValueStatus = (value: number) => {
@@ -182,14 +181,22 @@ export const HealthMetricCard = ({
         )}
       </div>
       {miniChartData.length > 1 && (
-        <div className="h-10 mt-2">
-          <Line
-            data={miniChartData}
-            type="monotone"
-            dataKey="value"
-            stroke="hsl(var(--primary))"
-            dot={false}
-          />
+        <div className="h-8 mt-2 opacity-60">
+          <svg width="100%" height="100%" viewBox="0 0 100 32">
+            <polyline
+              fill="none"
+              stroke="hsl(var(--primary))"
+              strokeWidth="1.5"
+              points={miniChartData.map((point, index) => {
+                const x = (index / (miniChartData.length - 1)) * 100;
+                const minVal = Math.min(...miniChartData.map(p => p.value));
+                const maxVal = Math.max(...miniChartData.map(p => p.value));
+                const range = maxVal - minVal || 1;
+                const y = 28 - ((point.value - minVal) / range) * 24;
+                return `${x},${y}`;
+              }).join(' ')}
+            />
+          </svg>
         </div>
       )}
     </div>

@@ -1,3 +1,4 @@
+import React from 'react';
 import { Line, ReferenceLine, ReferenceArea } from 'recharts';
 import { Card } from '@/components/ui/card';
 import {
@@ -24,6 +25,7 @@ import {
   Tooltip as RechartsTooltip,
 } from 'recharts';
 import { PARAMETERS, PARAMETER_CATEGORIES, Parameter } from '@/types/blood-tests';
+import { ReferenceRangeResolver } from '@/utils/reference-range-resolver';
 import { Info } from 'lucide-react';
 import { format, isValid } from 'date-fns';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -33,6 +35,7 @@ interface TrendChartProps {
   parameters: string[];
   selectedParameter: string;
   onParameterChange: (value: string) => void;
+  biologicalSex?: 'male' | 'female';
 }
 
 export const TrendChart = ({
@@ -40,10 +43,31 @@ export const TrendChart = ({
   parameters,
   selectedParameter,
   onParameterChange,
+  biologicalSex,
 }: TrendChartProps) => {
   const isMobile = useIsMobile();
   const selectedParamInfo = PARAMETERS.find(p => p.name === selectedParameter);
-  const referenceRange = selectedParamInfo?.referenceRange;
+  
+  // Use ReferenceRangeResolver for sex-specific ranges
+  const referenceRange = ReferenceRangeResolver.getRangeForParameter(selectedParameter, biologicalSex);
+  const hasSexSpecificRanges = ReferenceRangeResolver.hasSexSpecificRanges(selectedParameter);
+  
+  // Debug logging
+  React.useEffect(() => {
+    console.log('TrendChart Debug:', {
+      selectedParameter,
+      biologicalSex,
+      referenceRange,
+      hasSexSpecificRanges,
+      validDataLength: validData.length,
+      availableParameters: PARAMETERS.filter(p => p.name.toLowerCase().includes('haemoglobin')).map(p => ({
+        name: p.name,
+        hasReferenceRanges: !!p.referenceRanges,
+        referenceRangesCount: p.referenceRanges?.length || 0,
+        aliases: p.aliases
+      }))
+    });
+  }, [selectedParameter, biologicalSex, referenceRange, hasSexSpecificRanges, validData.length]);
 
   const formatXAxis = (tickItem: string) => {
     if (!tickItem) return '';
@@ -85,11 +109,72 @@ export const TrendChart = ({
     }
   };
 
-  // Filter out data points with invalid dates
+  // Filter out data points with invalid dates and get values for selected parameter
   const validData = data.filter(item => {
     const date = new Date(item.date);
     return isValid(date);
   });
+
+  // Calculate Y-axis domain based on data values and reference range
+  const getYAxisDomain = () => {
+    const values = validData
+      .map(item => item[selectedParameter])
+      .filter(val => val !== undefined && val !== null && !isNaN(val));
+    
+    if (values.length === 0) return ['auto', 'auto'];
+    
+    const minValue = Math.min(...values);
+    const maxValue = Math.max(...values);
+    
+    let domainMin = minValue;
+    let domainMax = maxValue;
+    
+    // Include reference range in domain calculation if available
+    if (referenceRange) {
+      domainMin = Math.min(domainMin, referenceRange.min);
+      domainMax = Math.max(domainMax, referenceRange.max);
+    }
+    
+    // Calculate padding as 20% of the range for better visualization
+    const range = domainMax - domainMin;
+    const padding = Math.max(range * 0.2, Math.abs(domainMax) * 0.05); // Dynamic padding
+    
+    // Smart domain calculation - don't force to 0 unless values are close to 0
+    const lowestReasonableValue = Math.min(domainMin, referenceRange?.min || domainMin);
+    if (lowestReasonableValue > 10) {
+      // If the lowest reasonable value is well above 0, don't force the chart to start at 0
+      domainMin = Math.max(lowestReasonableValue - padding, lowestReasonableValue * 0.8);
+    } else {
+      // For values close to 0, it makes sense to start from 0
+      domainMin = Math.max(0, domainMin - padding);
+    }
+    
+    domainMax = domainMax + padding;
+    
+    // Ensure we have a reasonable range
+    if (domainMax - domainMin < 2) {
+      const center = (domainMax + domainMin) / 2;
+      const minRange = Math.max(2, center * 0.1);
+      domainMin = center - minRange / 2;
+      domainMax = center + minRange / 2;
+      
+      // Still respect the 0 floor for most medical parameters
+      if (domainMin < 0 && center > 0) {
+        domainMin = 0;
+        domainMax = center + minRange;
+      }
+    }
+    
+    console.log('Domain calculation:', {
+      selectedParameter,
+      values: values.slice(0, 3),
+      referenceRange,
+      calculatedDomain: [domainMin, domainMax],
+      originalRange: [minValue, maxValue]
+    });
+    
+    return [domainMin, domainMax];
+  };
 
   return (
     <Card className={`p-4 md:p-6 space-y-4 ${isMobile ? 'h-[500px]' : ''}`}>
@@ -163,30 +248,36 @@ export const TrendChart = ({
               tickFormatter={formatXAxis}
               minTickGap={30}
             />
-            <YAxis />
+            <YAxis domain={getYAxisDomain()} />
             <RechartsTooltip 
               labelFormatter={formatTooltipDate}
-              formatter={formatValue}
+              formatter={(value, name) => [
+                formatValue(value),
+                name + (referenceRange ? ` (Normal: ${referenceRange.min}-${referenceRange.max} ${referenceRange.unit})` : '')
+              ]}
             />
             {referenceRange && (
               <>
                 <ReferenceArea
                   y1={referenceRange.min}
                   y2={referenceRange.max}
-                  fill="hsl(var(--primary) / 0.1)"
-                  fillOpacity={0.3}
+                  fill="#ef4444"
+                  fillOpacity={0.1}
+                  stroke="none"
                 />
                 <ReferenceLine 
                   y={referenceRange.max} 
-                  label="Max" 
-                  stroke="hsl(var(--muted-foreground))" 
-                  strokeDasharray="3 3" 
+                  label={{ value: "Upper", position: "topRight" }}
+                  stroke="#ef4444" 
+                  strokeDasharray="2 2" 
+                  strokeOpacity={0.6}
                 />
                 <ReferenceLine 
                   y={referenceRange.min} 
-                  label="Min" 
-                  stroke="hsl(var(--muted-foreground))" 
-                  strokeDasharray="3 3" 
+                  label={{ value: "Lower", position: "bottomRight" }}
+                  stroke="#ef4444" 
+                  strokeDasharray="2 2" 
+                  strokeOpacity={0.6}
                 />
               </>
             )}

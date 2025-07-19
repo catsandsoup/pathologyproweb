@@ -60,7 +60,10 @@
   - Create tests for sex-specific metric calculations
   - _Requirements: 5.4, 5.5, 8.4_
 
-- [ ] 8. Update TrendChart with sex-specific reference ranges
+- [x] 8. Update TrendChart with sex-specific reference ranges
+
+
+
   - Modify TrendChart to use resolved reference ranges
   - Update normal/abnormal value highlighting based on sex
   - Ensure chart rendering works with both broad and sex-specific ranges
@@ -79,6 +82,8 @@
   - _Requirements: 4.1, 4.2, 4.3, 4.4_
 
 - [ ] 10. Migrate Hematology parameters to sex-specific ranges
+
+
   - Update Hemoglobin with male (140-180 g/L) and female (120-160 g/L) ranges
   - Update Hematocrit with male (42-50%) and female (37-47%) ranges
   - Update other hematology parameters with Medscape sex-specific ranges

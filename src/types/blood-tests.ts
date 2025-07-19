@@ -46,15 +46,29 @@ export const PARAMETERS: Parameter[] = [
     name: 'Haemoglobin',
     category: PARAMETER_CATEGORIES.HAEMATOLOGY,
     unit: 'g/L',
-    referenceRange: { min: 130, max: 170, unit: 'g/L' },
-    description: 'Protein in red blood cells that carries oxygen throughout the body'
+    referenceRange: { min: 130, max: 170, unit: 'g/L' }, // Fallback broad range
+    referenceRanges: [
+      { min: 140, max: 180, unit: 'g/L', sex: 'male', source: 'medscape' },
+      { min: 120, max: 160, unit: 'g/L', sex: 'female', source: 'medscape' },
+      { min: 130, max: 170, unit: 'g/L', sex: 'both', source: 'existing' }
+    ],
+    aliases: ['Hemoglobin', 'Hgb', 'Hb'],
+    description: 'Protein in red blood cells that carries oxygen throughout the body',
+    migrationStatus: 'migrated'
   },
   {
     name: 'Haematocrit',
     category: PARAMETER_CATEGORIES.HAEMATOLOGY,
     unit: 'L/L',
-    referenceRange: { min: 0.4, max: 0.54, unit: 'L/L' },
-    description: 'Percentage of blood volume that is red blood cells'
+    referenceRange: { min: 0.4, max: 0.54, unit: 'L/L' }, // Fallback broad range
+    referenceRanges: [
+      { min: 0.42, max: 0.50, unit: 'L/L', sex: 'male', source: 'medscape' },
+      { min: 0.37, max: 0.47, unit: 'L/L', sex: 'female', source: 'medscape' },
+      { min: 0.4, max: 0.54, unit: 'L/L', sex: 'both', source: 'existing' }
+    ],
+    aliases: ['Hematocrit', 'Hct', 'PCV'],
+    description: 'Percentage of blood volume that is red blood cells',
+    migrationStatus: 'migrated'
   },
   {
     name: 'MCV',

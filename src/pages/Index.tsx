@@ -400,6 +400,7 @@ const BloodTestDashboard: React.FC = () => {
             parameters={parameters}
             selectedParameter={selectedParameter}
             onParameterChange={setSelectedParameter}
+            biologicalSex={sessionState.userProfile.biologicalSex}
           />
 
           <div className="space-y-6">
