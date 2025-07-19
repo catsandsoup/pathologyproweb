@@ -78,35 +78,7 @@ const BloodTestDashboard: React.FC = () => {
     return () => window.removeEventListener('loadDemo', handleLoadDemoFromEvent);
   }, []);
 
-  // Regenerate demo data when biological sex changes (only for demo data)
-  useEffect(() => {
-    if (isUsingDemoData && sessionState.userProfile.biologicalSex) {
-      // Determine the appropriate demo profile based on current profile and new biological sex
-      let newProfile: DemoProfile;
-      
-      if (currentDemoProfile.includes('elderly')) {
-        newProfile = sessionState.userProfile.biologicalSex === 'male' ? 'elderly-male' : 'elderly-female';
-      } else {
-        newProfile = sessionState.userProfile.biologicalSex === 'male' ? 'healthy-male' : 'healthy-female';
-      }
-      
-      // Only regenerate if the profile actually changed
-      if (newProfile !== currentDemoProfile) {
-        const { chartData, calculatedMetrics, parameters: demoParams } = generateSampleData(newProfile);
-        setData(chartData);
-        setParameters(demoParams);
-        setMetrics(calculatedMetrics);
-        setCurrentDemoProfile(newProfile);
-        
-        // Keep the same selected parameter if it exists in the new data
-        if (selectedParameter && demoParams.includes(selectedParameter)) {
-          setSelectedParameter(selectedParameter);
-        } else if (demoParams.length > 0) {
-          setSelectedParameter(demoParams[0]);
-        }
-      }
-    }
-  }, [sessionState.userProfile.biologicalSex, isUsingDemoData]);
+
 
   // Function to return to landing page
   const handleReturnToHome = () => {
@@ -215,10 +187,13 @@ const BloodTestDashboard: React.FC = () => {
     setIsUsingDemoData(true);
     setCurrentDemoProfile(profile);
 
-    // Update session state to indicate data processing is complete
+    // Extract biological sex from the profile and update session state
+    const biologicalSex = profile.includes('male') ? 'male' : 'female';
     setSessionState(prevState => ({
       ...prevState,
-      dataProcessingComplete: true
+      userProfile: updateUserProfileWithSex(prevState.userProfile, biologicalSex),
+      dataProcessingComplete: true,
+      currentReferenceMode: 'sex-specific'
     }));
 
     toast({
@@ -338,7 +313,9 @@ const BloodTestDashboard: React.FC = () => {
 
               {isUsingDemoData && (
                 <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 w-full md:w-auto">
-                  <Select value={currentDemoProfile} onValueChange={(value: DemoProfile) => setCurrentDemoProfile(value)}>
+                  <Select value={currentDemoProfile} onValueChange={(value: DemoProfile) => {
+                    handleLoadDemo(value);
+                  }}>
                     <SelectTrigger className="w-full md:w-[180px] h-11 text-sm">
                       <SelectValue />
                     </SelectTrigger>
