@@ -33,19 +33,19 @@ export const HealthMetricCard = ({
   const hasSexSpecificRanges = ReferenceRangeResolver.hasSexSpecificRanges(title);
   
   const getSeverityColor = (value: number) => {
-    if (!referenceRange) return 'bg-white border-gray-200 shadow-sm';
+    if (!referenceRange) return 'bg-white border-slate-200 shadow-sm';
     
     const { min, max } = referenceRange;
     const criticalLow = min - (min * 0.3);
     const criticalHigh = max + (max * 0.3);
     
     if (value <= criticalLow || value >= criticalHigh) {
-      return 'bg-gradient-to-br from-red-50 to-red-100 border-red-300 shadow-lg shadow-red-200/30';
+      return 'bg-white border-l-4 border-l-red-500 border-slate-200 shadow-md';
     }
     if (value < min || value > max) {
-      return 'bg-gradient-to-br from-amber-50 to-amber-100 border-amber-300 shadow-lg shadow-amber-200/30';
+      return 'bg-white border-l-4 border-l-amber-500 border-slate-200 shadow-md';
     }
-    return 'bg-gradient-to-br from-emerald-50 to-emerald-100 border-emerald-300 shadow-lg shadow-emerald-200/30';
+    return 'bg-white border-l-4 border-l-emerald-500 border-slate-200 shadow-md';
   };
 
   const getValueStatus = (value: number) => {
@@ -125,29 +125,29 @@ export const HealthMetricCard = ({
                 <Info className="w-4 h-4 text-apple-blue" />
               </button>
             </TooltipTrigger>
-            <TooltipContent className="w-96 p-4 max-w-md z-50 bg-white shadow-xl border-2">
+            <TooltipContent className="w-96 p-4 max-w-md z-50 bg-white shadow-xl border border-slate-200">
               <div className="space-y-4">
-                <div className="font-semibold text-lg text-gray-900">{title}</div>
+                <div className="font-semibold text-lg text-slate-900">{title}</div>
                 
                 {/* Test Purpose */}
                 {TEST_INFORMATION[title] && (
-                  <div className="text-sm text-gray-700 leading-relaxed">
-                    <span className="font-medium text-gray-900">Purpose:</span> {TEST_INFORMATION[title].purpose}
+                  <div className="text-sm text-slate-700 leading-relaxed">
+                    <span className="font-medium text-slate-900">Purpose:</span> {TEST_INFORMATION[title].purpose}
                   </div>
                 )}
                 
                 {/* Reference Range */}
                 {referenceRange && (
-                  <div className="text-sm bg-red-50 p-3 rounded-lg border border-red-200">
-                    <div className="font-medium text-red-900 mb-1">Normal Range</div>
-                    <div className="text-red-800 font-semibold">{referenceRange.min}-{referenceRange.max} {referenceRange.unit}</div>
+                  <div className="text-sm bg-slate-50 p-3 rounded-lg border border-slate-200">
+                    <div className="font-medium text-slate-900 mb-1">Normal Range</div>
+                    <div className="text-slate-800 font-semibold">{referenceRange.min}-{referenceRange.max} {referenceRange.unit}</div>
                     {hasSexSpecificRanges && biologicalSex && (
-                      <div className="text-xs text-red-600 mt-1 font-medium">
+                      <div className="text-xs text-blue-600 mt-1 font-medium">
                         Using {biologicalSex}-specific ranges
                       </div>
                     )}
                     {hasSexSpecificRanges && !biologicalSex && (
-                      <div className="text-xs text-red-600 mt-1 font-medium">
+                      <div className="text-xs text-slate-600 mt-1 font-medium">
                         Broad ranges (specify biological sex for more accuracy)
                       </div>
                     )}
@@ -228,22 +228,22 @@ export const HealthMetricCard = ({
           <AppleCaption1 className="apple-text-secondary">{unit}</AppleCaption1>
         </div>
         {referenceRange && (
-          <div className="mt-3 p-3 bg-white border border-red-200 apple-rounded-small shadow-sm">
+          <div className="mt-3 p-2 bg-slate-50 border border-slate-200 apple-rounded-small">
             <div className="flex items-center justify-between">
-              <AppleFootnote className="text-gray-800 font-semibold">
+              <AppleFootnote className="text-slate-700 font-medium">
                 Normal: {referenceRange.min}-{referenceRange.max} {referenceRange.unit}
               </AppleFootnote>
               {hasSexSpecificRanges && (
                 <div className="flex items-center apple-gap-1">
                   {biologicalSex ? (
-                    <div className="px-2 py-0.5 bg-red-100 text-red-700 apple-rounded-small border border-red-200">
-                      <AppleCaption1 className="font-semibold">
+                    <div className="px-2 py-0.5 bg-blue-50 text-blue-700 apple-rounded-small border border-blue-200">
+                      <AppleCaption1 className="font-medium text-xs">
                         {biologicalSex === 'male' ? '♂' : '♀'} Specific
                       </AppleCaption1>
                     </div>
                   ) : (
-                    <div className="px-2 py-0.5 bg-gray-100 text-gray-700 apple-rounded-small border border-gray-200">
-                      <AppleCaption1 className="font-semibold">Broad</AppleCaption1>
+                    <div className="px-2 py-0.5 bg-slate-100 text-slate-600 apple-rounded-small border border-slate-200">
+                      <AppleCaption1 className="font-medium text-xs">Broad</AppleCaption1>
                     </div>
                   )}
                 </div>
