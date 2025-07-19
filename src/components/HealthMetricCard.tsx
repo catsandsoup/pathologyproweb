@@ -1,4 +1,5 @@
-import { TrendingUp, TrendingDown, Circle, AlertCircle, Info } from 'lucide-react';
+import React, { useState } from 'react';
+import { TrendingUp, TrendingDown, Circle, AlertCircle, Info, X } from 'lucide-react';
 import { HealthMetricCardProps } from '@/types/blood-test';
 import {
   Tooltip,
@@ -20,6 +21,8 @@ export const HealthMetricCard = ({
   historicalData = [],
   biologicalSex
 }: HealthMetricCardProps) => {
+  // State for mobile-friendly tooltip
+  const [showInfo, setShowInfo] = useState(false);
   const formattedValue = typeof value === 'number' 
     ? value < 1 
       ? value.toFixed(3)
@@ -139,110 +142,16 @@ export const HealthMetricCard = ({
           ) : (
             <Circle className="w-4 h-4 text-gray-400" />
           )}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button 
-                className="p-1 rounded-full hover:bg-gray-100 transition-colors duration-200"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Info className="w-4 h-4 text-gray-400" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent className="w-96 p-4 max-w-md z-50 bg-white shadow-xl border border-slate-200">
-              <div className="space-y-4">
-                <div className="font-semibold text-lg text-slate-900">{title}</div>
-                
-                {/* Test Purpose */}
-                {TEST_INFORMATION[title] && (
-                  <div className="text-sm text-slate-700 leading-relaxed">
-                    <span className="font-medium text-slate-900">Purpose:</span> {TEST_INFORMATION[title].purpose}
-                  </div>
-                )}
-                
-                {/* Reference Range */}
-                {referenceRange && (
-                  <div className="text-sm bg-slate-50 p-3 rounded-lg border border-slate-200">
-                    <div className="font-medium text-slate-900 mb-1">Normal Range</div>
-                    <div className="text-slate-800 font-semibold">{referenceRange.min}-{referenceRange.max} {referenceRange.unit}</div>
-                    {hasSexSpecificRanges && biologicalSex && (
-                      <div className="text-xs text-blue-600 mt-1 font-medium">
-                        Using {biologicalSex}-specific ranges
-                      </div>
-                    )}
-                    {hasSexSpecificRanges && !biologicalSex && (
-                      <div className="text-xs text-slate-600 mt-1 font-medium">
-                        Broad ranges (specify biological sex for more accuracy)
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Current Status and Specific Causes */}
-                {valueStatus && TEST_INFORMATION[title] && (
-                  <div className="space-y-3">
-                    <div className={`p-3 rounded-lg ${
-                      valueStatus.status === 'High' ? 'bg-red-50 border border-red-200' : 
-                      valueStatus.status === 'Low' ? 'bg-yellow-50 border border-yellow-200' : 
-                      'bg-green-50 border border-green-200'
-                    }`}>
-                      <div className={`font-medium mb-2 ${
-                        valueStatus.status === 'High' ? 'text-red-700' : 
-                        valueStatus.status === 'Low' ? 'text-yellow-700' : 
-                        'text-green-700'
-                      }`}>
-                        Current Status: {valueStatus.status}
-                      </div>
-                      
-                      {valueStatus.status === 'High' && TEST_INFORMATION[title].highCauses.length > 0 && (
-                        <div className="text-sm text-red-700">
-                          <div className="font-medium mb-1">Common causes of high levels:</div>
-                          <ul className="space-y-1">
-                            {TEST_INFORMATION[title].highCauses.slice(0, 4).map((cause, index) => (
-                              <li key={index} className="flex items-start">
-                                <span className="w-1 h-1 bg-red-500 rounded-full mt-2 mr-2 flex-shrink-0"></span>
-                                {cause}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                      
-                      {valueStatus.status === 'Low' && TEST_INFORMATION[title].lowCauses.length > 0 && (
-                        <div className="text-sm text-yellow-700">
-                          <div className="font-medium mb-1">Common causes of low levels:</div>
-                          <ul className="space-y-1">
-                            {TEST_INFORMATION[title].lowCauses.slice(0, 4).map((cause, index) => (
-                              <li key={index} className="flex items-start">
-                                <span className="w-1 h-1 bg-yellow-500 rounded-full mt-2 mr-2 flex-shrink-0"></span>
-                                {cause}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                      
-                      {valueStatus.status === 'Normal' && (
-                        <div className="text-sm text-green-700">
-                          Your levels are within the healthy range.
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Clinical Significance */}
-                {TEST_INFORMATION[title] && (
-                  <div className="text-xs text-gray-600 bg-gray-50 p-2 rounded">
-                    <span className="font-medium">Clinical significance:</span> {TEST_INFORMATION[title].clinicalSignificance}
-                  </div>
-                )}
-                
-                <div className="text-xs text-gray-500 pt-2 border-t border-gray-200">
-                  Click the card to view this parameter's trend chart
-                </div>
-              </div>
-            </TooltipContent>
-          </Tooltip>
+          {/* Mobile-friendly info button */}
+          <button 
+            className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200 touch-manipulation"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowInfo(!showInfo);
+            }}
+          >
+            <Info className="w-5 h-5 text-blue-500" />
+          </button>
         </div>
       </div>
       <div className="mt-3">
@@ -262,6 +171,122 @@ export const HealthMetricCard = ({
         )}
       </div>
 
+      {/* Mobile-friendly info panel */}
+      {showInfo && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end md:items-center justify-center p-4">
+          <div className="bg-white rounded-t-3xl md:rounded-2xl w-full max-w-md max-h-[80vh] overflow-y-auto shadow-2xl">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+              <button
+                onClick={() => setShowInfo(false)}
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors touch-manipulation"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+            
+            {/* Content */}
+            <div className="p-4 space-y-4">
+              {/* Test Purpose */}
+              {TEST_INFORMATION[title] && (
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-2">Purpose</h4>
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    {TEST_INFORMATION[title].purpose}
+                  </p>
+                </div>
+              )}
+              
+              {/* Reference Range */}
+              {referenceRange && (
+                <div className="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                  <h4 className="font-medium text-slate-900 mb-2">Normal Range</h4>
+                  <div className="text-slate-800 font-semibold mb-2">
+                    {referenceRange.min}-{referenceRange.max} {referenceRange.unit}
+                  </div>
+                  {hasSexSpecificRanges && biologicalSex && (
+                    <div className="text-xs text-blue-600 font-medium">
+                      Using {biologicalSex}-specific ranges
+                    </div>
+                  )}
+                  {hasSexSpecificRanges && !biologicalSex && (
+                    <div className="text-xs text-slate-600 font-medium">
+                      Broad ranges (specify biological sex for more accuracy)
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Current Status */}
+              {valueStatus && TEST_INFORMATION[title] && (
+                <div className={`p-3 rounded-lg ${
+                  valueStatus.status === 'High' ? 'bg-red-50 border border-red-200' : 
+                  valueStatus.status === 'Low' ? 'bg-yellow-50 border border-yellow-200' : 
+                  'bg-green-50 border border-green-200'
+                }`}>
+                  <h4 className={`font-medium mb-2 ${
+                    valueStatus.status === 'High' ? 'text-red-700' : 
+                    valueStatus.status === 'Low' ? 'text-yellow-700' : 
+                    'text-green-700'
+                  }`}>
+                    Current Status: {valueStatus.status}
+                  </h4>
+                  
+                  {valueStatus.status === 'High' && TEST_INFORMATION[title].highCauses.length > 0 && (
+                    <div className="text-sm text-red-700">
+                      <div className="font-medium mb-2">Common causes of high levels:</div>
+                      <ul className="space-y-1">
+                        {TEST_INFORMATION[title].highCauses.slice(0, 4).map((cause, index) => (
+                          <li key={index} className="flex items-start">
+                            <span className="w-1 h-1 bg-red-500 rounded-full mt-2 mr-2 flex-shrink-0"></span>
+                            {cause}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  {valueStatus.status === 'Low' && TEST_INFORMATION[title].lowCauses.length > 0 && (
+                    <div className="text-sm text-yellow-700">
+                      <div className="font-medium mb-2">Common causes of low levels:</div>
+                      <ul className="space-y-1">
+                        {TEST_INFORMATION[title].lowCauses.slice(0, 4).map((cause, index) => (
+                          <li key={index} className="flex items-start">
+                            <span className="w-1 h-1 bg-yellow-500 rounded-full mt-2 mr-2 flex-shrink-0"></span>
+                            {cause}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  {valueStatus.status === 'Normal' && (
+                    <div className="text-sm text-green-700">
+                      Your levels are within the healthy range.
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Clinical Significance */}
+              {TEST_INFORMATION[title] && (
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <h4 className="font-medium text-gray-900 mb-2">Clinical Significance</h4>
+                  <p className="text-sm text-gray-600">
+                    {TEST_INFORMATION[title].clinicalSignificance}
+                  </p>
+                </div>
+              )}
+              
+              {/* Footer */}
+              <div className="text-xs text-gray-500 pt-2 border-t border-gray-200 text-center">
+                Tap the card to view this parameter's trend chart
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
