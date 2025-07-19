@@ -89,7 +89,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
                     const event = new CustomEvent('loadDemo');
                     window.dispatchEvent(event);
                   }}
-                  className="text-red-600 hover:text-red-700 font-medium text-base py-3 touch-manipulation"
+                  className="bg-red-500 hover:bg-red-600 text-white font-medium text-base py-3 px-6 rounded-lg transition-colors touch-manipulation"
                 >
                   Try Demo Data
                 </button>
@@ -158,77 +158,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
           </div>
         </div>
 
-        {/* Additional Apple TV Style Services Grid - Mobile Optimized */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-16 mb-16 md:mb-24">
-          {/* Trends Feature */}
-          <div className="text-left">
-            <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center mb-4 md:mb-6 shadow-lg">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-              </svg>
-            </div>
-            <h3 className="text-xl md:text-2xl font-semibold text-gray-900 mb-3 md:mb-4">Trend Analysis</h3>
-            <p className="text-gray-600 leading-relaxed mb-4 md:mb-6 text-sm md:text-base">
-              Get unlimited access to over 200 incredibly detailed trend analyses, all with no ads 
-              or in-app purchases. Track patterns, identify changes across your favorite 
-              health metrics.
-            </p>
-            <button className="text-red-600 hover:text-red-700 font-medium text-sm transition-colors touch-manipulation">
-              Learn more →
-            </button>
-          </div>
-          
-          {/* Reference Ranges */}
-          <div className="text-left">
-            <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mb-4 md:mb-6 shadow-lg">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-            </div>
-            <h3 className="text-xl md:text-2xl font-semibold text-gray-900 mb-3 md:mb-4">Reference Ranges</h3>
-            <p className="text-gray-600 leading-relaxed mb-4 md:mb-6 text-sm md:text-base">
-              Choose from 12 reference types, everything from general population to sex-specific ranges. 
-              With new parameters added every week, five to 45 minutes. 
-              And get personalized recommendations just for you.
-            </p>
-            <button className="text-orange-600 hover:text-orange-700 font-medium text-sm transition-colors touch-manipulation">
-              Learn more →
-            </button>
-          </div>
-          
-          {/* Export & Share */}
-          <div className="text-left">
-            <div className="w-16 h-16 bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl flex items-center justify-center mb-4 md:mb-6 shadow-lg">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            </div>
-            <h3 className="text-xl md:text-2xl font-semibold text-gray-900 mb-3 md:mb-4">Export & Share</h3>
-            <p className="text-gray-600 leading-relaxed mb-4 md:mb-6 text-sm md:text-base">
-              Access to hundreds of export formats, leading healthcare providers and sports 
-              medicine coverage featuring the week's best analysis tools.
-            </p>
-            <button className="text-teal-600 hover:text-teal-700 font-medium text-sm transition-colors touch-manipulation">
-              Learn more →
-            </button>
-          </div>
-        </div>
-        
-        {/* Legal Notices - Minimal */}
-        <div className="max-w-2xl mx-auto space-y-4">
-          <div className="text-center p-4 bg-green-50 rounded-2xl border border-green-200">
-            <p className="text-sm text-green-800">
-              <Shield className="w-4 h-4 inline mr-2" />
-              Your data stays private - files are processed locally and never leave your device
-            </p>
-          </div>
 
-          <div className="text-center p-4 bg-amber-50 rounded-2xl border border-amber-200">
-            <p className="text-sm text-amber-800">
-              This tool displays data only - no medical advice provided. Use at your own risk.
-            </p>
-          </div>
-        </div>
       </div>
     </div>
   );

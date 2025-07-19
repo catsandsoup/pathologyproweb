@@ -344,29 +344,20 @@ const BloodTestDashboard: React.FC = () => {
                       <SelectItem value="elderly-female">Healthy Elderly Female</SelectItem>
                     </SelectContent>
                   </Select>
-                  <div className="flex space-x-2">
-                    <ApplePrimaryButton
-                      onClick={() => handleLoadDemo(currentDemoProfile)}
-                      className="flex-1 md:flex-none h-11 text-sm px-4"
-                    >
-                      <Play className="w-4 h-4 mr-2" />
-                      Load Demo
-                    </ApplePrimaryButton>
-                    <AppleTertiaryButton
-                      onClick={() => {
-                        setHasData(false);
-                        setIsUsingDemoData(false);
-                        setData([]);
-                        setParameters([]);
-                        setMetrics([]);
-                        setDateRange(undefined);
-                        setSessionState(createInitialSessionState());
-                      }}
-                      className="flex-1 md:flex-none h-11 text-sm px-4"
-                    >
-                      Upload Your Data
-                    </AppleTertiaryButton>
-                  </div>
+                  <AppleTertiaryButton
+                    onClick={() => {
+                      setHasData(false);
+                      setIsUsingDemoData(false);
+                      setData([]);
+                      setParameters([]);
+                      setMetrics([]);
+                      setDateRange(undefined);
+                      setSessionState(createInitialSessionState());
+                    }}
+                    className="w-full md:w-auto h-11 text-sm px-4"
+                  >
+                    Upload Your Data
+                  </AppleTertiaryButton>
                 </div>
               )}
               {!isUsingDemoData && (

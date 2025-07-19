@@ -239,6 +239,13 @@ export const TrendChart = ({
                 formatValue(value),
                 name + (referenceRange ? ` (Normal: ${referenceRange.min}-${referenceRange.max} ${referenceRange.unit})` : '')
               ]}
+              position={{ x: undefined, y: undefined }}
+              allowEscapeViewBox={{ x: false, y: false }}
+              wrapperStyle={{ 
+                maxWidth: '280px', 
+                wordWrap: 'break-word',
+                zIndex: 1000
+              }}
             />
             {referenceRange && (
               <>
