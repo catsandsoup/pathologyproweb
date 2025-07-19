@@ -48,26 +48,15 @@ export const TrendChart = ({
   const isMobile = useIsMobile();
   const selectedParamInfo = PARAMETERS.find(p => p.name === selectedParameter);
   
+  // Filter out data points with invalid dates and get values for selected parameter
+  const validData = data.filter(item => {
+    const date = new Date(item.date);
+    return isValid(date);
+  });
+
   // Use ReferenceRangeResolver for sex-specific ranges
   const referenceRange = ReferenceRangeResolver.getRangeForParameter(selectedParameter, biologicalSex);
   const hasSexSpecificRanges = ReferenceRangeResolver.hasSexSpecificRanges(selectedParameter);
-  
-  // Debug logging
-  React.useEffect(() => {
-    console.log('TrendChart Debug:', {
-      selectedParameter,
-      biologicalSex,
-      referenceRange,
-      hasSexSpecificRanges,
-      validDataLength: validData.length,
-      availableParameters: PARAMETERS.filter(p => p.name.toLowerCase().includes('haemoglobin')).map(p => ({
-        name: p.name,
-        hasReferenceRanges: !!p.referenceRanges,
-        referenceRangesCount: p.referenceRanges?.length || 0,
-        aliases: p.aliases
-      }))
-    });
-  }, [selectedParameter, biologicalSex, referenceRange, hasSexSpecificRanges, validData.length]);
 
   const formatXAxis = (tickItem: string) => {
     if (!tickItem) return '';
@@ -108,12 +97,6 @@ export const TrendChart = ({
         return 'Frequency varies based on medical history';
     }
   };
-
-  // Filter out data points with invalid dates and get values for selected parameter
-  const validData = data.filter(item => {
-    const date = new Date(item.date);
-    return isValid(date);
-  });
 
   // Calculate Y-axis domain based on data values and reference range
   const getYAxisDomain = () => {
