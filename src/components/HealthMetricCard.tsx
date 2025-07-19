@@ -8,6 +8,7 @@ import {
 import { PARAMETERS } from '@/types/blood-tests';
 import { ReferenceRangeResolver } from '@/utils/reference-range-resolver';
 import { TEST_INFORMATION } from '@/utils/test-information';
+import { AppleHeadline, AppleTitle2, AppleCaption1, AppleFootnote } from '@/components/ui/apple-typography';
 
 export const HealthMetricCard = ({ 
   title, 
@@ -32,19 +33,19 @@ export const HealthMetricCard = ({
   const hasSexSpecificRanges = ReferenceRangeResolver.hasSexSpecificRanges(title);
   
   const getSeverityColor = (value: number) => {
-    if (!referenceRange) return 'bg-white border-gray-200';
+    if (!referenceRange) return 'apple-bg-system apple-border-separator';
     
     const { min, max } = referenceRange;
     const criticalLow = min - (min * 0.3);
     const criticalHigh = max + (max * 0.3);
     
     if (value <= criticalLow || value >= criticalHigh) {
-      return 'bg-red-50 border-red-300';
+      return 'bg-red-50 border-apple-red/30';
     }
     if (value < min || value > max) {
-      return 'bg-yellow-50 border-yellow-300';
+      return 'bg-orange-50 border-apple-orange/30';
     }
-    return 'bg-green-50 border-green-300';
+    return 'bg-green-50 border-apple-green/30';
   };
 
   const getValueStatus = (value: number) => {
@@ -98,30 +99,30 @@ export const HealthMetricCard = ({
   return (
     <div 
       onClick={onClick}
-      className={`p-4 rounded-xl cursor-pointer transition-all duration-200 border ${
-        isSelected ? 'border-2 border-blue-500' : severityColor
+      className={`apple-p-4 apple-rounded-medium cursor-pointer transition-all duration-200 ease-out border apple-shadow-small hover:apple-shadow-medium active:scale-95 transform ${
+        isSelected ? 'border-2 border-apple-blue apple-shadow-medium' : severityColor
       }`}
     >
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-gray-500">{title}</span>
-        <div className="flex items-center gap-2">
+        <AppleCaption1 className="apple-text-secondary">{title}</AppleCaption1>
+        <div className="flex items-center apple-gap-2">
           {valueStatus?.status === 'High' || valueStatus?.status === 'Low' ? (
-            <AlertCircle className="w-4 h-4 text-red-500" />
+            <AlertCircle className="w-4 h-4 text-apple-red" />
           ) : null}
           {trend > 0 ? (
-            <TrendingUp className="w-4 h-4 text-green-500" />
+            <TrendingUp className="w-4 h-4 text-apple-green" />
           ) : trend < 0 ? (
-            <TrendingDown className="w-4 h-4 text-red-500" />
+            <TrendingDown className="w-4 h-4 text-apple-red" />
           ) : (
-            <Circle className="w-4 h-4 text-gray-400" />
+            <Circle className="w-4 h-4 text-apple-gray" />
           )}
           <Tooltip>
             <TooltipTrigger asChild>
               <button 
-                className="p-1 rounded-full hover:bg-blue-100 transition-colors duration-200"
+                className="p-1 apple-rounded-small hover:bg-apple-blue/10 transition-colors duration-200"
                 onClick={(e) => e.stopPropagation()}
               >
-                <Info className="w-4 h-4 text-blue-500" />
+                <Info className="w-4 h-4 text-apple-blue" />
               </button>
             </TooltipTrigger>
             <TooltipContent className="w-96 p-4 max-w-md">
@@ -221,13 +222,13 @@ export const HealthMetricCard = ({
           </Tooltip>
         </div>
       </div>
-      <div className="mt-2">
-        <span className="text-2xl font-semibold">{formattedValue}</span>
-        <span className="ml-1 text-sm text-gray-500">{unit}</span>
+      <div className="apple-spacing-2">
+        <AppleTitle2 className="apple-text-label">{formattedValue}</AppleTitle2>
+        <AppleCaption1 className="apple-text-secondary ml-1">{unit}</AppleCaption1>
         {referenceRange && (
-          <div className="text-xs text-gray-400 mt-1">
+          <AppleFootnote className="apple-text-tertiary mt-1 block">
             Normal: {referenceRange.min}-{referenceRange.max}
-          </div>
+          </AppleFootnote>
         )}
       </div>
 

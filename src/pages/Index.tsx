@@ -33,6 +33,8 @@ import {
 } from "@/components/ui/select";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { cn } from '@/lib/utils';
+import { AppleLargeTitle, AppleTitle2, AppleBody, AppleCallout } from '@/components/ui/apple-typography';
+import { ApplePrimaryButton, AppleSecondaryButton, AppleTertiaryButton } from '@/components/ui/apple-button';
 
 const BloodTestDashboard: React.FC = () => {
   const [data, setData] = useState<DataPoint[]>([]);
@@ -221,13 +223,13 @@ const BloodTestDashboard: React.FC = () => {
         <div className="space-y-4">
           <FileUpload onFileUpload={handleFileUpload} />
           <div className="flex justify-center">
-            <Button 
+            <ApplePrimaryButton 
               onClick={() => handleLoadDemo(currentDemoProfile)}
-              className="mt-4 bg-[#FF2D55] hover:bg-[#FF2D55]/90 text-white"
+              className="mt-4"
             >
               <Play className="w-4 h-4 mr-2" />
               Load Demo Data
-            </Button>
+            </ApplePrimaryButton>
           </div>
         </div>
       ) : (
@@ -265,11 +267,11 @@ const BloodTestDashboard: React.FC = () => {
                 <Activity className="w-6 h-6 text-[#FF2D55]" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  {isUsingDemoData ? "Blood Tests" : "Blood Tests"}
-                </h1>
+                <AppleLargeTitle className="apple-text-label">
+                  Blood Tests
+                </AppleLargeTitle>
                 {isUsingDemoData && (
-                  <p className="text-sm text-gray-500">Demo Mode</p>
+                  <AppleCallout className="apple-text-secondary">Demo Mode</AppleCallout>
                 )}
               </div>
             </div>
@@ -295,15 +297,14 @@ const BloodTestDashboard: React.FC = () => {
                       <SelectItem value="elderly-female">Healthy Elderly Female</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Button 
+                  <ApplePrimaryButton 
                     onClick={() => handleLoadDemo(currentDemoProfile)} 
-                    className="bg-[#FF2D55] hover:bg-[#FF2D55]/90 text-white"
-                    size="sm"
+                    size="small"
                   >
                     <Play className="w-4 h-4 mr-2" />
                     Load Demo
-                  </Button>
-                  <Button 
+                  </ApplePrimaryButton>
+                  <AppleTertiaryButton 
                     onClick={() => {
                       setHasData(false);
                       setIsUsingDemoData(false);
@@ -314,15 +315,14 @@ const BloodTestDashboard: React.FC = () => {
                       // Reset session state
                       setSessionState(createInitialSessionState());
                     }}
-                    variant="outline"
-                    size="sm"
+                    size="small"
                   >
                     Upload Your Data
-                  </Button>
+                  </AppleTertiaryButton>
                 </div>
               )}
               {!isUsingDemoData && (
-                <Button 
+                <AppleTertiaryButton 
                   onClick={() => {
                     setHasData(false);
                     setIsUsingDemoData(false);
@@ -333,11 +333,10 @@ const BloodTestDashboard: React.FC = () => {
                     // Reset session state
                     setSessionState(createInitialSessionState());
                   }}
-                  variant="outline"
-                  size="sm"
+                  size="small"
                 >
                   Upload New File
-                </Button>
+                </AppleTertiaryButton>
               )}
               <Popover>
                 <PopoverTrigger asChild>
@@ -426,9 +425,9 @@ const BloodTestDashboard: React.FC = () => {
               <div key={category} className="space-y-4">
                 <div className="flex items-center space-x-3">
                   <div className="h-px bg-gradient-to-r from-gray-300 to-transparent flex-1"></div>
-                  <h2 className="text-lg font-semibold text-gray-800 px-4 py-2 bg-gray-50 rounded-full border border-gray-200">
+                  <AppleTitle2 className="apple-text-label px-4 py-2 bg-gray-50 rounded-full border border-gray-200">
                     {category}
-                  </h2>
+                  </AppleTitle2>
                   <div className="h-px bg-gradient-to-l from-gray-300 to-transparent flex-1"></div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
