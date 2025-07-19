@@ -211,7 +211,7 @@ const BloodTestDashboard: React.FC = () => {
   }, {} as Record<string, Metric[]>);
 
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-6">
+    <div className="max-w-7xl mx-auto apple-p-6 apple-gap-6 flex flex-col">
       {/* Biological Sex Prompt */}
       <BiologicalSexPrompt
         isOpen={shouldShowSexPrompt}

@@ -29,6 +29,7 @@ import { ReferenceRangeResolver } from '@/utils/reference-range-resolver';
 import { Info } from 'lucide-react';
 import { format, isValid } from 'date-fns';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { AppleTitle2, AppleCaption1 } from '@/components/ui/apple-typography';
 
 interface TrendChartProps {
   data: any[];
@@ -160,15 +161,15 @@ export const TrendChart = ({
   };
 
   return (
-    <Card className={`p-4 md:p-6 space-y-4 ${isMobile ? 'h-[500px]' : ''}`}>
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div className="flex items-center space-x-2">
-          <h2 className="text-xl md:text-2xl font-semibold">Trends</h2>
+    <Card className={`apple-p-4 md:apple-p-6 apple-gap-4 apple-rounded-medium apple-shadow-small ${isMobile ? 'h-[500px]' : ''}`}>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center apple-gap-4">
+        <div className="flex items-center apple-gap-2">
+          <AppleTitle2 className="apple-text-label">Trends</AppleTitle2>
           {selectedParamInfo && (
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>
-                  <Info className="h-5 w-5 text-muted-foreground" />
+                  <Info className="h-5 w-5 text-apple-blue" />
                 </TooltipTrigger>
                 <TooltipContent>
                   <div className="space-y-2">
@@ -244,33 +245,33 @@ export const TrendChart = ({
                 <ReferenceArea
                   y1={referenceRange.min}
                   y2={referenceRange.max}
-                  fill="#ef4444"
+                  fill="var(--apple-green)"
                   fillOpacity={0.1}
                   stroke="none"
                 />
                 <ReferenceLine 
                   y={referenceRange.max} 
                   label={{ value: "Upper", position: "topRight" }}
-                  stroke="#ef4444" 
+                  stroke="var(--apple-orange)" 
                   strokeDasharray="2 2" 
-                  strokeOpacity={0.6}
+                  strokeOpacity={0.8}
                 />
                 <ReferenceLine 
                   y={referenceRange.min} 
                   label={{ value: "Lower", position: "bottomRight" }}
-                  stroke="#ef4444" 
+                  stroke="var(--apple-orange)" 
                   strokeDasharray="2 2" 
-                  strokeOpacity={0.6}
+                  strokeOpacity={0.8}
                 />
               </>
             )}
             <Line
               type="monotone"
               dataKey={selectedParameter}
-              stroke="hsl(var(--primary))"
-              strokeWidth={2}
-              dot={{ fill: "hsl(var(--primary))" }}
-              activeDot={{ r: 8 }}
+              stroke="var(--apple-blue)"
+              strokeWidth={3}
+              dot={{ fill: "var(--apple-blue)", strokeWidth: 2, stroke: "var(--apple-system-background)" }}
+              activeDot={{ r: 6, fill: "var(--apple-blue)", stroke: "var(--apple-system-background)", strokeWidth: 2 }}
             />
           </LineChart>
         </ResponsiveContainer>
