@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Activity, FileDown, Calendar, Play } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Activity, FileDown, Calendar, Play, ArrowLeft, BarChart3 } from 'lucide-react';
 import { DataPoint, Metric, UserProfile, SessionState } from '@/types/blood-test';
 import { HealthMetricCard } from '@/components/HealthMetricCard';
 import { FileUpload } from '@/components/FileUpload';
@@ -67,6 +67,27 @@ const BloodTestDashboard: React.FC = () => {
   });
 
   const { toast } = useToast();
+
+  // Listen for demo loading from the landing page
+  useEffect(() => {
+    const handleLoadDemoFromEvent = () => {
+      handleLoadDemo('healthy-male');
+    };
+    
+    window.addEventListener('loadDemo', handleLoadDemoFromEvent);
+    return () => window.removeEventListener('loadDemo', handleLoadDemoFromEvent);
+  }, []);
+
+  // Function to return to landing page
+  const handleReturnToHome = () => {
+    setHasData(false);
+    setIsUsingDemoData(false);
+    setData([]);
+    setParameters([]);
+    setMetrics([]);
+    setDateRange(undefined);
+    setSessionState(createInitialSessionState());
+  };
 
   // Biological sex prompt handlers
   const handleBiologicalSexSelect = (biologicalSex: 'male' | 'female') => {
@@ -260,6 +281,42 @@ const BloodTestDashboard: React.FC = () => {
               </div>
             </div>
           )}
+
+          {/* Navigation Header */}
+          <nav className="w-full bg-white border-b border-gray-200 shadow-sm mb-6">
+            <div className="flex items-center justify-between px-6 py-4">
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={handleReturnToHome}
+                  className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                  <span className="font-medium">Back to Home</span>
+                </button>
+                <div className="h-6 w-px bg-gray-300"></div>
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
+                    <BarChart3 className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h1 className="text-lg font-bold text-gray-900">BloodLog Pro</h1>
+                    <p className="text-xs text-gray-500">Professional Blood Test Analysis</p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center space-x-4">
+                <button className="text-sm text-gray-600 hover:text-gray-900 font-medium">
+                  About
+                </button>
+                <button className="text-sm text-gray-600 hover:text-gray-900 font-medium">
+                  Privacy
+                </button>
+                <button className="text-sm text-gray-600 hover:text-gray-900 font-medium">
+                  Support
+                </button>
+              </div>
+            </div>
+          </nav>
 
           <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0 bg-white apple-p-6 apple-rounded-large border border-gray-200 shadow-sm">
             <div className="flex items-center apple-gap-4">
