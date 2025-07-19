@@ -7,7 +7,7 @@ import { BiologicalSexPrompt } from '@/components/BiologicalSexPrompt';
 import { SexToggle } from '@/components/SexToggle';
 import { processExcelData } from '@/utils/excel-processor';
 import { generateSampleData, DemoProfile } from '@/utils/sample-data';
-import { 
+import {
   createInitialSessionState,
   updateUserProfileWithSex
 } from '@/utils/biological-sex';
@@ -33,7 +33,7 @@ import {
 } from "@/components/ui/select";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { cn } from '@/lib/utils';
-import { AppleLargeTitle, AppleTitle2, AppleBody, AppleCallout } from '@/components/ui/apple-typography';
+import { AppleLargeTitle, AppleTitle2, AppleBody, AppleCallout, AppleHeadline } from '@/components/ui/apple-typography';
 import { ApplePrimaryButton, AppleSecondaryButton, AppleTertiaryButton } from '@/components/ui/apple-button';
 
 const BloodTestDashboard: React.FC = () => {
@@ -45,7 +45,7 @@ const BloodTestDashboard: React.FC = () => {
   const [isUsingDemoData, setIsUsingDemoData] = useState(false);
   const [currentDemoProfile, setCurrentDemoProfile] = useState<DemoProfile>('healthy-male');
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
-  
+
   // New biological sex state management with error handling
   const [sessionState, setSessionState] = useState<SessionState>(() => {
     try {
@@ -65,7 +65,7 @@ const BloodTestDashboard: React.FC = () => {
       };
     }
   });
-  
+
   const { toast } = useToast();
 
   // Biological sex prompt handlers
@@ -76,7 +76,7 @@ const BloodTestDashboard: React.FC = () => {
       sexPromptShown: true,
       currentReferenceMode: 'sex-specific'
     }));
-    
+
     toast({
       title: "Reference ranges updated",
       description: `Now using ${biologicalSex}-specific reference ranges for more accurate results.`,
@@ -104,7 +104,7 @@ const BloodTestDashboard: React.FC = () => {
       userProfile: updateUserProfileWithSex(prevState.userProfile, biologicalSex),
       currentReferenceMode: 'sex-specific'
     }));
-    
+
     toast({
       title: "Reference ranges updated",
       description: `Switched to ${biologicalSex}-specific reference ranges.`,
@@ -112,9 +112,9 @@ const BloodTestDashboard: React.FC = () => {
   };
 
   // Check if biological sex prompt should be shown (but not for demo data)
-  const shouldShowSexPrompt = 
-    sessionState.dataProcessingComplete && 
-    !sessionState.sexPromptShown && 
+  const shouldShowSexPrompt =
+    sessionState.dataProcessingComplete &&
+    !sessionState.sexPromptShown &&
     sessionState.userProfile.preferences.showSexPrompt &&
     !sessionState.userProfile.biologicalSex &&
     !isUsingDemoData; // Don't show prompt for demo data
@@ -122,24 +122,24 @@ const BloodTestDashboard: React.FC = () => {
   const handleFileUpload = (fileData: Uint8Array) => {
     try {
       const { chartData, calculatedMetrics, parameters: processedParams } = processExcelData(fileData);
-      
+
       if (chartData && chartData.length > 0 && processedParams && processedParams.length > 0) {
         setData(chartData);
         setParameters(processedParams);
         setSelectedParameter(processedParams[0]);
-        
+
         const metricsWithData = calculatedMetrics.filter(metric => {
-          const hasValue = chartData.some(point => 
-            point[metric.name] !== undefined && 
+          const hasValue = chartData.some(point =>
+            point[metric.name] !== undefined &&
             point[metric.name] !== null
           );
           return hasValue;
         });
-        
+
         setMetrics(metricsWithData);
         setHasData(true);
         setIsUsingDemoData(false);
-        
+
         // Update session state to indicate data processing is complete
         setSessionState(prevState => ({
           ...prevState,
@@ -163,13 +163,13 @@ const BloodTestDashboard: React.FC = () => {
     setHasData(true);
     setIsUsingDemoData(true);
     setCurrentDemoProfile(profile);
-    
+
     // Update session state to indicate data processing is complete
     setSessionState(prevState => ({
       ...prevState,
       dataProcessingComplete: true
     }));
-    
+
     toast({
       title: "Demo data loaded",
       description: profileDescription,
@@ -188,7 +188,7 @@ const BloodTestDashboard: React.FC = () => {
 
   const filteredData = React.useMemo(() => {
     if (!dateRange?.from) return data;
-    
+
     return data.filter(point => {
       const date = new Date(point.date);
       if (dateRange.to) {
@@ -199,10 +199,10 @@ const BloodTestDashboard: React.FC = () => {
   }, [data, dateRange]);
 
   const groupedMetrics = metrics.reduce((acc, metric) => {
-    const category = Object.entries(PARAMETER_CATEGORIES).find(([_, value]) => 
+    const category = Object.entries(PARAMETER_CATEGORIES).find(([_, value]) =>
       metrics.find(m => m.name === metric.name)?.category === value
     )?.[1] || 'Other';
-    
+
     if (!acc[category]) {
       acc[category] = [];
     }
@@ -218,12 +218,12 @@ const BloodTestDashboard: React.FC = () => {
         onSelect={handleBiologicalSexSelect}
         onDismiss={handleBiologicalSexDismiss}
       />
-      
+
       {!hasData ? (
         <div className="space-y-4">
           <FileUpload onFileUpload={handleFileUpload} />
           <div className="flex justify-center">
-            <ApplePrimaryButton 
+            <ApplePrimaryButton
               onClick={() => handleLoadDemo(currentDemoProfile)}
               className="mt-4"
             >
@@ -236,23 +236,23 @@ const BloodTestDashboard: React.FC = () => {
         <>
           {/* Demo Data Banner */}
           {isUsingDemoData && (
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 mb-6 shadow-sm">
-              <div className="flex items-start space-x-3">
-                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-apple-blue/30 apple-rounded-large apple-p-4 mb-6 apple-shadow-small">
+              <div className="flex items-start apple-gap-3">
+                <div className="w-8 h-8 bg-apple-blue/10 apple-rounded-medium flex items-center justify-center flex-shrink-0">
+                  <svg className="w-4 h-4 text-apple-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-semibold text-blue-900 mb-1">Demo Data Active</p>
-                      <p className="text-sm text-blue-700 leading-relaxed">
+                      <AppleHeadline className="text-apple-blue mb-1">Demo Data Active</AppleHeadline>
+                      <AppleCallout className="text-apple-blue/80 leading-relaxed">
                         You're viewing sample blood test results. This data is fictional and for demonstration purposes only.
-                      </p>
+                      </AppleCallout>
                     </div>
-                    <div className="ml-4 flex items-center space-x-2 text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
-                      <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
+                    <div className="ml-4 flex items-center apple-gap-2 apple-caption-2 text-apple-blue bg-apple-blue/10 apple-p-2 apple-rounded-medium">
+                      <span className="w-2 h-2 bg-apple-blue apple-rounded-small animate-pulse"></span>
                       <span className="font-medium">DEMO</span>
                     </div>
                   </div>
@@ -261,10 +261,10 @@ const BloodTestDashboard: React.FC = () => {
             </div>
           )}
 
-          <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0 bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-red-50 rounded-lg">
-                <Activity className="w-6 h-6 text-[#FF2D55]" />
+          <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0 apple-bg-system apple-p-4 apple-rounded-medium border apple-border-separator apple-shadow-small">
+            <div className="flex items-center apple-gap-3">
+              <div className="apple-p-2 bg-red-50 apple-rounded-medium">
+                <Activity className="w-6 h-6 text-apple-red" />
               </div>
               <div>
                 <AppleLargeTitle className="apple-text-label">
@@ -283,7 +283,7 @@ const BloodTestDashboard: React.FC = () => {
                   onSexChange={handleSexToggle}
                 />
               )}
-              
+
               {isUsingDemoData && (
                 <div className="flex items-center space-x-2">
                   <Select value={currentDemoProfile} onValueChange={(value: DemoProfile) => setCurrentDemoProfile(value)}>
@@ -297,14 +297,14 @@ const BloodTestDashboard: React.FC = () => {
                       <SelectItem value="elderly-female">Healthy Elderly Female</SelectItem>
                     </SelectContent>
                   </Select>
-                  <ApplePrimaryButton 
-                    onClick={() => handleLoadDemo(currentDemoProfile)} 
+                  <ApplePrimaryButton
+                    onClick={() => handleLoadDemo(currentDemoProfile)}
                     size="small"
                   >
                     <Play className="w-4 h-4 mr-2" />
                     Load Demo
                   </ApplePrimaryButton>
-                  <AppleTertiaryButton 
+                  <AppleTertiaryButton
                     onClick={() => {
                       setHasData(false);
                       setIsUsingDemoData(false);
@@ -322,7 +322,7 @@ const BloodTestDashboard: React.FC = () => {
                 </div>
               )}
               {!isUsingDemoData && (
-                <AppleTertiaryButton 
+                <AppleTertiaryButton
                   onClick={() => {
                     setHasData(false);
                     setIsUsingDemoData(false);
@@ -373,13 +373,13 @@ const BloodTestDashboard: React.FC = () => {
                         setDateRange(range);
                       }}
                       numberOfMonths={2}
-                      disabled={(date) => 
+                      disabled={(date) =>
                         date > new Date() || date < new Date("1900-01-01")
                       }
                     />
                     <div className="flex items-center justify-between pt-3 border-t">
                       <div className="text-sm text-muted-foreground">
-                        {dateRange?.from && dateRange?.to 
+                        {dateRange?.from && dateRange?.to
                           ? `${Math.ceil((dateRange.to.getTime() - dateRange.from.getTime()) / (1000 * 60 * 60 * 24))} days selected`
                           : "Select start and end dates"
                         }
@@ -397,7 +397,7 @@ const BloodTestDashboard: React.FC = () => {
                   </div>
                 </PopoverContent>
               </Popover>
-              
+
               <PDFDownloadLink
                 document={<BloodTestPDF data={filteredData} metrics={metrics} />}
                 fileName="blood-test-results.pdf"
