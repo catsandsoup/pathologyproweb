@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/tooltip";
 import { PARAMETERS } from '@/types/blood-tests';
 import { ReferenceRangeResolver } from '@/utils/reference-range-resolver';
+import { TEST_INFORMATION } from '@/utils/test-information';
 
 export const HealthMetricCard = ({ 
   title, 
@@ -123,47 +124,96 @@ export const HealthMetricCard = ({
                 <Info className="w-4 h-4 text-blue-500" />
               </button>
             </TooltipTrigger>
-            <TooltipContent className="w-80 p-4 max-w-sm">
-              <div className="space-y-3">
-                <div className="font-semibold text-base">{title}</div>
+            <TooltipContent className="w-96 p-4 max-w-md">
+              <div className="space-y-4">
+                <div className="font-semibold text-lg text-gray-900">{title}</div>
+                
+                {/* Test Purpose */}
+                {TEST_INFORMATION[title] && (
+                  <div className="text-sm text-gray-700 leading-relaxed">
+                    <span className="font-medium text-gray-900">Purpose:</span> {TEST_INFORMATION[title].purpose}
+                  </div>
+                )}
+                
+                {/* Reference Range */}
                 {referenceRange && (
-                  <div className="text-sm bg-gray-50 p-2 rounded">
-                    <span className="font-medium">Normal range:</span> {referenceRange.min}-{referenceRange.max} {referenceRange.unit}
+                  <div className="text-sm bg-blue-50 p-3 rounded-lg border border-blue-200">
+                    <div className="font-medium text-blue-900 mb-1">Normal Range</div>
+                    <div className="text-blue-800">{referenceRange.min}-{referenceRange.max} {referenceRange.unit}</div>
                     {hasSexSpecificRanges && biologicalSex && (
                       <div className="text-xs text-blue-600 mt-1">
                         Using {biologicalSex}-specific ranges
                       </div>
                     )}
                     {hasSexSpecificRanges && !biologicalSex && (
-                      <div className="text-xs text-gray-500 mt-1">
+                      <div className="text-xs text-blue-600 mt-1">
                         Broad ranges (specify biological sex for more accuracy)
                       </div>
                     )}
                   </div>
                 )}
-                {paramInfo?.description && (
-                  <div className="text-sm text-gray-600 leading-relaxed">{paramInfo.description}</div>
-                )}
-                {valueStatus && (
-                  <div className="mt-3 p-3 rounded-lg bg-gray-50">
-                    <div className={`font-medium mb-2 ${
-                      valueStatus.status === 'High' ? 'text-red-600' : 
-                      valueStatus.status === 'Low' ? 'text-yellow-600' : 
-                      'text-green-600'
+
+                {/* Current Status and Specific Causes */}
+                {valueStatus && TEST_INFORMATION[title] && (
+                  <div className="space-y-3">
+                    <div className={`p-3 rounded-lg ${
+                      valueStatus.status === 'High' ? 'bg-red-50 border border-red-200' : 
+                      valueStatus.status === 'Low' ? 'bg-yellow-50 border border-yellow-200' : 
+                      'bg-green-50 border border-green-200'
                     }`}>
-                      Status: {valueStatus.status}
+                      <div className={`font-medium mb-2 ${
+                        valueStatus.status === 'High' ? 'text-red-700' : 
+                        valueStatus.status === 'Low' ? 'text-yellow-700' : 
+                        'text-green-700'
+                      }`}>
+                        Current Status: {valueStatus.status}
+                      </div>
+                      
+                      {valueStatus.status === 'High' && TEST_INFORMATION[title].highCauses.length > 0 && (
+                        <div className="text-sm text-red-700">
+                          <div className="font-medium mb-1">Common causes of high levels:</div>
+                          <ul className="space-y-1">
+                            {TEST_INFORMATION[title].highCauses.slice(0, 4).map((cause, index) => (
+                              <li key={index} className="flex items-start">
+                                <span className="w-1 h-1 bg-red-500 rounded-full mt-2 mr-2 flex-shrink-0"></span>
+                                {cause}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      
+                      {valueStatus.status === 'Low' && TEST_INFORMATION[title].lowCauses.length > 0 && (
+                        <div className="text-sm text-yellow-700">
+                          <div className="font-medium mb-1">Common causes of low levels:</div>
+                          <ul className="space-y-1">
+                            {TEST_INFORMATION[title].lowCauses.slice(0, 4).map((cause, index) => (
+                              <li key={index} className="flex items-start">
+                                <span className="w-1 h-1 bg-yellow-500 rounded-full mt-2 mr-2 flex-shrink-0"></span>
+                                {cause}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      
+                      {valueStatus.status === 'Normal' && (
+                        <div className="text-sm text-green-700">
+                          Your levels are within the healthy range.
+                        </div>
+                      )}
                     </div>
-                    <ul className="text-sm text-gray-600 space-y-1">
-                      {valueStatus.implications.map((implication, index) => (
-                        <li key={index} className="flex items-start">
-                          <span className="w-1 h-1 bg-gray-400 rounded-full mt-2 mr-2 flex-shrink-0"></span>
-                          {implication}
-                        </li>
-                      ))}
-                    </ul>
                   </div>
                 )}
-                <div className="text-xs text-gray-500 pt-2 border-t">
+
+                {/* Clinical Significance */}
+                {TEST_INFORMATION[title] && (
+                  <div className="text-xs text-gray-600 bg-gray-50 p-2 rounded">
+                    <span className="font-medium">Clinical significance:</span> {TEST_INFORMATION[title].clinicalSignificance}
+                  </div>
+                )}
+                
+                <div className="text-xs text-gray-500 pt-2 border-t border-gray-200">
                   Click the card to view this parameter's trend chart
                 </div>
               </div>
@@ -180,25 +230,7 @@ export const HealthMetricCard = ({
           </div>
         )}
       </div>
-      {miniChartData.length > 1 && (
-        <div className="h-8 mt-2 opacity-60">
-          <svg width="100%" height="100%" viewBox="0 0 100 32">
-            <polyline
-              fill="none"
-              stroke="hsl(var(--primary))"
-              strokeWidth="1.5"
-              points={miniChartData.map((point, index) => {
-                const x = (index / (miniChartData.length - 1)) * 100;
-                const minVal = Math.min(...miniChartData.map(p => p.value));
-                const maxVal = Math.max(...miniChartData.map(p => p.value));
-                const range = maxVal - minVal || 1;
-                const y = 28 - ((point.value - minVal) / range) * 24;
-                return `${x},${y}`;
-              }).join(' ')}
-            />
-          </svg>
-        </div>
-      )}
+
     </div>
   );
 };

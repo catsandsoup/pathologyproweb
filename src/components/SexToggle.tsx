@@ -25,32 +25,30 @@ export const SexToggle = ({
   className = '',
 }: SexToggleProps) => {
   return (
-    <div className={`flex items-center space-x-2 ${className}`}>
+    <div className={`flex items-center ${className}`}>
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="flex items-center space-x-2 px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-lg">
-              <User className="w-4 h-4 text-blue-600" />
-              <span className="text-sm font-medium text-blue-700">
-                Reference ranges:
-              </span>
-              <Select value={currentSex} onValueChange={onSexChange}>
-                <SelectTrigger className="w-20 h-7 text-sm border-0 bg-transparent p-0 focus:ring-0">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="male">
-                    <div className="flex items-center space-x-2">
-                      <span>Male</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="female">
-                    <div className="flex items-center space-x-2">
-                      <span>Female</span>
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="flex items-center space-x-3 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
+              <User className="w-4 h-4 text-blue-600 flex-shrink-0" />
+              <div className="flex items-center space-x-2">
+                <span className="text-sm font-medium text-blue-700 whitespace-nowrap">
+                  Reference ranges:
+                </span>
+                <Select value={currentSex} onValueChange={onSexChange}>
+                  <SelectTrigger className="w-[80px] h-8 text-sm border border-blue-300 bg-white hover:bg-blue-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 px-3 py-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">
+                      <span className="font-medium">Male</span>
+                    </SelectItem>
+                    <SelectItem value="female">
+                      <span className="font-medium">Female</span>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </TooltipTrigger>
           <TooltipContent>
