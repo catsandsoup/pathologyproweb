@@ -324,150 +324,116 @@ const BloodTestDashboard: React.FC = () => {
                 )}
               </div>
             </div>
-            <div className="flex flex-col space-y-3 md:space-y-0 w-full md:w-auto">
-              {/* First row: Sex Toggle and Demo Profile Selector */}
-              <div className="flex flex-col md:flex-row items-stretch md:items-center space-y-2 md:space-y-0 md:space-x-3">
-                {/* Sex Toggle - only show when biological sex is specified */}
-                {sessionState.userProfile.biologicalSex && (
-                  <div className="w-full md:w-auto">
-                    <SexToggle
-                      currentSex={sessionState.userProfile.biologicalSex}
-                      onSexChange={handleSexToggle}
-                    />
-                  </div>
-                )}
+            {/* Apple-style toolbar - clean single row layout */}
+            <div className="flex flex-col md:flex-row items-stretch md:items-center space-y-3 md:space-y-0 md:space-x-3 w-full md:w-auto">
+              {/* Demo Profile Selector - only in demo mode */}
+              {isUsingDemoData && (
+                <Select value={currentDemoProfile} onValueChange={(value: DemoProfile) => {
+                  handleLoadDemo(value);
+                }}>
+                  <SelectTrigger className="w-full md:w-[180px] h-11 text-sm bg-white/80 backdrop-blur-sm border-gray-200 hover:bg-white/90 transition-colors">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="healthy-male">Healthy Adult Male</SelectItem>
+                    <SelectItem value="healthy-female">Healthy Adult Female</SelectItem>
+                    <SelectItem value="elderly-male">Healthy Elderly Male</SelectItem>
+                    <SelectItem value="elderly-female">Healthy Elderly Female</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
 
-                {isUsingDemoData && (
-                  <div className="w-full md:w-auto">
-                    <Select value={currentDemoProfile} onValueChange={(value: DemoProfile) => {
-                      handleLoadDemo(value);
-                    }}>
-                      <SelectTrigger className="w-full md:w-[200px] h-11 text-sm">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="healthy-male">Healthy Adult Male</SelectItem>
-                        <SelectItem value="healthy-female">Healthy Adult Female</SelectItem>
-                        <SelectItem value="elderly-male">Healthy Elderly Male</SelectItem>
-                        <SelectItem value="elderly-female">Healthy Elderly Female</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
-              </div>
+              {/* Sex Toggle - only show for uploaded data (not demo) */}
+              {!isUsingDemoData && sessionState.userProfile.biologicalSex && (
+                <SexToggle
+                  currentSex={sessionState.userProfile.biologicalSex}
+                  onSexChange={handleSexToggle}
+                />
+              )}
 
-              {/* Second row: Action buttons */}
-              <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
-                {isUsingDemoData && (
+              {/* Date Range Filter */}
+              <Popover>
+                <PopoverTrigger asChild>
                   <AppleTertiaryButton
-                    onClick={() => {
-                      setHasData(false);
-                      setIsUsingDemoData(false);
-                      setData([]);
-                      setParameters([]);
-                      setMetrics([]);
-                      setDateRange(undefined);
-                      setSessionState(createInitialSessionState());
-                    }}
-                    className="w-full md:w-auto h-11 text-sm px-4"
+                    className={cn(
+                      "w-full md:w-[200px] h-11 text-sm justify-start text-left font-normal bg-white/80 backdrop-blur-sm border-gray-200 hover:bg-white/90 transition-colors",
+                      !dateRange && "text-muted-foreground"
+                    )}
                   >
-                    Upload Your Data
-                  </AppleTertiaryButton>
-                )}
-                {!isUsingDemoData && (
-                  <AppleTertiaryButton
-                    onClick={() => {
-                      setHasData(false);
-                      setIsUsingDemoData(false);
-                      setData([]);
-                      setParameters([]);
-                      setMetrics([]);
-                      setDateRange(undefined);
-                      setSessionState(createInitialSessionState());
-                    }}
-                    className="w-full md:w-auto h-11 text-sm px-4"
-                  >
-                    Upload New File
-                  </AppleTertiaryButton>
-                )}
-              </div>
-              
-              {/* Third row: Date filter and Export controls */}
-              <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "justify-start text-left font-normal w-full md:min-w-[200px] h-11 text-sm",
-                        !dateRange && "text-muted-foreground"
-                      )}
-                    >
-                      <Calendar className="mr-2 h-4 w-4" />
-                      {dateRange?.from ? (
-                        dateRange.to ? (
-                          <>
-                            {format(dateRange.from, "MMM dd")} - {format(dateRange.to, "MMM dd")}
-                          </>
-                        ) : (
-                          format(dateRange.from, "MMM dd, y")
-                        )
+                    <Calendar className="mr-2 h-4 w-4" />
+                    {dateRange?.from ? (
+                      dateRange.to ? (
+                        <>
+                          {format(dateRange.from, "MMM dd")} - {format(dateRange.to, "MMM dd")}
+                        </>
                       ) : (
-                        <span>Filter by date</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="end">
-                    <div className="p-3">
-                      <CalendarComponent
-                        initialFocus
-                        mode="range"
-                        defaultMonth={dateRange?.from || new Date()}
-                        selected={dateRange}
-                        onSelect={(range) => {
-                          setDateRange(range);
-                        }}
-                        numberOfMonths={1}
-                        disabled={(date) =>
-                          date > new Date() || date < new Date("1900-01-01")
-                        }
-                      />
-                      <div className="flex items-center justify-between pt-3 border-t">
-                        <div className="text-xs text-muted-foreground">
-                          {dateRange?.from && dateRange?.to
-                            ? `${Math.ceil((dateRange.to.getTime() - dateRange.from.getTime()) / (1000 * 60 * 60 * 24))} days`
-                            : "Select dates"
-                          }
-                        </div>
-                        {dateRange && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setDateRange(undefined)}
-                          >
-                            Clear
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                        format(dateRange.from, "MMM dd, y")
+                      )
+                    ) : (
+                      <span>Filter by date</span>
+                    )}
+                  </AppleTertiaryButton>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <CalendarComponent
+                    initialFocus
+                    mode="range"
+                    defaultMonth={dateRange?.from}
+                    selected={dateRange}
+                    onSelect={setDateRange}
+                    numberOfMonths={2}
+                  />
+                </PopoverContent>
+              </Popover>
 
-                <PDFDownloadLink
-                  document={<BloodTestPDF data={filteredData} metrics={metrics} />}
-                  fileName="blood-test-results.pdf"
+              {/* Export PDF */}
+              <PDFDownloadLink
+                document={<BloodTestPDF data={filteredData} metrics={metrics} />}
+                fileName="blood-test-results.pdf"
+              >
+                {({ loading }) => (
+                  <AppleTertiaryButton 
+                    disabled={loading}
+                    className="w-full md:w-auto h-11 text-sm px-4 bg-white/80 backdrop-blur-sm border-gray-200 hover:bg-white/90 transition-colors"
+                  >
+                    <FileDown className="mr-2 h-4 w-4" />
+                    {loading ? "Generating..." : "Export PDF"}
+                  </AppleTertiaryButton>
+                )}
+              </PDFDownloadLink>
+
+              {/* Action Button */}
+              {isUsingDemoData ? (
+                <AppleTertiaryButton
+                  onClick={() => {
+                    setHasData(false);
+                    setIsUsingDemoData(false);
+                    setData([]);
+                    setParameters([]);
+                    setMetrics([]);
+                    setDateRange(undefined);
+                    setSessionState(createInitialSessionState());
+                  }}
+                  className="w-full md:w-auto h-11 text-sm px-4 bg-apple-blue text-white hover:bg-apple-blue/90 border-apple-blue transition-colors"
                 >
-                  {({ loading }) => (
-                    <Button 
-                      disabled={loading}
-                      className="w-full md:w-auto h-11 text-sm px-4"
-                    >
-                      <FileDown className="mr-2 h-4 w-4" />
-                      {loading ? "Generating..." : "Export PDF"}
-                    </Button>
-                  )}
-                </PDFDownloadLink>
-              </div>
+                  Upload Your Data
+                </AppleTertiaryButton>
+              ) : (
+                <AppleTertiaryButton
+                  onClick={() => {
+                    setHasData(false);
+                    setIsUsingDemoData(false);
+                    setData([]);
+                    setParameters([]);
+                    setMetrics([]);
+                    setDateRange(undefined);
+                    setSessionState(createInitialSessionState());
+                  }}
+                  className="w-full md:w-auto h-11 text-sm px-4 bg-white/80 backdrop-blur-sm border-gray-200 hover:bg-white/90 transition-colors"
+                >
+                  Upload New File
+                </AppleTertiaryButton>
+              )}
             </div>
           </div>
 
