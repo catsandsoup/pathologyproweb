@@ -59,6 +59,14 @@ export const TrendChart = ({
   const referenceRange = ReferenceRangeResolver.getRangeForParameter(selectedParameter, biologicalSex);
   const hasSexSpecificRanges = ReferenceRangeResolver.hasSexSpecificRanges(selectedParameter);
 
+  const availableParameters = PARAMETERS.map(param => ({
+    ...param,
+    hasData: parameters.includes(param.name)
+  }));
+
+  const firstAvailableParameter = parameters[0];
+
+  // Formatting functions
   const formatXAxis = (tickItem: string) => {
     if (!tickItem) return '';
     const date = new Date(tickItem);
@@ -71,13 +79,6 @@ export const TrendChart = ({
     if (!isValid(date)) return '';
     return format(date, 'dd MMM yyyy');
   };
-
-  const availableParameters = PARAMETERS.map(param => ({
-    ...param,
-    hasData: parameters.includes(param.name)
-  }));
-
-  const firstAvailableParameter = parameters[0];
 
   const formatValue = (value: any) => {
     if (typeof value !== 'number') return value;
