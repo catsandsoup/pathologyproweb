@@ -245,33 +245,43 @@ export const TrendChart = ({
                 <ReferenceArea
                   y1={referenceRange.min}
                   y2={referenceRange.max}
-                  fill="var(--apple-green)"
-                  fillOpacity={0.1}
+                  fill="#dc2626"
+                  fillOpacity={0.08}
                   stroke="none"
                 />
                 <ReferenceLine 
                   y={referenceRange.max} 
-                  label={{ value: "Upper", position: "topRight" }}
-                  stroke="var(--apple-orange)" 
-                  strokeDasharray="2 2" 
-                  strokeOpacity={0.8}
+                  label={{ 
+                    value: "Upper", 
+                    position: "topRight",
+                    style: { fill: "#dc2626", fontWeight: "600", fontSize: "12px" }
+                  }}
+                  stroke="#dc2626" 
+                  strokeDasharray="3 3" 
+                  strokeWidth={2}
+                  strokeOpacity={0.7}
                 />
                 <ReferenceLine 
                   y={referenceRange.min} 
-                  label={{ value: "Lower", position: "bottomRight" }}
-                  stroke="var(--apple-orange)" 
-                  strokeDasharray="2 2" 
-                  strokeOpacity={0.8}
+                  label={{ 
+                    value: "Lower", 
+                    position: "bottomRight",
+                    style: { fill: "#dc2626", fontWeight: "600", fontSize: "12px" }
+                  }}
+                  stroke="#dc2626" 
+                  strokeDasharray="3 3" 
+                  strokeWidth={2}
+                  strokeOpacity={0.7}
                 />
               </>
             )}
             <Line
               type="monotone"
               dataKey={selectedParameter}
-              stroke="var(--apple-blue)"
-              strokeWidth={3}
-              dot={{ fill: "var(--apple-blue)", strokeWidth: 2, stroke: "var(--apple-system-background)" }}
-              activeDot={{ r: 6, fill: "var(--apple-blue)", stroke: "var(--apple-system-background)", strokeWidth: 2 }}
+              stroke="#dc2626"
+              strokeWidth={4}
+              dot={{ fill: "#dc2626", strokeWidth: 3, stroke: "#ffffff", r: 4 }}
+              activeDot={{ r: 7, fill: "#dc2626", stroke: "#ffffff", strokeWidth: 3 }}
             />
           </LineChart>
         </ResponsiveContainer>
