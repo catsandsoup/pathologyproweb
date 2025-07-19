@@ -122,8 +122,8 @@ export const HealthMetricCard = ({
     <div 
       onClick={onClick}
       className={`apple-p-4 apple-rounded-medium cursor-pointer transition-all duration-200 ease-out border hover:shadow-lg active:scale-95 transform relative ${
-        isSelected ? 'border-2 border-red-500 shadow-lg' : severityColor
-      }`}
+        isSelected ? 'border-2 border-red-500 shadow-lg z-10' : severityColor
+      } ${showInfo ? 'z-[10000]' : 'z-0'}`}
     >
       {/* iOS Health-style status indicator */}
       {statusIndicator && (
@@ -173,10 +173,10 @@ export const HealthMetricCard = ({
 
       {/* Mobile-friendly info panel */}
       {showInfo && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end md:items-center justify-center p-4">
-          <div className="bg-white rounded-t-3xl md:rounded-2xl w-full max-w-md max-h-[80vh] overflow-y-auto shadow-2xl">
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-200">
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white rounded-t-2xl sticky top-0">
               <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
               <button
                 onClick={() => setShowInfo(false)}

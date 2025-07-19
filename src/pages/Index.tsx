@@ -255,32 +255,7 @@ const BloodTestDashboard: React.FC = () => {
         </div>
       ) : (
         <>
-          {/* Demo Data Banner - iOS Health style */}
-          {isUsingDemoData && (
-            <div className="bg-white border border-gray-200 apple-rounded-large apple-p-4 mb-6 shadow-sm">
-              <div className="flex items-start apple-gap-3">
-                <div className="w-8 h-8 bg-orange-500 apple-rounded-medium flex items-center justify-center flex-shrink-0">
-                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-base font-semibold text-gray-900 mb-1">Demo Data Active</div>
-                      <div className="text-sm text-gray-600 leading-relaxed">
-                        You're viewing sample blood test results. This data is fictional and for demonstration purposes only.
-                      </div>
-                    </div>
-                    <div className="ml-4 flex items-center apple-gap-2 px-3 py-1 bg-orange-100 apple-rounded-medium">
-                      <span className="w-2 h-2 bg-orange-500 apple-rounded-small animate-pulse"></span>
-                      <span className="text-xs font-semibold text-orange-700 uppercase tracking-wide">DEMO</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+
 
           {/* Mobile-Optimized Navigation Header */}
           <nav className="w-full bg-white border-b border-gray-200 shadow-sm mb-4 md:mb-6">
