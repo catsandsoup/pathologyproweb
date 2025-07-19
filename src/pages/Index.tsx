@@ -78,6 +78,36 @@ const BloodTestDashboard: React.FC = () => {
     return () => window.removeEventListener('loadDemo', handleLoadDemoFromEvent);
   }, []);
 
+  // Regenerate demo data when biological sex changes (only for demo data)
+  useEffect(() => {
+    if (isUsingDemoData && sessionState.userProfile.biologicalSex) {
+      // Determine the appropriate demo profile based on current profile and new biological sex
+      let newProfile: DemoProfile;
+      
+      if (currentDemoProfile.includes('elderly')) {
+        newProfile = sessionState.userProfile.biologicalSex === 'male' ? 'elderly-male' : 'elderly-female';
+      } else {
+        newProfile = sessionState.userProfile.biologicalSex === 'male' ? 'healthy-male' : 'healthy-female';
+      }
+      
+      // Only regenerate if the profile actually changed
+      if (newProfile !== currentDemoProfile) {
+        const { chartData, calculatedMetrics, parameters: demoParams } = generateSampleData(newProfile);
+        setData(chartData);
+        setParameters(demoParams);
+        setMetrics(calculatedMetrics);
+        setCurrentDemoProfile(newProfile);
+        
+        // Keep the same selected parameter if it exists in the new data
+        if (selectedParameter && demoParams.includes(selectedParameter)) {
+          setSelectedParameter(selectedParameter);
+        } else if (demoParams.length > 0) {
+          setSelectedParameter(demoParams[0]);
+        }
+      }
+    }
+  }, [sessionState.userProfile.biologicalSex, isUsingDemoData]);
+
   // Function to return to landing page
   const handleReturnToHome = () => {
     setHasData(false);
